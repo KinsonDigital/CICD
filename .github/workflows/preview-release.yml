@@ -1,6 +1,11 @@
 name: 🚀Preview Release
 
 
+defaults:
+  run:
+    shell: pwsh
+
+
 env:
   PROJECT_NAME: CICD
   BUILD_CONFIG: Debug
@@ -15,7 +20,7 @@ on:
 jobs:
   Validate_Version:
     name: Validate Version
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
 
@@ -54,7 +59,7 @@ jobs:
 
   Validate_Branch_Name:
     name: Validate Branch Name
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
     # TODO: Replace this with the new upcoming branch validation github action
     - name: Validate Branch Name
@@ -73,7 +78,7 @@ jobs:
 
   Validate_Release_Notes_Exist:
     name: Validate Release Notes Exist
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
 
@@ -101,7 +106,7 @@ jobs:
 
   Build_Test_Publish_Library:
     name: Build, Test & Publish
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     needs: [Validate_Version, Validate_Branch_Name, Validate_Release_Notes_Exist]
     steps:
     - uses: actions/checkout@v2
