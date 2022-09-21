@@ -1,8 +1,15 @@
+// <copyright file="CICD.Common.Build.cs" company="KinsonDigital">
+// Copyright (c) KinsonDigital. All rights reserved.
+// </copyright>
+
 using System;
 using Nuke.Common;
 using Nuke.Common.Tools.DotNet;
 using Serilog;
 
+/// <summary>
+/// Contains all of the build related targets.
+/// </summary>
 public partial class CICD // Common.Build
 {
     private Target BuildAllProjects => _ => _
@@ -11,14 +18,6 @@ public partial class CICD // Common.Build
         {
             Log.Information($"✅ Building All Projects ✅");
             BuildProjects(ProjectTypes.All);
-        });
-
-    private Target BuildAllRegularProjects => _ => _
-        .DependsOn(RestoreSolution)
-        .Executes(() =>
-        {
-            Log.Information($"✅ Building All Regular Projects ✅");
-            BuildProjects(ProjectTypes.Regular);
         });
 
     private Target BuildAllTestProjects => _ => _

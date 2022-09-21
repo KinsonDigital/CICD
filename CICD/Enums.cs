@@ -1,3 +1,7 @@
+// <copyright file="Enums.cs" company="KinsonDigital">
+// Copyright (c) KinsonDigital. All rights reserved.
+// </copyright>
+
 public enum ReleaseType
 {
     Production,

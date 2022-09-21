@@ -20,20 +20,6 @@ public partial class CICD // Common
             DotNetTasks.DotNetRestore(s => DotNetRestoreSettingsExtensions.SetProjectFile<DotNetRestoreSettings>(s, this.Solution));
         });
 
-
-    private Target SendTweetAnnouncement => _ => _
-        .Requires(() => IsServerBuild)
-        .Requires(() => TwitterConsumerApiKey)
-        .Requires(() => TwitterConsumerApiSecret)
-        .Requires(() => TwitterAccessToken)
-        .Requires(() => TwitterAccessTokenSecret)
-        .Executes(async () =>
-        {
-            // Validate that the keys, tokens, and secrets are not null or empty
-            await TwitterTasks.SendTweetAsync(
-                message: "Hello from NUKE", TwitterConsumerApiKey, TwitterConsumerApiSecret, TwitterAccessToken, TwitterAccessTokenSecret);
-        });
-
     private void CreateNugetPackage()
     {
         DeleteAllNugetPackages();
@@ -274,16 +260,6 @@ public partial class CICD // Common
         return -1;
     }
 
-    // TODO: Possibly get rid of this
-    private async Task<(bool isValid, int issueNum)> BranchIssueNumberValid(BranchType branchType)
-    {
-        var sourceBranch = GitHubActions?.HeadRef ?? string.Empty;
-        var issueClient = GitHubClient.Issue;
-        var issueNumber = ExtractIssueNumber(branchType, sourceBranch);
-
-        return (await issueClient.IssueExists(Owner, MainProjName, issueNumber), issueNumber);
-    }
-
     private bool NugetPackageDoesNotExist()
     {
         var project = this.Solution.GetProject(MainProjName);
@@ -369,24 +345,5 @@ public partial class CICD // Common
             .Any(m => m.Title.IsPreviewVersion() && m.Title.StartsWith(prodVersion));
 
         return prodContainsPreviewReleases;
-    }
-
-    private async Task<bool> GetIssuesForProdVersionPreviewReleases(string version)
-    {
-        if (version.IsPreviewVersion())
-        {
-            throw new Exception($"The version '{version}' must not be a preview version.");
-        }
-
-        var issueClient = GitHubClient.Issue;
-        var milestoneClient = issueClient.Milestone;
-
-        var milestoneNames = (from m in await milestoneClient.GetAllForRepository(Owner, MainProjName)
-            where m.Title.IsPreviewVersion() && m.Title.StartsWith(version)
-            select m.Title).ToArray();
-
-        var issues = await issueClient.IssuesForMilestones(Owner, MainProjName, milestoneNames);
-
-        return false;
     }
 }

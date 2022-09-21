@@ -7,7 +7,7 @@ using Serilog;
 
 public partial class CICD // Requirements
 {
-    bool ThatThisIsExecutedFromPullRequest(params BranchType[] targetBranches)
+    private bool ThatThisIsExecutedFromPullRequest(params BranchType[] targetBranches)
     {
         nameof(ThatThisIsExecutedFromPullRequest)
             .LogRequirementTitle($"Checking if the run was started automatically from a pull request.");
@@ -30,7 +30,7 @@ public partial class CICD // Requirements
         return true;
     }
 
-    bool ThatThisIsExecutedManually(params BranchType[] targetBranches)
+    private bool ThatThisIsExecutedManually(params BranchType[] targetBranches)
     {
         nameof(ThatThisIsExecutedManually)
             .LogRequirementTitle($"Checking if the run was manually executed.");
@@ -53,16 +53,14 @@ public partial class CICD // Requirements
         return true;
     }
 
-    bool ThatThePRHasBeenAssigned()
+    private bool ThatThePRHasBeenAssigned()
     {
         var prClient = GitHubClient.PullRequest;
 
         nameof(ThatThePRHasBeenAssigned)
             .LogRequirementTitle($"Checking if the pull request as been assigned to someone.");
 
-        var prNumber = GitHubActions.PullRequestNumber is null
-            ? -1
-            : (int)(GitHubActions.PullRequestNumber);
+        var prNumber = GitHubActions?.PullRequestNumber ?? -1;
 
         if (prClient.HasAssignees(Owner, MainProjName, prNumber).Result)
         {
@@ -80,7 +78,7 @@ public partial class CICD // Requirements
         return true;
     }
 
-    bool ThatFeaturePRIssueNumberExists()
+    private bool ThatFeaturePRIssueNumberExists()
     {
         var sourceBranch = GitHubActions?.HeadRef ?? string.Empty;
 
@@ -105,7 +103,7 @@ public partial class CICD // Requirements
         return true;
     }
 
-    bool ThatPreviewFeaturePRIssueNumberExists()
+    private bool ThatPreviewFeaturePRIssueNumberExists()
     {
         var sourceBranch = GitHubActions?.HeadRef ?? string.Empty;
 
@@ -130,7 +128,7 @@ public partial class CICD // Requirements
         return true;
     }
 
-    bool ThatFeaturePRIssueHasLabel(BranchType branchType)
+    private bool ThatFeaturePRIssueHasLabel(BranchType branchType)
     {
         var errors = new List<string>();
         // TODO: throw error is anything else other then feature, preview feature or hotfix
@@ -191,7 +189,7 @@ public partial class CICD // Requirements
         return false;
     }
 
-    bool ThatPRHasLabels()
+    private bool ThatPRHasLabels()
     {
         var prClient = GitHubClient.PullRequest;
 
@@ -200,7 +198,7 @@ public partial class CICD // Requirements
 
         var prNumber = GitHubActions is null || GitHubActions.PullRequestNumber is null
             ? -1
-            : (int)(GitHubActions.PullRequestNumber);
+            : (int)GitHubActions.PullRequestNumber;
 
         if (prClient.HasLabels(Owner, MainProjName, prNumber).Result)
         {
@@ -218,7 +216,7 @@ public partial class CICD // Requirements
         return true;
     }
 
-    bool ThatThePRHasTheLabel(string labelName)
+    private bool ThatThePRHasTheLabel(string labelName)
     {
         var prNumber = GitHubActions?.PullRequestNumber ?? -1;
         var labelExists = false;
@@ -251,7 +249,7 @@ public partial class CICD // Requirements
         return true;
     }
 
-    bool ThatThePRTargetBranchIsValid(BranchType branchType)
+    private bool ThatThePRTargetBranchIsValid(BranchType branchType)
     {
         var targetBranch = GitHubActions?.BaseRef ?? string.Empty;
         var validMsg = string.Empty;
@@ -291,7 +289,7 @@ public partial class CICD // Requirements
         return false;
     }
 
-    bool ThatTheCurrentBranchIsCorrect(BranchType branchType)
+    private bool ThatTheCurrentBranchIsCorrect(BranchType branchType)
     {
         var branchTypeStr = branchType.ToString().ToLower();
 
@@ -325,7 +323,7 @@ public partial class CICD // Requirements
         return true;
     }
 
-    bool ThatThePRSourceBranchIsValid(BranchType branchType)
+    private bool ThatThePRSourceBranchIsValid(BranchType branchType)
     {
         var sourceBranch = GitHubActions?.HeadRef ?? string.Empty;
         var validMsg = string.Empty;
@@ -363,7 +361,7 @@ public partial class CICD // Requirements
         return false;
     }
 
-    bool ThatThePreviewPRBranchVersionsMatch(ReleaseType releaseType)
+    private bool ThatThePreviewPRBranchVersionsMatch(ReleaseType releaseType)
     {
         var sourceBranch = GitHubActions?.HeadRef ?? string.Empty;
         var targetBranch = GitHubActions?.BaseRef ?? string.Empty;
@@ -446,7 +444,7 @@ public partial class CICD // Requirements
         return false;
     }
 
-    bool ThatTheCurrentBranchVersionMatchesProjectVersion(BranchType branchType)
+    private bool ThatTheCurrentBranchVersionMatchesProjectVersion(BranchType branchType)
     {
         var targetBranch = this.Repo.Branch ?? string.Empty;
         var project = this.Solution.GetProject(MainProjName);
@@ -502,7 +500,7 @@ public partial class CICD // Requirements
         return false;
     }
 
-    bool ThatTheProjectVersionsAreValid(ReleaseType releaseType)
+    private bool ThatTheProjectVersionsAreValid(ReleaseType releaseType)
     {
         var project = this.Solution.GetProject(MainProjName);
         var errors = new List<string>();
@@ -618,7 +616,7 @@ public partial class CICD // Requirements
         return errors.Count <= 0;
     }
 
-    bool ThatThePRSourceBranchVersionSectionMatchesProjectVersion(ReleaseType releaseType)
+    private bool ThatThePRSourceBranchVersionSectionMatchesProjectVersion(ReleaseType releaseType)
     {
         var sourceBranch = GitHubActions?.HeadRef ?? string.Empty;
         var errors = new List<string>();
@@ -666,7 +664,7 @@ public partial class CICD // Requirements
         return false;
     }
 
-    bool ThatTheReleaseMilestoneExists()
+    private bool ThatTheReleaseMilestoneExists()
     {
         var project = this.Solution.GetProject(MainProjName);
         var errors = new List<string>();
@@ -702,7 +700,7 @@ public partial class CICD // Requirements
         return false;
     }
 
-    bool ThatTheReleaseMilestoneContainsIssues()
+    private bool ThatTheReleaseMilestoneContainsIssues()
     {
         var project = this.Solution.GetProject(MainProjName);
         var errors = new List<string>();
@@ -732,7 +730,6 @@ public partial class CICD // Requirements
 
         if (totalMilestoneIssues == 0)
         {
-            var milestoneUrl = $"https://github.com/{Owner}/{MainProjName}/milestones/new";
             var errorMsg = $"The milestone for version '{projectVersion}' does not contain any issues or pull requests.";
             errorMsg += $"{Environment.NewLine}{ConsoleTab}Add some issues to the milestone";
             errors.Add(errorMsg);
@@ -748,7 +745,7 @@ public partial class CICD // Requirements
         return false;
     }
 
-    bool ThatTheReleaseMilestoneOnlyContainsSingle(ReleaseType releaseType, ItemType itemType)
+    private bool ThatTheReleaseMilestoneOnlyContainsSingle(ReleaseType releaseType, ItemType itemType)
     {
         const int totalSpaces = 15;
         var project = this.Solution.GetProject(MainProjName);
@@ -850,7 +847,7 @@ public partial class CICD // Requirements
         return false;
     }
 
-    bool ThatAllOfTheReleaseMilestoneIssuesAreClosed(ReleaseType releaseType, bool skipReleaseToDoIssues)
+    private bool ThatAllOfTheReleaseMilestoneIssuesAreClosed(ReleaseType releaseType, bool skipReleaseToDoIssues)
     {
         var project = this.Solution.GetProject(MainProjName);
         var errors = new List<string>();
@@ -892,7 +889,7 @@ public partial class CICD // Requirements
         return false;
     }
 
-    bool ThatAllOfTheReleaseMilestonePullRequestsAreClosed(ReleaseType releaseType, bool skipReleaseToDoPullRequests)
+    private bool ThatAllOfTheReleaseMilestonePullRequestsAreClosed(ReleaseType releaseType, bool skipReleaseToDoPullRequests)
     {
         var project = this.Solution.GetProject(MainProjName);
         var errors = new List<string>();
@@ -931,7 +928,7 @@ public partial class CICD // Requirements
         return false;
     }
 
-    bool ThatAllMilestoneIssuesHaveLabels()
+    private bool ThatAllMilestoneIssuesHaveLabels()
     {
         var project = this.Solution.GetProject(MainProjName);
         var errors = new List<string>();
@@ -973,7 +970,7 @@ public partial class CICD // Requirements
         return false;
     }
 
-    bool ThatAllMilestonePullRequestsHaveLabels()
+    private bool ThatAllMilestonePullRequestsHaveLabels()
     {
         var project = this.Solution.GetProject(MainProjName);
         var errors = new List<string>();
@@ -1015,7 +1012,7 @@ public partial class CICD // Requirements
         return false;
     }
 
-    bool ThatTheReleaseTagDoesNotAlreadyExist(ReleaseType releaseType)
+    private bool ThatTheReleaseTagDoesNotAlreadyExist(ReleaseType releaseType)
     {
         var project = this.Solution.GetProject(MainProjName);
         var errors = new List<string>();
@@ -1053,7 +1050,7 @@ public partial class CICD // Requirements
         return false;
     }
 
-    bool ThatTheReleaseNotesExist(ReleaseType releaseType)
+    private bool ThatTheReleaseNotesExist(ReleaseType releaseType)
     {
         var project = this.Solution.GetProject(MainProjName);
         var errors = new List<string>();
@@ -1092,7 +1089,7 @@ public partial class CICD // Requirements
         return false;
     }
 
-    bool ThatTheReleaseNotesTitleIsCorrect(ReleaseType releaseType)
+    private bool ThatTheReleaseNotesTitleIsCorrect(ReleaseType releaseType)
     {
         var project = this.Solution.GetProject(MainProjName);
         var errors = new List<string>();
@@ -1146,7 +1143,7 @@ public partial class CICD // Requirements
         return false;
     }
 
-    bool ThatMilestoneIssuesExistInReleaseNotes(ReleaseType releaseType)
+    private bool ThatMilestoneIssuesExistInReleaseNotes(ReleaseType releaseType)
     {
         const int totalIndexSpaces = 15;
         var indent = totalIndexSpaces.CreateDuplicateCharacters(' ');
@@ -1200,7 +1197,7 @@ public partial class CICD // Requirements
         return false;
     }
 
-    bool ThatTheProdReleaseNotesContainsPreviewReleaseSection()
+    private bool ThatTheProdReleaseNotesContainsPreviewReleaseSection()
     {
         var project = this.Solution.GetProject(MainProjName);
         var errors = new List<string>();
@@ -1266,7 +1263,7 @@ public partial class CICD // Requirements
         return false;
     }
 
-    bool ThatTheProdReleaseNotesContainsPreviewReleaseItems()
+    private bool ThatTheProdReleaseNotesContainsPreviewReleaseItems()
     {
         var project = this.Solution.GetProject(MainProjName);
         var errors = new List<string>();
@@ -1348,7 +1345,7 @@ public partial class CICD // Requirements
         return false;
     }
 
-    bool ThatGitHubReleaseDoesNotExist(ReleaseType releaseType)
+    private bool ThatGitHubReleaseDoesNotExist(ReleaseType releaseType)
     {
         var project = this.Solution.GetProject(MainProjName);
         var errors = new List<string>();
