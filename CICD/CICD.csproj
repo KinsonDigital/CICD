@@ -35,6 +35,9 @@
       
     <!--TODO: Set a package icon-->
     <PackageIcon></PackageIcon>
+
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>cicd</ToolCommandName>
   </PropertyGroup>
 
   <ItemGroup>
