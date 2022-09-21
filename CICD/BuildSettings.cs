@@ -1,10 +1,8 @@
-namespace CICD;
-
 public class BuildSettings
 {
-    public string Owner { get; set; }
+    public string Owner { get; set; } = string.Empty;
 
-    public string MainProjectName { get; set; }
+    public string MainProjectName { get; set; } = string.Empty;
 
     public string? MainProjectFileName { get; set; }
 

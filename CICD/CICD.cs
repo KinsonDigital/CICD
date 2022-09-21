@@ -4,13 +4,10 @@ using Nuke.Common.CI.GitHubActions;
 using Nuke.Common.Git;
 using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
-using CICD.Services;
 using Octokit;
 using Octokit.Internal;
-using Serilog;
+using Services;
 using NukeParameter = Nuke.Common.ParameterAttribute;
-
-namespace CICD;
 
 // TODO: Add editorconfig to build project and tweak until it fits
 
@@ -36,7 +33,7 @@ public partial class CICD : NukeBuild
         if (loadResult.loadSuccessful)
         {
             buildSettings = loadResult.settings ??
-                    throw new Exception("The build settings are null.  Build canceled!!");
+                            throw new Exception("The build settings are null.  Build canceled!!");
 
             Owner = buildSettings.Owner ?? string.Empty;
             MainProjName = buildSettings.MainProjectName ?? string.Empty;
@@ -124,7 +121,7 @@ public partial class CICD : NukeBuild
 
     static string GetGitHubToken()
     {
-        if (NukeBuild.IsServerBuild)
+        if (IsServerBuild)
         {
             return GitHubActions.Instance.Token;
         }
@@ -141,7 +138,7 @@ public partial class CICD : NukeBuild
         var token = GetGitHubToken();
         GitHubClient client;
 
-        if (NukeBuild.IsServerBuild)
+        if (IsServerBuild)
         {
             client = new GitHubClient(new ProductHeaderValue(MainProjName),
                 new InMemoryCredentialStore(new Credentials(token)));
@@ -159,7 +156,7 @@ public partial class CICD : NukeBuild
             else
             {
                 client = new GitHubClient(new ProductHeaderValue(MainProjName),
-                new InMemoryCredentialStore(new Credentials(token)));
+                    new InMemoryCredentialStore(new Credentials(token)));
             }
         }
 

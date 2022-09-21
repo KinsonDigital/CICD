@@ -1,11 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 
-namespace CICD.Services;
+namespace Services;
 
 public class BuildSettingsService
 {
@@ -16,7 +15,7 @@ public class BuildSettingsService
 
     public BuildSettingsService()
     {
-        ExecutionPath = ExecutionPath.Replace('\\', '/').TrimEnd('/');
+        this.ExecutionPath = this.ExecutionPath.Replace('\\', '/').TrimEnd('/');
         this.rootRepoDirPath = GetRepoRootDirPath().TrimEnd('/');
 
         if (string.IsNullOrEmpty(this.rootRepoDirPath))
@@ -70,7 +69,7 @@ public class BuildSettingsService
 
     private string GetRepoRootDirPath()
     {
-        var pathSections = ExecutionPath.Split('/').ToList();
+        var pathSections = this.ExecutionPath.Split('/').ToList();
 
         bool IsRoot(string[] pathSections)
         {

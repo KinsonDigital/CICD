@@ -1,16 +1,8 @@
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Nuke.Common;
-using Nuke.Common.CI.GitHubActions;
-using CICD.Services;
-using Octokit;
 using Serilog;
-
-namespace CICD;
+using Services;
 
 public partial class CICD // StatusChecks
 {
@@ -28,7 +20,7 @@ public partial class CICD // StatusChecks
         });
 
 
-    Target UnitTestStatusCheck => _ => _
+    private Target UnitTestStatusCheck => _ => _
         .Before(RunAllUnitTests)
         .Triggers(RunAllUnitTests)
         .Executes(async () =>
@@ -45,7 +37,7 @@ public partial class CICD // StatusChecks
         });
 
 
-    Target FeaturePRStatusCheck => _ => _
+    private Target FeaturePRStatusCheck => _ => _
         .Requires(
             () => ThatThisIsExecutedFromPullRequest(BranchType.Develop),
             () => ThatThePRSourceBranchIsValid(BranchType.Feature),
@@ -57,7 +49,7 @@ public partial class CICD // StatusChecks
         );
 
 
-    Target PreviewFeaturePRStatusCheck => _ => _
+    private Target PreviewFeaturePRStatusCheck => _ => _
         .Requires(
             () => ThatThisIsExecutedFromPullRequest(BranchType.PreviewFeature),
             () => ThatThePRSourceBranchIsValid(BranchType.PreviewFeature),
@@ -69,7 +61,7 @@ public partial class CICD // StatusChecks
         );
 
 
-    Target HotFixPRStatusCheck => _ => _
+    private Target HotFixPRStatusCheck => _ => _
         .Requires(
             () => ThatThisIsExecutedFromPullRequest(BranchType.Master),
             () => ThatThePRSourceBranchIsValid(BranchType.HotFix),
@@ -81,7 +73,7 @@ public partial class CICD // StatusChecks
         );
 
 
-    Target PrevReleasePRStatusCheck => _ => _
+    private Target PrevReleasePRStatusCheck => _ => _
         .Requires(
             () => ThatThisIsExecutedFromPullRequest(BranchType.Release),
             () => ThatThePRSourceBranchIsValid(BranchType.Preview),
@@ -107,7 +99,7 @@ public partial class CICD // StatusChecks
         );
 
 
-    Target ProdReleasePRStatusCheck => _ => _
+    private Target ProdReleasePRStatusCheck => _ => _
         .Requires(
             () => ThatThisIsExecutedFromPullRequest(BranchType.Master, BranchType.Develop),
             () => ThatThePRSourceBranchIsValid(BranchType.Release),
@@ -135,7 +127,7 @@ public partial class CICD // StatusChecks
         );
 
 
-    Target DebugTask => _ => _
+    private Target DebugTask => _ => _
         .Executes(async () =>
         {
             Log.Information("Execution of debug task");
@@ -146,7 +138,7 @@ public partial class CICD // StatusChecks
         });
 
 
-    Target GenerateSettingsFile => _ => _
+    private Target GenerateSettingsFile => _ => _
         .Executes(() =>
         {
             var buildSettingsService = new BuildSettingsService();
@@ -154,7 +146,7 @@ public partial class CICD // StatusChecks
         });
 
 
-    async Task ValidateBranchForStatusCheck()
+    private async Task ValidateBranchForStatusCheck()
     {
         var validBranch = false;
         var branch = string.Empty;
@@ -162,13 +154,13 @@ public partial class CICD // StatusChecks
         // This is if the workflow is execution locally or manually in GitHub using workflow_dispatch
         bool ValidBranchForManualExecution()
         {
-            return (Repo.Branch?.IsMasterBranch() ?? false) ||
-                   (Repo.Branch?.IsDevelopBranch() ?? false) ||
-                   (Repo.Branch?.IsFeatureBranch() ?? false) ||
-                   (Repo.Branch?.IsPreviewFeatureBranch() ?? false) ||
-                   (Repo.Branch?.IsPreviewBranch() ?? false) ||
-                   (Repo.Branch?.IsReleaseBranch() ?? false) ||
-                   (Repo.Branch?.IsHotFixBranch() ?? false);
+            return (this.Repo.Branch?.IsMasterBranch() ?? false) ||
+                   (this.Repo.Branch?.IsDevelopBranch() ?? false) ||
+                   (this.Repo.Branch?.IsFeatureBranch() ?? false) ||
+                   (this.Repo.Branch?.IsPreviewFeatureBranch() ?? false) ||
+                   (this.Repo.Branch?.IsPreviewBranch() ?? false) ||
+                   (this.Repo.Branch?.IsReleaseBranch() ?? false) ||
+                   (this.Repo.Branch?.IsHotFixBranch() ?? false);
         }
 
         // If the build is on the server and the GitHubActions object exists
@@ -179,12 +171,12 @@ public partial class CICD // StatusChecks
                   GitHubActions.BaseRef.IsDevelopBranch() || GitHubActions.BaseRef.IsMasterBranch()
                 : ValidBranchForManualExecution(); // Manual execution
 
-            branch = IsPullRequest() ? GitHubActions.BaseRef : Repo.Branch;
+            branch = IsPullRequest() ? GitHubActions.BaseRef : this.Repo.Branch;
         }
         else if (IsLocalBuild || GitHubActions is null)
         {
             validBranch = ValidBranchForManualExecution();
-            branch = Repo.Branch;
+            branch = this.Repo.Branch;
         }
 
         if (validBranch)
@@ -205,7 +197,7 @@ public partial class CICD // StatusChecks
         }
     }
 
-    async Task<bool> ValidBranchIssueNumber(string branch)
+    private async Task<bool> ValidBranchIssueNumber(string branch)
     {
         // If the branch is not a branch with an issue number, return as valid
         if (!branch.IsFeatureBranch() && !branch.IsPreviewFeatureBranch() && !branch.IsHotFixBranch())
@@ -220,7 +212,7 @@ public partial class CICD // StatusChecks
         return await issueClient.IssueExists(Owner, MainProjName, issueNumber);
     }
 
-    int ParseIssueNumber(string branch)
+    private int ParseIssueNumber(string branch)
     {
         if (string.IsNullOrEmpty(branch))
         {

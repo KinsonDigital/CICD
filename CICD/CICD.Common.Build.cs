@@ -2,13 +2,10 @@ using System;
 using Nuke.Common;
 using Nuke.Common.Tools.DotNet;
 using Serilog;
-using static Nuke.Common.Tools.DotNet.DotNetTasks;
-
-namespace CICD;
 
 public partial class CICD // Common.Build
 {
-    Target BuildAllProjects => _ => _
+    private Target BuildAllProjects => _ => _
         .DependsOn(RestoreSolution)
         .Executes(() =>
         {
@@ -16,7 +13,7 @@ public partial class CICD // Common.Build
             BuildProjects(ProjectTypes.All);
         });
 
-    Target BuildAllRegularProjects => _ => _
+    private Target BuildAllRegularProjects => _ => _
         .DependsOn(RestoreSolution)
         .Executes(() =>
         {
@@ -24,7 +21,7 @@ public partial class CICD // Common.Build
             BuildProjects(ProjectTypes.Regular);
         });
 
-    Target BuildAllTestProjects => _ => _
+    private Target BuildAllTestProjects => _ => _
         .DependsOn(RestoreSolution)
         .Executes(() =>
         {
@@ -34,7 +31,7 @@ public partial class CICD // Common.Build
 
     private void BuildProjects(ProjectTypes projectTypes)
     {
-        var projects = Solution.AllProjects;
+        var projects = this.Solution.AllProjects;
 
         foreach (var project in projects)
         {
@@ -53,8 +50,7 @@ public partial class CICD // Common.Build
 
             if (runnable)
             {
-                DotNetBuild(s => s
-                    .SetProjectFile(project.Path)
+                DotNetTasks.DotNetBuild(s => DotNetBuildSettingsExtensions.SetProjectFile<DotNetBuildSettings>(s, project.Path)
                     .SetConfiguration(Configuration)
                     .EnableNoRestore());
             }

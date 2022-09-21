@@ -1,19 +1,15 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using GlobExpressions;
 using Nuke.Common;
 using Nuke.Common.Tools.DotNet;
-using CICD.Services;
+using Nuke.Common.Tools.Twitter;
 using Octokit;
 using Serilog;
-using static Nuke.Common.Tools.DotNet.DotNetTasks;
-using static Nuke.Common.Tools.Twitter.TwitterTasks;
-
-namespace CICD;
+using Services;
 
 public partial class CICD // Common
 {
@@ -21,34 +17,28 @@ public partial class CICD // Common
         .After(BuildStatusCheck, UnitTestStatusCheck)
         .Executes(() =>
         {
-            DotNetRestore(s => s
-                .SetProjectFile(Solution));
+            DotNetTasks.DotNetRestore(s => DotNetRestoreSettingsExtensions.SetProjectFile<DotNetRestoreSettings>(s, this.Solution));
         });
 
 
     Target SendTweetAnnouncement => _ => _
         .Requires(() => IsServerBuild)
-        .Requires(() => TwitterConsumerApiKey)
-        .Requires(() => TwitterConsumerApiSecret)
-        .Requires(() => TwitterAccessToken)
-        .Requires(() => TwitterAccessTokenSecret)
+        .Requires(() => this.TwitterConsumerApiKey)
+        .Requires(() => this.TwitterConsumerApiSecret)
+        .Requires(() => this.TwitterAccessToken)
+        .Requires(() => this.TwitterAccessTokenSecret)
         .Executes(async () =>
         {
             // Validate that the keys, tokens, and secrets are not null or empty
-            await SendTweetAsync(
-                message: "Hello from NUKE",
-                TwitterConsumerApiKey,
-                TwitterConsumerApiSecret,
-                TwitterAccessToken,
-                TwitterAccessTokenSecret);
+            await TwitterTasks.SendTweetAsync(
+                message: "Hello from NUKE", this.TwitterConsumerApiKey, this.TwitterConsumerApiSecret, this.TwitterAccessToken, this.TwitterAccessTokenSecret);
         });
 
     void CreateNugetPackage()
     {
         DeleteAllNugetPackages();
 
-        DotNetPack(s => s
-            .SetConfiguration(Configuration)
+        DotNetTasks.DotNetPack(s => DotNetPackSettingsExtensions.SetConfiguration<DotNetPackSettings>(s, Configuration)
             .SetProject(MainProjPath)
             .SetOutputDirectory(NugetOutputPath)
             .EnableNoRestore());
@@ -67,10 +57,9 @@ public partial class CICD // Common
 
         if (File.Exists(fullPackagePath))
         {
-            DotNetNuGetPush(s => s
-                .SetTargetPath(fullPackagePath)
+            DotNetTasks.DotNetNuGetPush(s => DotNetNuGetPushSettingsExtensions.SetTargetPath<DotNetNuGetPushSettings>(s, fullPackagePath)
                 .SetSource(NugetOrgSource)
-                .SetApiKey(NugetOrgApiKey));
+                .SetApiKey(this.NugetOrgApiKey));
         }
         else
         {
@@ -97,11 +86,7 @@ public partial class CICD // Common
         tweetTemplate = tweetTemplate.Replace(repoOwner, "KinsonDigital");
         tweetTemplate = tweetTemplate.Replace(version, releaseVersion);
 
-        SendTweet(tweetTemplate,
-            TwitterConsumerApiKey,
-            TwitterConsumerApiSecret,
-            TwitterAccessToken,
-            TwitterAccessTokenSecret);
+        TwitterTasks.SendTweet(tweetTemplate, this.TwitterConsumerApiKey, this.TwitterConsumerApiSecret, this.TwitterAccessToken, this.TwitterAccessTokenSecret);
     }
 
     bool IsPullRequest()
@@ -235,8 +220,8 @@ public partial class CICD // Common
             throw new ArgumentException($"The version does not have the correct syntax for a {releaseType.ToString().ToLower()} release.");
         }
 
-        var releaseNotesFilePath = Solution.BuildReleaseNotesFilePath(releaseType, version);
-        var releaseNotes = Solution.GetReleaseNotes(releaseType, version);
+        var releaseNotesFilePath = this.Solution.BuildReleaseNotesFilePath(releaseType, version);
+        var releaseNotes = this.Solution.GetReleaseNotes(releaseType, version);
 
         if (string.IsNullOrEmpty(releaseNotes))
         {
@@ -249,7 +234,7 @@ public partial class CICD // Common
             Body = releaseNotes,
             Prerelease = releaseType == ReleaseType.Preview,
             Draft = false,
-            TargetCommitish = Repo.Commit,
+            TargetCommitish = this.Repo.Commit,
         };
 
         var releaseClient = GitHubClient.Repository.Release;
@@ -304,7 +289,7 @@ public partial class CICD // Common
 
     bool NugetPackageDoesNotExist()
     {
-        var project = Solution.GetProject(MainProjName);
+        var project = this.Solution.GetProject(MainProjName);
         var errors = new List<string>();
 
         nameof(NugetPackageDoesNotExist)

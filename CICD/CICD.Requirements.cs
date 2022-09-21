@@ -2,11 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Nuke.Common;
-using Nuke.Common.Tooling;
 using Octokit;
 using Serilog;
-
-namespace CICD;
 
 public partial class CICD // Requirements
 {
@@ -33,7 +30,7 @@ public partial class CICD // Requirements
         return true;
     }
 
-        bool ThatThisIsExecutedManually(params BranchType[] targetBranches)
+    bool ThatThisIsExecutedManually(params BranchType[] targetBranches)
     {
         nameof(ThatThisIsExecutedManually)
             .LogRequirementTitle($"Checking if the run was manually executed.");
@@ -301,27 +298,27 @@ public partial class CICD // Requirements
         nameof(ThatTheCurrentBranchIsCorrect)
             .LogRequirementTitle($"Checking that the current branch is a {branchTypeStr} branch.");
 
-        if (string.IsNullOrEmpty(Repo.Branch))
+        if (string.IsNullOrEmpty(this.Repo.Branch))
         {
             return false;
         }
 
         var isCorrectBranch = branchType switch
         {
-            BranchType.Master =>  Repo.Branch.IsMasterBranch(),
-            BranchType.Develop => Repo.Branch.IsDevelopBranch(),
-            BranchType.Feature => Repo.Branch.IsFeatureBranch(),
-            BranchType.PreviewFeature => Repo.Branch.IsPreviewFeatureBranch(),
-            BranchType.Release => Repo.Branch.IsReleaseBranch(),
-            BranchType.Preview => Repo.Branch.IsPreviewBranch(),
-            BranchType.HotFix => Repo.Branch.IsHotFixBranch(),
+            BranchType.Master => this.Repo.Branch.IsMasterBranch(),
+            BranchType.Develop => this.Repo.Branch.IsDevelopBranch(),
+            BranchType.Feature => this.Repo.Branch.IsFeatureBranch(),
+            BranchType.PreviewFeature => this.Repo.Branch.IsPreviewFeatureBranch(),
+            BranchType.Release => this.Repo.Branch.IsReleaseBranch(),
+            BranchType.Preview => this.Repo.Branch.IsPreviewBranch(),
+            BranchType.HotFix => this.Repo.Branch.IsHotFixBranch(),
             BranchType.Other => true,
             _ => throw new ArgumentOutOfRangeException(nameof(branchType), branchType, null)
         };
 
         if (isCorrectBranch is false)
         {
-            Log.Error($"The current branch {Repo.Branch} is not a '{branchTypeStr}' branch.");
+            Log.Error($"The current branch {this.Repo.Branch} is not a '{branchTypeStr}' branch.");
             Assert.Fail("The current branch is incorrect.");
         }
 
@@ -451,8 +448,8 @@ public partial class CICD // Requirements
 
     bool ThatTheCurrentBranchVersionMatchesProjectVersion(BranchType branchType)
     {
-        var targetBranch = Repo.Branch ?? string.Empty;
-        var project = Solution.GetProject(MainProjName);
+        var targetBranch = this.Repo.Branch ?? string.Empty;
+        var project = this.Solution.GetProject(MainProjName);
 
         var errors = new List<string>();
         var branchTypeStr = branchType.ToString().ToSpaceDelimitedSections().ToLower();
@@ -478,7 +475,7 @@ public partial class CICD // Requirements
             errors.Add($"Could not find the project '{MainProjName}'");
         }
 
-        var branchVersion = Repo.Branch?.ExtractBranchVersion().version.TrimStart('v');
+        var branchVersion = this.Repo.Branch?.ExtractBranchVersion().version.TrimStart('v');
         var projectVersion = string.IsNullOrEmpty(branchVersion)
             ? string.Empty
             : project?.GetVersion() ?? string.Empty;
@@ -507,7 +504,7 @@ public partial class CICD // Requirements
 
     bool ThatTheProjectVersionsAreValid(ReleaseType releaseType)
     {
-        var project = Solution.GetProject(MainProjName);
+        var project = this.Solution.GetProject(MainProjName);
         var errors = new List<string>();
 
         nameof(ThatTheProjectVersionsAreValid)
@@ -642,7 +639,7 @@ public partial class CICD // Requirements
 
         if (branchType is BranchType.Preview or BranchType.Release)
         {
-            var project = Solution.GetProject(MainProjName);
+            var project = this.Solution.GetProject(MainProjName);
             if (project is null)
             {
                 errors.Add($"Could not find the project '{MainProjName}'");
@@ -671,7 +668,7 @@ public partial class CICD // Requirements
 
     bool ThatTheReleaseMilestoneExists()
     {
-        var project = Solution.GetProject(MainProjName);
+        var project = this.Solution.GetProject(MainProjName);
         var errors = new List<string>();
 
         nameof(ThatTheReleaseMilestoneExists)
@@ -707,7 +704,7 @@ public partial class CICD // Requirements
 
     bool ThatTheReleaseMilestoneContainsIssues()
     {
-        var project = Solution.GetProject(MainProjName);
+        var project = this.Solution.GetProject(MainProjName);
         var errors = new List<string>();
 
         nameof(ThatTheReleaseMilestoneContainsIssues)
@@ -754,7 +751,7 @@ public partial class CICD // Requirements
     bool ThatTheReleaseMilestoneOnlyContainsSingle(ReleaseType releaseType, ItemType itemType)
     {
         const int totalSpaces = 15;
-        var project = Solution.GetProject(MainProjName);
+        var project = this.Solution.GetProject(MainProjName);
         var errors = new List<string>();
         var releaseTypeStr = releaseType.ToString().ToLower();
 
@@ -855,7 +852,7 @@ public partial class CICD // Requirements
 
     bool ThatAllOfTheReleaseMilestoneIssuesAreClosed(ReleaseType releaseType, bool skipReleaseToDoIssues)
     {
-        var project = Solution.GetProject(MainProjName);
+        var project = this.Solution.GetProject(MainProjName);
         var errors = new List<string>();
 
         nameof(ThatAllOfTheReleaseMilestoneIssuesAreClosed)
@@ -897,7 +894,7 @@ public partial class CICD // Requirements
 
     bool ThatAllOfTheReleaseMilestonePullRequestsAreClosed(ReleaseType releaseType, bool skipReleaseToDoPullRequests)
     {
-        var project = Solution.GetProject(MainProjName);
+        var project = this.Solution.GetProject(MainProjName);
         var errors = new List<string>();
 
         nameof(ThatAllOfTheReleaseMilestonePullRequestsAreClosed)
@@ -936,7 +933,7 @@ public partial class CICD // Requirements
 
     bool ThatAllMilestoneIssuesHaveLabels()
     {
-        var project = Solution.GetProject(MainProjName);
+        var project = this.Solution.GetProject(MainProjName);
         var errors = new List<string>();
 
         nameof(ThatAllMilestoneIssuesHaveLabels)
@@ -978,7 +975,7 @@ public partial class CICD // Requirements
 
     bool ThatAllMilestonePullRequestsHaveLabels()
     {
-        var project = Solution.GetProject(MainProjName);
+        var project = this.Solution.GetProject(MainProjName);
         var errors = new List<string>();
 
         nameof(ThatAllMilestonePullRequestsHaveLabels)
@@ -1020,7 +1017,7 @@ public partial class CICD // Requirements
 
     bool ThatTheReleaseTagDoesNotAlreadyExist(ReleaseType releaseType)
     {
-        var project = Solution.GetProject(MainProjName);
+        var project = this.Solution.GetProject(MainProjName);
         var errors = new List<string>();
 
         var releaseTypeStr = releaseType.ToString().ToLower();
@@ -1058,7 +1055,7 @@ public partial class CICD // Requirements
 
     bool ThatTheReleaseNotesExist(ReleaseType releaseType)
     {
-        var project = Solution.GetProject(MainProjName);
+        var project = this.Solution.GetProject(MainProjName);
         var errors = new List<string>();
 
         var releaseTypeStr = releaseType.ToString().ToLower();
@@ -1097,7 +1094,7 @@ public partial class CICD // Requirements
 
     bool ThatTheReleaseNotesTitleIsCorrect(ReleaseType releaseType)
     {
-        var project = Solution.GetProject(MainProjName);
+        var project = this.Solution.GetProject(MainProjName);
         var errors = new List<string>();
 
         var releaseTypeStr = releaseType.ToString().ToLower();
@@ -1124,7 +1121,7 @@ public partial class CICD // Requirements
             errors.Add(errorMsg);
         }
 
-        var releaseNotes = Solution.GetReleaseNotesAsLines(releaseType, projectVersion);
+        var releaseNotes = this.Solution.GetReleaseNotesAsLines(releaseType, projectVersion);
 
         var releaseNotesTitleSection = $"{MainProjName} {releaseType} Release Notes - ";
         var foundTitle = releaseNotes.Where(l => l.Contains(releaseNotesTitleSection)).ToArray();
@@ -1154,7 +1151,7 @@ public partial class CICD // Requirements
         const int totalIndexSpaces = 15;
         var indent = totalIndexSpaces.CreateDuplicateCharacters(' ');
         const string baseUrl = "https://github.com";
-        var project = Solution.GetProject(MainProjName);
+        var project = this.Solution.GetProject(MainProjName);
         var errors = new List<string>();
 
         var releaseTypeStr = releaseType.ToString().ToLower();
@@ -1171,7 +1168,7 @@ public partial class CICD // Requirements
         var milestoneTitle = $"v{projectVersion}";
 
         var milestoneIssues = GitHubClient.Issue.IssuesForMilestone(Owner, MainProjName, milestoneTitle).Result;
-        var releaseNotes = Solution.GetReleaseNotes(releaseType, projectVersion);
+        var releaseNotes = this.Solution.GetReleaseNotes(releaseType, projectVersion);
         if (string.IsNullOrEmpty(releaseNotes))
         {
             errors.Add($"No {releaseTypeStr} release notes exist to check for issue numbers.");
@@ -1180,11 +1177,11 @@ public partial class CICD // Requirements
         var issuesNotInReleaseNotes = string.IsNullOrEmpty(releaseNotes)
             ? Array.Empty<Issue>()
             : milestoneIssues.Where(i =>
-                {
-                    var issueNote = $"[#{i.Number}]({baseUrl}/{Owner}/{MainProjName}/issues/{i.Number})";
-                    return !i.IsReleaseToDoIssue(releaseType) &&
-                           !releaseNotes.Contains(issueNote);
-                }).ToArray();
+            {
+                var issueNote = $"[#{i.Number}]({baseUrl}/{Owner}/{MainProjName}/issues/{i.Number})";
+                return !i.IsReleaseToDoIssue(releaseType) &&
+                       !releaseNotes.Contains(issueNote);
+            }).ToArray();
 
         if (issuesNotInReleaseNotes.Length > 0)
         {
@@ -1205,7 +1202,7 @@ public partial class CICD // Requirements
 
     bool ThatTheProdReleaseNotesContainsPreviewReleaseSection()
     {
-        var project = Solution.GetProject(MainProjName);
+        var project = this.Solution.GetProject(MainProjName);
         var errors = new List<string>();
 
         nameof(ThatTheProdReleaseNotesContainsPreviewReleaseSection)
@@ -1230,7 +1227,7 @@ public partial class CICD // Requirements
 
         if (containsPreviewReleases)
         {
-            var releaseNotes = Solution.GetReleaseNotes(ReleaseType.Production, prodVersion);
+            var releaseNotes = this.Solution.GetReleaseNotes(ReleaseType.Production, prodVersion);
 
             if (string.IsNullOrEmpty(releaseNotes))
             {
@@ -1271,7 +1268,7 @@ public partial class CICD // Requirements
 
     bool ThatTheProdReleaseNotesContainsPreviewReleaseItems()
     {
-        var project = Solution.GetProject(MainProjName);
+        var project = this.Solution.GetProject(MainProjName);
         var errors = new List<string>();
 
         nameof(ThatTheProdReleaseNotesContainsPreviewReleaseSection)
@@ -1296,7 +1293,7 @@ public partial class CICD // Requirements
 
         if (containsPreviewReleases)
         {
-            var releaseNotes = Solution.GetReleaseNotes(ReleaseType.Production, prodVersion);
+            var releaseNotes = this.Solution.GetReleaseNotes(ReleaseType.Production, prodVersion);
 
             if (string.IsNullOrEmpty(releaseNotes))
             {
@@ -1314,10 +1311,10 @@ public partial class CICD // Requirements
 
                 var prevReleaseItems =
                     (from m in GitHubClient.Issue.Milestone.GetAllForRepository(Owner, MainProjName, milestoneRequest).Result
-                    where m.Title.IsPreviewVersion() && m.Title.StartsWith(prodVersion)
-                    select (
-                        m.Title,
-                        prevReleaseItem: $"[Preview Release {m.Title}]({m.HtmlUrl}) - Issues from preview release."
+                        where m.Title.IsPreviewVersion() && m.Title.StartsWith(prodVersion)
+                        select (
+                            m.Title,
+                            prevReleaseItem: $"[Preview Release {m.Title}]({m.HtmlUrl}) - Issues from preview release."
                         )).ToArray();
 
                 // Check if any of the preview release items do not exist
@@ -1353,7 +1350,7 @@ public partial class CICD // Requirements
 
     bool ThatGitHubReleaseDoesNotExist(ReleaseType releaseType)
     {
-        var project = Solution.GetProject(MainProjName);
+        var project = this.Solution.GetProject(MainProjName);
         var errors = new List<string>();
 
         var releaseTypeStr = releaseType.ToString().ToLower();

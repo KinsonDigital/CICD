@@ -2,8 +2,6 @@ using System;
 using Nuke.Common;
 using Serilog;
 
-namespace CICD;
-
 public partial class CICD // Release.Production
 {
     public Target ProductionRelease => _ => _
@@ -33,7 +31,7 @@ public partial class CICD // Release.Production
         .Executes(async () =>
         {
             var tweetTemplatePath = RootDirectory / ".github" / "ReleaseTweetTemplate.txt";
-            var version = Solution.GetProject(MainProjName)?.GetVersion() ?? string.Empty;
+            var version = this.Solution.GetProject(MainProjName)?.GetVersion() ?? string.Empty;
 
             version = version.StartsWith("v")
                 ? version

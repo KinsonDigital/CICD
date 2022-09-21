@@ -1,5 +1,3 @@
-namespace CICD;
-
 public enum ReleaseType
 {
     Production,

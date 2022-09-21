@@ -1,5 +1,3 @@
-namespace CICD;
-
 public static class WorkflowExpression
 {
     private const char expStart = '$';

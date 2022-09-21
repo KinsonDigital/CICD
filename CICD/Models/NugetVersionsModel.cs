@@ -4,7 +4,7 @@
 
 using System;
 
-namespace CICD.Models;
+namespace Models;
 
 /// <summary>
 /// Holds information about a NuGet package.

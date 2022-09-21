@@ -9,14 +9,12 @@ using Nuke.Common;
 using Nuke.Common.CI.GitHubActions;
 using Nuke.Common.Git;
 using Nuke.Common.ProjectModel;
+using Nuke.Common.Tools.Git;
 using Nuke.Common.Utilities;
 using Nuke.Common.Utilities.Collections;
 using Octokit;
 using Serilog;
-using static Nuke.Common.Tools.Git.GitTasks;
-using NukeProject = Nuke.Common.ProjectModel.Project;
-
-namespace CICD;
+using Project = Nuke.Common.ProjectModel.Project;
 
 public static class ExtensionMethods
 {
@@ -329,8 +327,8 @@ public static class ExtensionMethods
 
     public static void CreateTag(this GitRepository _, string tag)
     {
-        Git($"tag {tag}");
-        Git($"push origin {tag}");
+        GitTasks.Git($"tag {tag}");
+        GitTasks.Git($"push origin {tag}");
     }
 
     public static bool IsHotFixBranch(this string branch) => IsCorrectBranch(branch, "hotfix/#-*");
@@ -375,48 +373,48 @@ public static class ExtensionMethods
         return BranchType.Other;
     }
 
-    public static bool HasCorrectVersionSyntax(this NukeProject project, string versionPattern)
+    public static bool HasCorrectVersionSyntax(this Project project, string versionPattern)
     {
         var currentVersion = project.GetVersion();
 
         return EqualTo(currentVersion, versionPattern);
     }
 
-    public static bool HasCorrectFileVersionSyntax(this NukeProject project, string versionPattern)
+    public static bool HasCorrectFileVersionSyntax(this Project project, string versionPattern)
     {
         var currentVersion = project.GetFileVersion();
 
         return EqualTo(currentVersion, versionPattern);
     }
 
-    public static bool HasCorrectAssemblyVersionSyntax(this NukeProject project, string versionPattern)
+    public static bool HasCorrectAssemblyVersionSyntax(this Project project, string versionPattern)
     {
         var currentVersion = project.GetAssemblyVersion();
 
         return EqualTo(currentVersion, versionPattern);
     }
 
-    public static bool AllVersionsExist(this NukeProject project)
+    public static bool AllVersionsExist(this Project project)
     {
         return project.VersionExists() && project.FileVersionExists() && project.AssemblyVersionExists();
     }
 
-    public static bool VersionExists(this NukeProject project)
+    public static bool VersionExists(this Project project)
     {
         return !string.IsNullOrEmpty(project.GetProperty("Version"));
     }
 
-    public static bool FileVersionExists(this NukeProject project)
+    public static bool FileVersionExists(this Project project)
     {
         return !string.IsNullOrEmpty(project.GetProperty("FileVersion"));
     }
 
-    public static bool AssemblyVersionExists(this NukeProject project)
+    public static bool AssemblyVersionExists(this Project project)
     {
         return !string.IsNullOrEmpty(project.GetProperty("AssemblyVersion"));
     }
 
-    public static string GetVersion(this NukeProject project)
+    public static string GetVersion(this Project project)
     {
         var version = project.GetProperty("Version");
 
@@ -430,7 +428,7 @@ public static class ExtensionMethods
         return version;
     }
 
-    public static string GetFileVersion(this NukeProject project)
+    public static string GetFileVersion(this Project project)
     {
         var version = project.GetProperty("FileVersion");
 
@@ -444,7 +442,7 @@ public static class ExtensionMethods
         return version;
     }
 
-    public static string GetAssemblyVersion(this NukeProject project)
+    public static string GetAssemblyVersion(this Project project)
     {
         var version = project.GetProperty("AssemblyVersion");
 

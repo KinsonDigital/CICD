@@ -1,12 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 
-namespace CICD.Services;
+namespace Services;
 
 public class LoadSecretsService
 {
@@ -16,7 +15,7 @@ public class LoadSecretsService
 
     public LoadSecretsService()
     {
-        ExecutionPath = ExecutionPath.Replace('\\', '/').TrimEnd('/');
+        this.ExecutionPath = this.ExecutionPath.Replace('\\', '/').TrimEnd('/');
         this.rootRepoDirPath = GetRepoRootDirPath().TrimEnd('/');
 
         if (string.IsNullOrEmpty(this.rootRepoDirPath))
@@ -58,7 +57,7 @@ public class LoadSecretsService
 
     private string GetRepoRootDirPath()
     {
-        var pathSections = ExecutionPath.Split('/').ToList();
+        var pathSections = this.ExecutionPath.Split('/').ToList();
 
         bool IsRoot(string[] pathSections)
         {

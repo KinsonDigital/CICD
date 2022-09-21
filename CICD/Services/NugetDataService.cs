@@ -8,10 +8,10 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using CICD.Models;
+using Models;
 using RestSharp;
 
-namespace CICD.Services;
+namespace Services;
 
 /// <inheritdoc />
 [ExcludeFromCodeCoverage]

@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Nuke.Common;
 using Nuke.Common.CI.GitHubActions;
 
-namespace CICD.Services;
+namespace Services;
 
 public class WorkflowService
 {
