@@ -94,7 +94,7 @@ jobs:
     - name: Check For Release Notes
       run: |
         [string]$version = "${{ steps.proj-file-version.outputs.version }}";
-        [string]$filePath = "${{ github.workspace }}\Documentation\ReleaseNotes\PreviewReleases\Release-Notes-v$version.md";
+        [string]$filePath = "${{ github.workspace }}/Documentation/ReleaseNotes/PreviewReleases/Release-Notes-v$version.md";
 
         if (-not([System.IO.File]::Exists($filePath))) {
           Write-Host "A preview release notes file '$filePath' does not exist.";
