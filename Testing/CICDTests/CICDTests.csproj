@@ -37,7 +37,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\CSharpLibTemplateRepo\CSharpLibTemplateRepo.csproj" />
+      <ProjectReference Include="..\..\CICD\CICD.csproj" />
     </ItemGroup>
 
     <ItemGroup>
