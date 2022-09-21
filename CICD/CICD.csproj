@@ -1,0 +1,66 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <RootNamespace></RootNamespace>
+    <NoWarn>CS0649;CS0169</NoWarn>
+    <NukeRootDirectory>..</NukeRootDirectory>
+    <NukeScriptDirectory>..</NukeScriptDirectory>
+    <NukeTelemetryVersion>1</NukeTelemetryVersion>
+
+    <!--Update this for production and preview releases-->
+    <Version>1.0.0-preview.1</Version>
+
+    <!--Update this for production and preview releases-->
+    <FileVersion>1.0.0-preview.1</FileVersion>
+
+    <!--
+        DO NOT UPDATE THIS FOR PREVIEW RELEASES!!
+        Visual Studio does not allow the preview syntax for this tag
+        Example: v1.2.3.preview.1 is not allowed
+    -->
+    <AssemblyVersion>1.0.0</AssemblyVersion>
+
+    <!--TODO: Set an application icon-->
+    <ApplicationIcon></ApplicationIcon>
+    <PackageId>KinsonDigital.CICD</PackageId>
+    <Authors>Calvin Wilkinson</Authors>
+    <Company>Kinson Digital</Company>
+    <Product>CICD</Product>
+    <Description>CICD application for running builds, tests, and status checks for the KinsonDigital organization projects.</Description>
+    <Copyright>Copyright ©2022 Kinson Digital</Copyright>
+    <Configurations>Debug;Release</Configurations>
+      
+    <!--TODO: Set a package icon-->
+    <PackageIcon></PackageIcon>
+    <Platforms>x64</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Nuke.Common" Version="6.2.1" />
+    <PackageReference Include="Octokit" Version="3.0.0" />
+    <PackageReference Include="RestSharp" Version="108.0.2" />
+    <PackageReference Include="Serilog" Version="2.12.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Models" />
+    <Folder Include="Services" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="stylecop.json" />
+    <AdditionalFiles Include="stylecop.json" />
+  </ItemGroup>
+
+</Project>

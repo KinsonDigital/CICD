@@ -1,20 +1,14 @@
-name: ✔Unit Testing Status Check
+name: ✅Unit Testing Status Check
 
-# [TODO: Re-enable this workflow. Remove '.disabled' from end of file name]
 
 on:
   workflow_dispatch:
-    paths-ignore:
-      - ".github/**"
-      - "Documentation/**"
-      - '.editorconfig'
-      - '*.runsettings'
-      - '.gitattributes'
-      - '.gitignore'
-      - '*.md'
-      - '*.yml'
-      - '.vscode/**'
-      - '*.sln'
+  pull_request:
+    branches:
+    - develop
+    - master
+    - release/v*.*.*
+    - preview/v*.*.*-*
 
 
 jobs:
@@ -41,6 +35,6 @@ jobs:
     needs: determine_build_config
     uses: KinsonDigital/Infrastructure/.github/workflows/unit-testing-status-check.yml@master
     with:
-      project-name: "[TODO: add project name here]Tests"
+      project-name: "CICDTests"
       build-config: ${{ needs.determine_build_config.outputs.build-config }}
       net-sdk-version: 6.0.300
