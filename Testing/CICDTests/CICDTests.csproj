@@ -37,10 +37,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\CICD\CICD.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
       <None Remove="stylecop.json" />
       <AdditionalFiles Include="stylecop.json" />
     </ItemGroup>
