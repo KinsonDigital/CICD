@@ -139,7 +139,6 @@ jobs:
         -c ${{ env.BUILD_CONFIG }} `
         --collect:"XPlat Code Coverage" `
         --no-restore `
-        -a win-x64
 
     # - name: Publish Code Coverage Results
     #   uses: codecov/codecov-action@v1.5.2
