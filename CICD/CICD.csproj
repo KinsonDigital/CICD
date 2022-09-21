@@ -35,7 +35,6 @@
       
     <!--TODO: Set a package icon-->
     <PackageIcon></PackageIcon>
-    <Platforms>x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
