@@ -78,11 +78,12 @@ public partial class CICD : NukeBuild
     [NukeParameter] static GitHubClient GitHubClient;
 
     [NukeParameter(List = false)] static readonly Configuration Configuration = GetBuildConfig();
-    [NukeParameter] [Secret] readonly string NugetOrgApiKey;
-    [NukeParameter] [Secret] readonly string TwitterConsumerApiKey;
-    [NukeParameter] [Secret] readonly string TwitterConsumerApiSecret;
-    [NukeParameter] [Secret] readonly string TwitterAccessToken;
-    [NukeParameter] [Secret] readonly string TwitterAccessTokenSecret;
+
+    [NukeParameter] [Secret] private string NugetOrgApiKey { get; set; } = string.Empty;
+    [NukeParameter] [Secret] private string TwitterConsumerApiKey { get; set; } = string.Empty;
+    [NukeParameter] [Secret] private string TwitterConsumerApiSecret { get; set; } = string.Empty;
+    [NukeParameter] [Secret] private string TwitterAccessToken { get; set; } = string.Empty;
+    [NukeParameter] [Secret] private string TwitterAccessTokenSecret { get; set; } = string.Empty;
 
     static string Owner = string.Empty;
     static string MainProjName = string.Empty;

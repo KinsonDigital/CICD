@@ -13,7 +13,7 @@ using Services;
 
 public partial class CICD // Common
 {
-    Target RestoreSolution => _ => _
+    private Target RestoreSolution => _ => _
         .After(BuildStatusCheck, UnitTestStatusCheck)
         .Executes(() =>
         {
@@ -21,20 +21,20 @@ public partial class CICD // Common
         });
 
 
-    Target SendTweetAnnouncement => _ => _
+    private Target SendTweetAnnouncement => _ => _
         .Requires(() => IsServerBuild)
-        .Requires(() => this.TwitterConsumerApiKey)
-        .Requires(() => this.TwitterConsumerApiSecret)
-        .Requires(() => this.TwitterAccessToken)
-        .Requires(() => this.TwitterAccessTokenSecret)
+        .Requires(() => TwitterConsumerApiKey)
+        .Requires(() => TwitterConsumerApiSecret)
+        .Requires(() => TwitterAccessToken)
+        .Requires(() => TwitterAccessTokenSecret)
         .Executes(async () =>
         {
             // Validate that the keys, tokens, and secrets are not null or empty
             await TwitterTasks.SendTweetAsync(
-                message: "Hello from NUKE", this.TwitterConsumerApiKey, this.TwitterConsumerApiSecret, this.TwitterAccessToken, this.TwitterAccessTokenSecret);
+                message: "Hello from NUKE", TwitterConsumerApiKey, TwitterConsumerApiSecret, TwitterAccessToken, TwitterAccessTokenSecret);
         });
 
-    void CreateNugetPackage()
+    private void CreateNugetPackage()
     {
         DeleteAllNugetPackages();
 
@@ -44,7 +44,7 @@ public partial class CICD // Common
             .EnableNoRestore());
     }
 
-    void PublishNugetPackage()
+    private void PublishNugetPackage()
     {
         var packages = Glob.Files(NugetOutputPath, "*.nupkg").ToArray();
 
@@ -59,7 +59,7 @@ public partial class CICD // Common
         {
             DotNetTasks.DotNetNuGetPush(s => DotNetNuGetPushSettingsExtensions.SetTargetPath<DotNetNuGetPushSettings>(s, fullPackagePath)
                 .SetSource(NugetOrgSource)
-                .SetApiKey(this.NugetOrgApiKey));
+                .SetApiKey(NugetOrgApiKey));
         }
         else
         {
@@ -67,7 +67,7 @@ public partial class CICD // Common
         }
     }
 
-    void SendReleaseTweet(string templateFilePath, string releaseVersion)
+    private void SendReleaseTweet(string templateFilePath, string releaseVersion)
     {
         const string leftBracket = "{";
         const string rightBracket = "}";
@@ -86,15 +86,12 @@ public partial class CICD // Common
         tweetTemplate = tweetTemplate.Replace(repoOwner, "KinsonDigital");
         tweetTemplate = tweetTemplate.Replace(version, releaseVersion);
 
-        TwitterTasks.SendTweet(tweetTemplate, this.TwitterConsumerApiKey, this.TwitterConsumerApiSecret, this.TwitterAccessToken, this.TwitterAccessTokenSecret);
+        TwitterTasks.SendTweet(tweetTemplate, TwitterConsumerApiKey, TwitterConsumerApiSecret, TwitterAccessToken, TwitterAccessTokenSecret);
     }
 
-    bool IsPullRequest()
-    {
-        return GitHubActions?.IsPullRequest ?? false;
-    }
+    private bool IsPullRequest() => GitHubActions?.IsPullRequest ?? false;
 
-    bool ReleaseNotesExist(ReleaseType releaseType, string version)
+    private bool ReleaseNotesExist(ReleaseType releaseType, string version)
     {
         var releaseNotesDirPath = releaseType switch
         {
@@ -111,10 +108,10 @@ public partial class CICD // Common
             select f).Any();
     }
 
-    bool ReleaseNotesDoNotExist(ReleaseType releaseType, string version)
+    private bool ReleaseNotesDoNotExist(ReleaseType releaseType, string version)
         => !ReleaseNotesExist(releaseType, version);
 
-    void PrintPullRequestInfo()
+    private void PrintPullRequestInfo()
     {
         // If the build is on the server and the GitHubActions object exists
         if (IsServerBuild)
@@ -134,7 +131,7 @@ public partial class CICD // Common
         }
     }
 
-    void DeleteAllNugetPackages()
+    private void DeleteAllNugetPackages()
     {
         // If the build is local, find and delete the package first if it exists.
         // This is to essentially overwrite the package so it is "updated".
@@ -154,7 +151,7 @@ public partial class CICD // Common
         }
     }
 
-    async Task<string> GetProdMilestoneDescription(string version)
+    private async Task<string> GetProdMilestoneDescription(string version)
     {
         version = version.StartsWith('v')
             ? version
@@ -196,7 +193,7 @@ public partial class CICD // Common
         return result;
     }
 
-    async Task<string> CreateNewGitHubRelease(ReleaseType releaseType, string version)
+    private async Task<string> CreateNewGitHubRelease(ReleaseType releaseType, string version)
     {
         if (string.IsNullOrEmpty(version))
         {
@@ -245,7 +242,7 @@ public partial class CICD // Common
         return releaseResult.HtmlUrl;
     }
 
-    int ExtractIssueNumber(BranchType branchType, string branch)
+    private int ExtractIssueNumber(BranchType branchType, string branch)
     {
         var isNotIssueBranch = branchType != BranchType.Feature &&
                                branchType != BranchType.PreviewFeature &&
@@ -278,7 +275,7 @@ public partial class CICD // Common
     }
 
     // TODO: Possibly get rid of this
-    async Task<(bool isValid, int issueNum)> BranchIssueNumberValid(BranchType branchType)
+    private async Task<(bool isValid, int issueNum)> BranchIssueNumberValid(BranchType branchType)
     {
         var sourceBranch = GitHubActions?.HeadRef ?? string.Empty;
         var issueClient = GitHubClient.Issue;
@@ -287,7 +284,7 @@ public partial class CICD // Common
         return (await issueClient.IssueExists(Owner, MainProjName, issueNumber), issueNumber);
     }
 
-    bool NugetPackageDoesNotExist()
+    private bool NugetPackageDoesNotExist()
     {
         var project = this.Solution.GetProject(MainProjName);
         var errors = new List<string>();
@@ -325,7 +322,7 @@ public partial class CICD // Common
         return false;
     }
 
-    string GetBranchSyntax(BranchType branchType)
+    private string GetBranchSyntax(BranchType branchType)
         => branchType switch
         {
             BranchType.Master => "master",
@@ -339,7 +336,7 @@ public partial class CICD // Common
             _ => throw new ArgumentOutOfRangeException(nameof(branchType), branchType, null)
         };
 
-    async Task<string> MergeBranch(string sourceBranch, string targetBranch)
+    private async Task<string> MergeBranch(string sourceBranch, string targetBranch)
     {
         var mergeClient = GitHubClient.Repository.Merging;
 
@@ -353,7 +350,7 @@ public partial class CICD // Common
         return mergeResult?.HtmlUrl ?? string.Empty;
     }
 
-    async Task<bool> ProdVersionHasPreviewReleases(string prodVersion)
+    private async Task<bool> ProdVersionHasPreviewReleases(string prodVersion)
     {
         if (prodVersion.IsProductionVersion() is false)
         {
@@ -374,7 +371,7 @@ public partial class CICD // Common
         return prodContainsPreviewReleases;
     }
 
-    async Task<bool> GetIssuesForProdVersionPreviewReleases(string version)
+    private async Task<bool> GetIssuesForProdVersionPreviewReleases(string version)
     {
         if (version.IsPreviewVersion())
         {
