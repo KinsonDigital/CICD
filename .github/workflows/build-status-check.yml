@@ -47,7 +47,7 @@ jobs:
   build_cicd:
     name: Build CICD Project
     needs: [determine_build_config, get_sdk_version]
-    uses: KinsonDigital/Infrastructure/.github/workflows/build-csharp-project.yml@master
+    uses: KinsonDigital/Infrastructure/.github/workflows/build-csharp-project.yml@v3.0.1
     with:
       project-name: "CICD"
       build-config: ${{ needs.determine_build_config.outputs.build-config }}
@@ -56,7 +56,7 @@ jobs:
   build_cicd_tests:
     name: Build CICD Tests Project
     needs: [determine_build_config, get_sdk_version]
-    uses: KinsonDigital/Infrastructure/.github/workflows/build-csharp-project.yml@master
+    uses: KinsonDigital/Infrastructure/.github/workflows/build-csharp-project.yml@v3.0.1
     with:
       project-name: "CICDTests"
       build-config: ${{ needs.determine_build_config.outputs.build-config }}
