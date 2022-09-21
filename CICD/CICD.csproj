@@ -3,6 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
     <RootNamespace></RootNamespace>
     <NoWarn>CS0649;CS0169</NoWarn>
     <NukeRootDirectory>..</NukeRootDirectory>
@@ -21,6 +22,20 @@
         Example: v1.2.3.preview.1 is not allowed
     -->
     <AssemblyVersion>1.0.0</AssemblyVersion>
+
+    <!--TODO: Set an application icon-->
+    <ApplicationIcon></ApplicationIcon>
+    <PackageId>KinsonDigital.CICD</PackageId>
+    <Authors>Calvin Wilkinson</Authors>
+    <Company>Kinson Digital</Company>
+    <Product>CICD</Product>
+    <Description>CICD application for running builds, tests, and status checks for the KinsonDigital organization projects.</Description>
+    <Copyright>Copyright ©2022 Kinson Digital</Copyright>
+    <Configurations>Debug;Release</Configurations>
+      
+    <!--TODO: Set a package icon-->
+    <PackageIcon></PackageIcon>
+    <Platforms>x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
