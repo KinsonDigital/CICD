@@ -99,8 +99,8 @@ jobs:
         }
 
 
-  Build_And_Test_Library:
-    name: Build & Test (Library)
+  Build_Test_Publish_Library:
+    name: Build, Test & Publish
     runs-on: windows-latest
     needs: [Validate_Version, Validate_Branch_Name, Validate_Release_Notes_Exist]
     steps:
