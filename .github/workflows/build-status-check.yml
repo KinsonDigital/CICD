@@ -1,24 +1,12 @@
 name: ✔Build Status Check
 
-# [TODO: Re-enable this workflow. Remove '.disabled' from end of file name]
 
 env:
   NET_SDK_VERSION: 6.0.300
 
 on:
   workflow_dispatch:
-    paths-ignore:
-      - ".github/**"
-      - "Documentation/**"
-      - '.editorconfig'
-      - '*.runsettings'
-      - '.gitattributes'
-      - '.gitignore'
-      - '*.md'
-      - '*.yml'
-      - '.vscode/**'
-      - '*.sln'
-
+#  pull_request:
 
 jobs:
   determine_build_config:
@@ -50,20 +38,20 @@ jobs:
         run: Write-Host "::set-output name=sdk-version::${{ env.NET_SDK_VERSION }}";
 
   # Build Main Projects
-  build_[TODO: add project name here]:
-    name: Build [TODO: add project name here] Project
+  build_CICD:
+    name: Build CICD Project
     needs: [determine_build_config, get_sdk_version]
     uses: KinsonDigital/Infrastructure/.github/workflows/build-status-check.yml@master
     with:
-      project-name: "[TODO: add project name here]"
+      project-name: "CICD"
       build-config: ${{ needs.determine_build_config.outputs.build-config }}
       net-sdk-version: ${{ needs.get_sdk_version.outputs.sdk-version }}
 
-  build_[TODO: add project name here]_tests:
-    name: Build [TODO: add project name here] Tests Project
+  build_CICD_tests:
+    name: Build CICD Tests Project
     needs: [determine_build_config, get_sdk_version]
     uses: KinsonDigital/Infrastructure/.github/workflows/build-status-check.yml@master
     with:
-      project-name: "[TODO: add project name here]Tests"
+      project-name: "CICDTests"
       build-config: ${{ needs.determine_build_config.outputs.build-config }}
       net-sdk-version: ${{ needs.get_sdk_version.outputs.sdk-version }}

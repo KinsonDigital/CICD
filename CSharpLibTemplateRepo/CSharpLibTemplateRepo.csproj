@@ -12,14 +12,14 @@
         <!--Update this for production and preview releases-->
         <FileVersion>1.0.0-preview.1</FileVersion>        
 
-        <PackageId>KinsonDigital.[TODO: add project name here]</PackageId>
+        <PackageId>KinsonDigital.CICD</PackageId>
         <Authors>Calvin Wilkinson</Authors>
         <Company>Kinson Digital</Company>
-        <Product>[TODO: add project name here]</Product>
+        <Product>CICD</Product>
         <Description>Simple library to retrieve GitHub related data.</Description>
         <Copyright>Copyright ©2022 Kinson Digital</Copyright>
         <PackageTags>github data</PackageTags>
-        <RootNamespace>[TODO: add project name here]</RootNamespace>
+        <RootNamespace>CICD</RootNamespace>
 
         <!-- Ignore warning CS7035 about version syntax. -->
         <NoWarn>7035</NoWarn>
