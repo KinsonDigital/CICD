@@ -1,4 +1,4 @@
-name: ✔Build Status Check
+name: ✅Build Status Check
 
 
 env:
@@ -6,7 +6,13 @@ env:
 
 on:
   workflow_dispatch:
-#  pull_request:
+  pull_request:
+    branches:
+    - develop
+    - master
+    - release/v*.*.*
+    - preview/v*.*.*-*
+
 
 jobs:
   determine_build_config:
@@ -38,7 +44,7 @@ jobs:
         run: Write-Host "::set-output name=sdk-version::${{ env.NET_SDK_VERSION }}";
 
   # Build Main Projects
-  build_CICD:
+  build_cicd:
     name: Build CICD Project
     needs: [determine_build_config, get_sdk_version]
     uses: KinsonDigital/Infrastructure/.github/workflows/build-status-check.yml@master
@@ -47,7 +53,7 @@ jobs:
       build-config: ${{ needs.determine_build_config.outputs.build-config }}
       net-sdk-version: ${{ needs.get_sdk_version.outputs.sdk-version }}
 
-  build_CICD_tests:
+  build_cicd_tests:
     name: Build CICD Tests Project
     needs: [determine_build_config, get_sdk_version]
     uses: KinsonDigital/Infrastructure/.github/workflows/build-status-check.yml@master

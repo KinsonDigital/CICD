@@ -1,9 +1,14 @@
-name: ✔Unit Testing Status Check
+name: ✅Unit Testing Status Check
 
 
 on:
   workflow_dispatch:
-#  pull_request:
+  pull_request:
+    branches:
+    - develop
+    - master
+    - release/v*.*.*
+    - preview/v*.*.*-*
 
 
 jobs:
