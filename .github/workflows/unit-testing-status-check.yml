@@ -8,7 +8,7 @@ on:
     - develop
     - master
     - release/v*.*.*
-    - preview/v*.*.*-*
+    - preview/v*.*.*-preview.*
 
 
 jobs:
