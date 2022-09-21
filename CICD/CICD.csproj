@@ -8,6 +8,19 @@
     <NukeRootDirectory>..</NukeRootDirectory>
     <NukeScriptDirectory>..</NukeScriptDirectory>
     <NukeTelemetryVersion>1</NukeTelemetryVersion>
+
+    <!--Update this for production and preview releases-->
+    <Version>1.0.0-preview.1</Version>
+
+    <!--Update this for production and preview releases-->
+    <FileVersion>1.0.0-preview.1</FileVersion>
+
+    <!--
+        DO NOT UPDATE THIS FOR PREVIEW RELEASES!!
+        Visual Studio does not allow the preview syntax for this tag
+        Example: v1.2.3.preview.1 is not allowed
+    -->
+    <AssemblyVersion>1.0.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
