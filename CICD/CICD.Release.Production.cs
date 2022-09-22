@@ -87,7 +87,7 @@ public partial class CICD // Release.Production
                 Log.Information(nugetReleaseLog);
 
                 // Tweet about release
-                if (AnnounceOnTwitter)
+                if (SkipTwitterAnnouncement is false)
                 {
                     Log.Information("✅Announcing release on twitter . . .");
                     SendReleaseTweet(tweetTemplatePath, version);

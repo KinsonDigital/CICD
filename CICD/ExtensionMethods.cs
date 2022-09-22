@@ -15,6 +15,7 @@ using Nuke.Common.Utilities.Collections;
 using Octokit;
 using Serilog;
 using Project = Nuke.Common.ProjectModel.Project;
+using static Nuke.Common.NukeBuild;
 
 public static class ExtensionMethods
 {
@@ -119,6 +120,61 @@ public static class ExtensionMethods
             .Replace("_", " ")
             .ToSpaceDelimitedSections();
     }
+
+    public static string ToKebabCase(this string value)
+    {
+        var allUpperCase = value.All(c => UpperCaseLetters.Contains(c));
+        var allLowerCase = value.All(c => LowerCaseLetters.Contains(c));
+        var noSpaces = value.All(c => c != ' ');
+        if (string.IsNullOrEmpty(value) ||
+            (noSpaces && (allUpperCase || allLowerCase)))
+        {
+            return value;
+        }
+
+        value = value.Trim();
+        value = value.Replace(' ', '-');
+        var result = string.Empty;
+
+        for (var i = 0; i < value.Length; i++)
+        {
+            if (i == 0)
+            {
+                result += value[i].IsUpperCase() ? value[i].ToLowerCase().ToString() : value[i].ToString();
+                continue;
+            }
+
+            if (i == value.Length - 1)
+            {
+                result += value[i].ToLowerCase();
+                continue;
+            }
+
+            var currentIsUpperCase = UpperCaseLetters.Contains(value[i]);
+            var prevIsHyphen = value[i - 1] == '-';
+
+            if (currentIsUpperCase && prevIsHyphen)
+            {
+                result += value[i].ToLowerCase();
+                continue;
+            }
+
+            // var prevIsNotALetter = UpperCaseLetters.Contains(value[i - 1]) is false && LowerCaseLetters.Contains(value[i - 1]) is false;
+            var prevIsLowerCase = LowerCaseLetters.Contains(value[i - 1]);// || prevIsNotALetter;
+            var nextIsLowerCase = LowerCaseLetters.Contains(value[i + 1]);// || prevIsNotALetter;
+            var isValidForConversion = currentIsUpperCase && prevIsLowerCase && nextIsLowerCase;
+
+            result += isValidForConversion
+                ? $"-{value[i].ToLowerCase()}"
+                : value[i];
+        }
+
+        return result;
+    }
+
+    public static bool IsUpperCase(this char value) => UpperCaseLetters.Contains(value);
+
+    public static char ToLowerCase(this char value) => value.ToString().ToLower()[0];
 
     public static void LogRequirementTitle(this string requirementName, string value)
     {
@@ -984,6 +1040,32 @@ public static class ExtensionMethods
             : (string.IsNullOrEmpty(pattern) && string.IsNullOrEmpty(value)) || pattern == value;
 
         return isEqual;
+    }
+
+    /// <summary>
+    /// Returns the name of the repository.
+    /// </summary>
+    /// <param name="actions">GitHub actions related functionality.</param>
+    /// <returns>The name of the repository.</returns>
+    public static string RepositoryName(this GitHubActions actions)
+    {
+        if (IsLocalBuild)
+        {
+            var projectFileSections = BuildProjectFile?
+                .ToString()
+                .Replace('\\', '/')
+                .Split('/') ?? Array.Empty<string>();
+
+            var file = projectFileSections.FirstOrDefault(s => s.StartsWith('.') is false && s.Contains(".csproj"));
+
+            return file?.Split('.')[0] ?? string.Empty;
+        }
+
+        var sections = actions.Repository.Split('/');
+
+        return sections.Length >= 2
+            ? sections[1]
+            : string.Empty;
     }
 
     /// <summary>

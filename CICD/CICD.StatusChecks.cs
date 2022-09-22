@@ -1,4 +1,6 @@
 using System;
+using System.Diagnostics;
+using System.IO;
 using System.Threading.Tasks;
 using Nuke.Common;
 using Serilog;
@@ -128,21 +130,14 @@ public partial class CICD // StatusChecks
 
 
     private Target DebugTask => _ => _
+        .Unlisted()
         .Executes(async () =>
         {
-            Log.Information("Execution of debug task");
+            Log.Information($"Root Directory: {RootDirectory}");
             // var service = new WorkflowService();
 
             // // var buildStatusCheckWorkflow = service.CreateBuildStatusCheckWorkflow();
             // var prodReleaseWorkflow = service.CreateProdReleaseCheckWorkflow();
-        });
-
-
-    private Target GenerateSettingsFile => _ => _
-        .Executes(() =>
-        {
-            var buildSettingsService = new BuildSettingsService();
-            buildSettingsService.CreateDefaultBuildSettingsFile();
         });
 
 

@@ -6,6 +6,9 @@
     "build": {
       "type": "object",
       "properties": {
+        "BuildSettingsDirPath": {
+          "type": "string"
+        },
         "Configuration": {
           "type": "string",
           "enum": [
@@ -83,7 +86,6 @@
               "BuildStatusCheck",
               "DebugTask",
               "FeaturePRStatusCheck",
-              "GenerateSettingsFile",
               "HotFixPRStatusCheck",
               "PreviewFeaturePRStatusCheck",
               "PreviewRelease",
@@ -95,6 +97,9 @@
               "UnitTestStatusCheck"
             ]
           }
+        },
+        "SkipTwitterAnnouncement": {
+          "type": "boolean"
         },
         "Solution": {
           "type": "string",
@@ -111,7 +116,6 @@
               "BuildStatusCheck",
               "DebugTask",
               "FeaturePRStatusCheck",
-              "GenerateSettingsFile",
               "HotFixPRStatusCheck",
               "PreviewFeaturePRStatusCheck",
               "PreviewRelease",
