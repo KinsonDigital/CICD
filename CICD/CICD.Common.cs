@@ -1,3 +1,10 @@
+// <copyright file="CICD.Common.cs" company="KinsonDigital">
+// Copyright (c) KinsonDigital. All rights reserved.
+// </copyright>
+
+namespace CICDSystem;
+
+using Services;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,7 +16,6 @@ using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.Twitter;
 using Octokit;
 using Serilog;
-using Services;
 
 public partial class CICD // Common
 {
@@ -17,7 +23,15 @@ public partial class CICD // Common
         .After(BuildStatusCheck, UnitTestStatusCheck)
         .Executes(() =>
         {
-            DotNetTasks.DotNetRestore(s => DotNetRestoreSettingsExtensions.SetProjectFile<DotNetRestoreSettings>(s, this.Solution));
+            DotNetTasks.DotNetRestore(s => s.SetProjectFile<DotNetRestoreSettings>(this.Solution));
+        });
+
+    private Target GenerateWorkflows => _ => _
+        .Requires(() => ThatTheBuildSettingsDirPathIsValid())
+        .Executes(() =>
+        {
+            var workflowService = App.Container.GetInstance<IWorkflowService>();
+            workflowService.GenerateWorkflows(BuildSettingsDirPath ?? string.Empty);
         });
 
     private void CreateNugetPackage()

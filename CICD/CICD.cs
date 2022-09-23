@@ -1,3 +1,11 @@
+// <copyright file="CICD.cs" company="KinsonDigital">
+// Copyright (c) KinsonDigital. All rights reserved.
+// </copyright>
+
+using CICDSystem.Services;
+
+namespace CICDSystem;
+
 using System;
 using Nuke.Common;
 using Nuke.Common.CI.GitHubActions;
@@ -6,7 +14,6 @@ using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
 using Octokit;
 using Octokit.Internal;
-using Services;
 using NukeParameter = Nuke.Common.ParameterAttribute;
 
 // TODO: Add editorconfig to build project and tweak until it fits
@@ -28,7 +35,7 @@ public partial class CICD : NukeBuild
 
     [NukeParameter(List = false)] static readonly Configuration Configuration = GetBuildConfig();
 
-    [NukeParameter] private static string BuildSettingsDirPath { get; set; } = string.Empty;
+    [NukeParameter] private static string? BuildSettingsDirPath { get; set; }
 
     [NukeParameter] private static bool SkipTwitterAnnouncement { get; set; }
 

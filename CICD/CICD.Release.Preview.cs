@@ -1,9 +1,23 @@
+// <copyright file="CICD.Release.Preview.cs" company="KinsonDigital">
+// Copyright (c) KinsonDigital. All rights reserved.
+// </copyright>
+
+namespace CICDSystem;
+
 using System;
 using Nuke.Common;
 using Serilog;
 
+/// <summary>
+/// Contains all of the functionality for preview releases.
+/// </summary>
 public partial class CICD // Release.Preview
 {
+    // ReSharper disable UnusedMember.Global
+
+    /// <summary>
+    /// Gets a target the performs a preview release.
+    /// </summary>
     public Target PreviewRelease => _ => _
         .Requires(
             () => ThatThisIsExecutedManually(BranchType.Release),
@@ -23,9 +37,7 @@ public partial class CICD // Release.Preview
             () => ThatTheReleaseNotesTitleIsCorrect(ReleaseType.Preview),
             () => ThatMilestoneIssuesExistInReleaseNotes(ReleaseType.Preview),
             () => ThatGitHubReleaseDoesNotExist(ReleaseType.Preview),
-            () => NugetPackageDoesNotExist()
-        )
-        .After(BuildAllProjects, RunAllUnitTests)
+            () => NugetPackageDoesNotExist()).After(BuildAllProjects, RunAllUnitTests)
         .DependsOn(BuildAllProjects, RunAllUnitTests)
         .Executes(async () =>
         {
@@ -97,4 +109,6 @@ public partial class CICD // Release.Preview
                 Assert.Fail(e.Message);
             }
         });
+
+    // ReSharper restore UnusedMember.Global
 }

@@ -1,0 +1,20 @@
+name: ✅Preview Release PR Status Check
+
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - release/v*.*.*
+
+
+jobs:
+  prev_release_pr_status_check:
+    name: Preview Release PR Status Check
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run Preview Release PR Status Check
+      run: ./build.cmd PrevReleasePRStatusCheck
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

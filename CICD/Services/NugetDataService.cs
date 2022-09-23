@@ -2,6 +2,8 @@
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
+namespace CICDSystem.Services;
+
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -10,8 +12,6 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Models;
 using RestSharp;
-
-namespace Services;
 
 /// <inheritdoc />
 [ExcludeFromCodeCoverage]
@@ -31,7 +31,10 @@ public sealed class NugetDataService : IDisposable
     /// </summary>
     public NugetDataService() => this.client = new RestClient(BaseUrl);
 
-    /// <inheritdoc />
+    /// <summary>
+    /// Returns a list of nuget versions that exist in nuget.org for a nuget package that matches the given <paramref name="packageName"/>.
+    /// </summary>
+    /// <param name="packageName">The name of the package.</param>
     /// <remarks>
     ///     The param <paramref name="packageName"/> is not case sensitive.  The NuGet API
     ///     requires that it is in lowercase.  This is taken care of for you.
@@ -42,6 +45,7 @@ public sealed class NugetDataService : IDisposable
     /// <exception cref="HttpRequestException">
     ///     Thrown if any HTTP based error occurs.
     /// </exception>
+    /// <returns>The asynchronous result of the exiting nuget package versions.</returns>
     public async Task<string[]> GetNugetVersions(string packageName)
     {
         if (string.IsNullOrEmpty(packageName))

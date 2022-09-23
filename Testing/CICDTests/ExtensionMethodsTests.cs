@@ -4,6 +4,7 @@
 
 namespace CICDTests;
 
+using CICDSystem;
 using FluentAssertions;
 using Xunit;
 
