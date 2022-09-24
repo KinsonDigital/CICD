@@ -1,6 +1,11 @@
 name: 🚀Production Release
 
 
+defaults:
+  run:
+    shell: pwsh
+
+
 on:
   workflow_dispatch:
 

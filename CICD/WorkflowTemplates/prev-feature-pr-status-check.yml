@@ -1,6 +1,11 @@
 name: ✅Preview Feature PR Status Check
 
 
+defaults:
+  run:
+    shell: pwsh
+
+
 on:
   workflow_dispatch:
   pull_request:
