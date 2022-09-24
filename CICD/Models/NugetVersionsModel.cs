@@ -2,9 +2,9 @@
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
-using System;
-
 namespace Models;
+
+using System;
 
 /// <summary>
 /// Holds information about a NuGet package.

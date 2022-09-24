@@ -1,3 +1,9 @@
+// <copyright file="CICD.Requirements.cs" company="KinsonDigital">
+// Copyright (c) KinsonDigital. All rights reserved.
+// </copyright>
+
+namespace CICDSystem;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -5,6 +11,9 @@ using Nuke.Common;
 using Octokit;
 using Serilog;
 
+/// <summary>
+/// Contains all of the requirement related methods for Target requires setup.
+/// </summary>
 public partial class CICD // Requirements
 {
     private bool ThatThisIsExecutedFromPullRequest(params BranchType[] targetBranches)
@@ -131,7 +140,6 @@ public partial class CICD // Requirements
     private bool ThatFeaturePRIssueHasLabel(BranchType branchType)
     {
         var errors = new List<string>();
-        // TODO: throw error is anything else other then feature, preview feature or hotfix
         var validBranchTypes = new[]
         {
             BranchType.Feature,
@@ -151,9 +159,6 @@ public partial class CICD // Requirements
         else
         {
             var sourceBranch = GitHubActions?.HeadRef ?? string.Empty;
-
-            sourceBranch = "feature/14-my-code";
-
             var branchIssueNumber = ExtractIssueNumber(branchType, sourceBranch);
             var issueExists = GitHubClient.Issue.IssueExists(Owner, MainProjName, branchIssueNumber).Result;
 
@@ -219,7 +224,6 @@ public partial class CICD // Requirements
     private bool ThatThePRHasTheLabel(string labelName)
     {
         var prNumber = GitHubActions?.PullRequestNumber ?? -1;
-        var labelExists = false;
 
         nameof(ThatThePRHasTheLabel)
             .LogRequirementTitle($"Checking if the pull request has a preview release label.");
@@ -231,7 +235,7 @@ public partial class CICD // Requirements
             Assert.Fail("The workflow is not being executed as a pull request in the GitHub environment.");
         }
 
-        labelExists = GitHubClient.PullRequest.LabelExists(Owner, MainProjName, prNumber, labelName).Result;
+        var labelExists = GitHubClient.PullRequest.LabelExists(Owner, MainProjName, prNumber, labelName).Result;
 
         if (labelExists)
         {
@@ -540,7 +544,7 @@ public partial class CICD // Requirements
         const string previewBranchSyntax = "#.#.#-preview.#";
         const string productionBranchSyntax = "#.#.#";
 
-        var statusMsg = "";
+        var statusMsg = string.Empty;
 
         if (versionExists)
         {
@@ -957,7 +961,8 @@ public partial class CICD // Requirements
             var errorMsg = $"The milestone '{milestoneTitle}' contains at least 1 issue that has no labels.";
             errorMsg += $"{Environment.NewLine}{ConsoleTab}To view the milestone, go here 👉🏼 {milestoneUrl}";
             errors.Add(errorMsg);
-            // TODO: Print out the list of issues
+
+            errors.Add(milestoneIssues.GetLogText(15));
         }
 
         if (errors.Count <= 0)
@@ -999,7 +1004,7 @@ public partial class CICD // Requirements
             var errorMsg = $"The milestone '{milestoneTitle}' contains at least 1 pull request that has no labels.";
             errorMsg += $"{Environment.NewLine}{ConsoleTab}To view the milestone, go here 👉🏼 {milestoneUrl}";
             errors.Add(errorMsg);
-            // TODO: Print out the list of pull requests
+            errors.Add(milestonePullRequests.GetLogText(15));
         }
 
         if (errors.Count <= 0)
@@ -1311,8 +1316,7 @@ public partial class CICD // Requirements
                         where m.Title.IsPreviewVersion() && m.Title.StartsWith(prodVersion)
                         select (
                             m.Title,
-                            prevReleaseItem: $"[Preview Release {m.Title}]({m.HtmlUrl}) - Issues from preview release."
-                        )).ToArray();
+                            prevReleaseItem: $"[Preview Release {m.Title}]({m.HtmlUrl}) - Issues from preview release.")).ToArray();
 
                 // Check if any of the preview release items do not exist
                 var itemsThatDoNotExist =
@@ -1398,6 +1402,31 @@ public partial class CICD // Requirements
 
         errors.PrintErrors();
 
+        return false;
+    }
+
+    private bool ThatTheBuildSettingsDirPathIsValid()
+    {
+        var switchStr = $"--{nameof(BuildSettingsDirPath).ToKebabCase()}";
+        var example = $"Example: {switchStr} \"C:/my-destination-dir-path\"";
+        if (BuildSettingsDirPath == null)
+        {
+            var errorMsg = $"The switch '{switchStr}' must be used and contain a value.";
+            errorMsg += $"{Environment.NewLine}{ConsoleTab}{example}";
+            Log.Error(errorMsg);
+        }
+        else if (BuildSettingsDirPath == string.Empty)
+        {
+            var errorMsg = $"The switch '{switchStr}' must contain a value.  Example:";
+            errorMsg += $"{Environment.NewLine}{ConsoleTab}{example}";
+            Log.Error(errorMsg);
+        }
+        else
+        {
+            return true;
+        }
+
+        Assert.Fail($"The '{switchStr}' switch is invalid or not used.");
         return false;
     }
 }

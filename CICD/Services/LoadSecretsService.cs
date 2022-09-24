@@ -1,11 +1,15 @@
+// <copyright file="LoadSecretsService.cs" company="KinsonDigital">
+// Copyright (c) KinsonDigital. All rights reserved.
+// </copyright>
+
+namespace CICDSystem.Services;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
-
-namespace Services;
 
 public class LoadSecretsService
 {

@@ -2,10 +2,13 @@
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
+using System;
 using System.Linq;
 using Nuke.Common;
 using Nuke.Common.Tools.DotNet;
 using Serilog;
+
+namespace CICDSystem;
 
 /// <summary>
 /// Contains all of the unit test related targets.
@@ -29,7 +32,14 @@ public partial class CICD // Common.Tests
     /// </summary>
     private void RunTests()
     {
-        var projects = this.Solution.AllProjects.Where(p => p.Path.Name.EndsWith("Tests.csproj"));
+        var projects = this.Solution.AllProjects.Where(p => p.Path.Name.EndsWith("Tests.csproj")).ToArray();
+
+        if (projects.Any() is false)
+        {
+            var logMsg = "The solution does not contain any unit test projects to execute.";
+            logMsg += $"{Environment.NewLine}{ConsoleTab}Unit test projects have to end in 'Tests' to be discovered.";
+            Log.Warning(logMsg);
+        }
 
         foreach (var project in projects)
         {
