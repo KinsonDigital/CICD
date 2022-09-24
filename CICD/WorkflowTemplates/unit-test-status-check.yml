@@ -21,6 +21,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - name: Restore DotNet Tools
+      run: dotnet tool restore
     - name: Run Unit Test Status Check
       run: ./build.cmd UnitTestStatusCheck
       env:

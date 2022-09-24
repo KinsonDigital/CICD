@@ -16,6 +16,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - name: Restore DotNet Tools
+      run: dotnet tool restore
     - name: Run Production Release
       run: ./build.cmd ProductionRelease
       env:
