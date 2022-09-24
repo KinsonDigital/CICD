@@ -2,4 +2,5 @@
   "$schema": "./build.schema.json",
   "Solution": "CICD.sln",
   "RepoOwner": "KinsonDigital",
+  "RepoName": "CICD"
 }

@@ -40,20 +40,20 @@ public partial class CICD : NukeBuild
     [NukeParameter] private static bool SkipTwitterAnnouncement { get; set; }
 
     [NukeParameter] private string RepoOwner { get; set; }
+    [NukeParameter] private string RepoName { get; set; }
     [NukeParameter] [Secret] private string NugetOrgApiKey { get; set; } = string.Empty;
     [NukeParameter] [Secret] private string TwitterConsumerApiKey { get; set; } = string.Empty;
     [NukeParameter] [Secret] private string TwitterConsumerApiSecret { get; set; } = string.Empty;
     [NukeParameter] [Secret] private string TwitterAccessToken { get; set; } = string.Empty;
     [NukeParameter] [Secret] private string TwitterAccessTokenSecret { get; set; } = string.Empty;
 
-    static string MainProjName = string.Empty;
-    static string MainProjFileName = $"{MainProjName}.{ProjFileExt}";
+    static string MainProjFileName = $"{RepoName}.{ProjFileExt}";
     static string DocumentationDirName = "Documentation";
     static string ReleaseNotesDirName = "ReleaseNotes";
 
     static AbsolutePath DocumentationPath => RootDirectory / DocumentationDirName;
     static AbsolutePath ReleaseNotesBaseDirPath => DocumentationPath / ReleaseNotesDirName;
-    static AbsolutePath MainProjPath => RootDirectory / MainProjName / MainProjFileName;
+    static AbsolutePath MainProjPath => RootDirectory / RepoName / MainProjFileName;
     static AbsolutePath NugetOutputPath => RootDirectory / "Artifacts";
     static AbsolutePath PreviewReleaseNotesDirPath => ReleaseNotesBaseDirPath / "PreviewReleases";
     static AbsolutePath ProductionReleaseNotesDirPath => ReleaseNotesBaseDirPath / "ProductionReleases";
@@ -95,7 +95,7 @@ public partial class CICD : NukeBuild
 
         if (IsServerBuild)
         {
-            client = new GitHubClient(new ProductHeaderValue(MainProjName),
+            client = new GitHubClient(new ProductHeaderValue(RepoName),
                 new InMemoryCredentialStore(new Credentials(token)));
         }
         else
@@ -106,11 +106,11 @@ public partial class CICD : NukeBuild
                 warning += $"{Environment.NewLine}GitHub API requests will be unauthorized and you may run into API request limits.";
                 Console.WriteLine();
                 LogWarning(warning);
-                client = new GitHubClient(new ProductHeaderValue(MainProjName));
+                client = new GitHubClient(new ProductHeaderValue(RepoName));
             }
             else
             {
-                client = new GitHubClient(new ProductHeaderValue(MainProjName),
+                client = new GitHubClient(new ProductHeaderValue(RepoName),
                     new InMemoryCredentialStore(new Credentials(token)));
             }
         }

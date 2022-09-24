@@ -214,7 +214,7 @@ public partial class CICD // StatusChecks
 
         var issueClient = GitHubClient.Issue;
 
-        return await issueClient.IssueExists(RepoOwner, MainProjName, issueNumber);
+        return await issueClient.IssueExists(RepoOwner, RepoName, issueNumber);
     }
 
     /// <summary>
