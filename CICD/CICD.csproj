@@ -11,10 +11,10 @@
     <NukeTelemetryVersion>1</NukeTelemetryVersion>
 
     <!--Update this for production and preview releases-->
-    <Version>1.0.0-preview.2</Version>
+    <Version>1.0.0-preview.3</Version>
 
     <!--Update this for production and preview releases-->
-    <FileVersion>1.0.0-preview.2</FileVersion>
+    <FileVersion>1.0.0-preview.3</FileVersion>
 
     <!--
         DO NOT UPDATE THIS FOR PREVIEW RELEASES!!
@@ -32,7 +32,7 @@
     <Description>CICD application for running builds, tests, and status checks for the KinsonDigital organization projects.</Description>
     <Copyright>Copyright ©2022 Kinson Digital</Copyright>
     <Configurations>Debug;Release</Configurations>
-      
+
     <!--TODO: Set a package icon-->
     <PackageIcon></PackageIcon>
 
