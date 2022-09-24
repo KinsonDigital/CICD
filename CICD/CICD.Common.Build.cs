@@ -51,7 +51,7 @@ public partial class CICD // Common.Build
 
             if (runnable)
             {
-                DotNetTasks.DotNetBuild(s => DotNetBuildSettingsExtensions.SetProjectFile<DotNetBuildSettings>(s, project.Path)
+                DotNetTasks.DotNetBuild(s => s.SetProjectFile<DotNetBuildSettings>(project.Path)
                     .SetConfiguration(Configuration)
                     .EnableNoRestore());
             }
