@@ -22,6 +22,6 @@ jobs:
     - name: Restore DotNet Tools
       run: dotnet tool restore
     - name: Run Feature PR Status Check
-      run: ./build.cmd FeaturePRStatusCheck
+      run: dotnet cicd FeaturePRStatusCheck
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

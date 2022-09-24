@@ -23,6 +23,6 @@ jobs:
     - name: Restore DotNet Tools
       run: dotnet tool restore
     - name: Run Build Status Check
-      run: ./build.cmd HotFixPRStatusCheck
+      run: dotnet cicd HotFixPRStatusCheck
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

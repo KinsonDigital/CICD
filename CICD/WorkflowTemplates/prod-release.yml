@@ -19,7 +19,7 @@ jobs:
     - name: Restore DotNet Tools
       run: dotnet tool restore
     - name: Run Production Release
-      run: ./build.cmd ProductionRelease
+      run: dotnet cicd ProductionRelease
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         NugetOrgApiKey: ${{ secrets.NUGET_ORG_API_KEY }}

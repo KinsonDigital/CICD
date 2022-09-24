@@ -22,6 +22,6 @@ jobs:
     - name: Restore DotNet Tools
       run: dotnet tool restore
     - name: Run Production Release PR Status Check
-      run: ./build.cmd ProdReleasePRStatusCheck
+      run: dotnet cicd ProdReleasePRStatusCheck
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
