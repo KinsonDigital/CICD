@@ -156,6 +156,8 @@ dotnet_diagnostic.IDE0052.severity = warning
 # IDE0059: Unnecessary assignment of a value
 csharp_style_unused_value_assignment_preference = discard_variable:warning
 
+dotnet_diagnostic.SA1200.severity = none
+
 # SA1503: Braces should not be omitted
 dotnet_diagnostic.SA1503.severity = warning
 
@@ -173,3 +175,5 @@ dotnet_diagnostic.SA1011.severity = none
 
 # SA0001: XML comment analysis is disabled due to project configuration
 dotnet_diagnostic.SA0001.severity = none
+
+dotnet_diagnostic.SA1201.severity = warning
