@@ -38,8 +38,17 @@ public partial class CICD // Common
     {
         DeleteAllNugetPackages();
 
+        var project = Solution.GetProjects(ProjectName).FirstOrDefault();
+
+        if (project is null)
+        {
+            var exMsg = $"The project named '{ProjectName}' could not be found.";
+            exMsg += $"{Environment.NewLine}Check that the 'ProjectName' param in the parameters.json is set correctly.";
+            throw new Exception(exMsg);
+        }
+
         DotNetTasks.DotNetPack(s => DotNetPackSettingsExtensions.SetConfiguration<DotNetPackSettings>(s, Configuration)
-            .SetProject(MainProjPath)
+            .SetProject(project.Path)
             .SetOutputDirectory(NugetOutputPath)
             .EnableNoRestore());
     }

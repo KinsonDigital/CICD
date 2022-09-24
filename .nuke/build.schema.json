@@ -71,6 +71,12 @@
             "type": "string"
           }
         },
+        "ProjectName": {
+          "type": "string"
+        },
+        "RepoName": {
+          "type": "string"
+        },
         "RepoOwner": {
           "type": "string"
         },
