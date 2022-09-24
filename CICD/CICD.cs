@@ -1,3 +1,11 @@
+// <copyright file="CICD.cs" company="KinsonDigital">
+// Copyright (c) KinsonDigital. All rights reserved.
+// </copyright>
+
+using CICDSystem.Services;
+
+namespace CICDSystem;
+
 using System;
 using Nuke.Common;
 using Nuke.Common.CI.GitHubActions;
@@ -6,70 +14,18 @@ using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
 using Octokit;
 using Octokit.Internal;
-using Services;
 using NukeParameter = Nuke.Common.ParameterAttribute;
 
 // TODO: Add editorconfig to build project and tweak until it fits
 
 public partial class CICD : NukeBuild
 {
-    const string ProjFileExt = "csproj";
-    const string NugetOrgSource = "https://api.nuget.org/v3/index.json";
-    const string ConsoleTab = "\t       ";
-    private static BuildSettings buildSettings;
+    private const string ProjFileExt = "csproj";
+    private const string NugetOrgSource = "https://api.nuget.org/v3/index.json";
+    private const string ConsoleTab = "\t       ";
 
-    public static int Main(string[] args)
-    {
-        // If the generate settings file command was invoked
-        if (args.Length > 0 && args[0] == nameof(GenerateSettingsFile))
-        {
-            return Execute<CICD>(x => x.DebugTask);
-        }
-
-        var buildSettingsService = new BuildSettingsService();
-
-        var loadResult = buildSettingsService.LoadBuildSettings();
-
-        if (loadResult.loadSuccessful)
-        {
-            buildSettings = loadResult.settings ??
-                            throw new Exception("The build settings are null.  Build canceled!!");
-
-            Owner = buildSettings.Owner ?? string.Empty;
-            MainProjName = buildSettings.MainProjectName ?? string.Empty;
-
-            // Make sure mandatory settings are not null or empty
-            if (string.IsNullOrEmpty(Owner) || string.IsNullOrEmpty(MainProjName))
-            {
-                const string mandatorySettingsErrorMsg = $"The '{nameof(BuildSettings.Owner)}' and '{nameof(BuildSettings.MainProjectName)}' settings must not be null or empty.";
-                LogError(mandatorySettingsErrorMsg);
-                return -1;
-            }
-
-            MainProjFileName = string.IsNullOrEmpty(buildSettings.MainProjectFileName)
-                ? MainProjFileName
-                : buildSettings.MainProjectFileName;
-            DocumentationDirName = string.IsNullOrEmpty(buildSettings.DocumentationDirName)
-                ? DocumentationDirName
-                : buildSettings.DocumentationDirName;
-            ReleaseNotesDirName = string.IsNullOrEmpty(buildSettings.ReleaseNotesDirName)
-                ? ReleaseNotesDirName
-                : buildSettings.ReleaseNotesDirName;
-            AnnounceOnTwitter = buildSettings.AnnounceOnTwitter;
-
-            GitHubClient = GetGitHubClient();
-        }
-        else
-        {
-            Console.WriteLine();
-            var loadErrorMsg = loadResult.errorMsg;
-            loadErrorMsg += $"To create an empty build settings file, run the '{nameof(GenerateSettingsFile)}' command";
-            LogError(loadErrorMsg);
-            return -1;
-        }
-
-        return Execute<CICD>(x => x.BuildAllProjects, x => x.RunAllUnitTests);
-    }
+    public static int Main() =>
+        Execute<CICD>(x => x.BuildAllProjects, x => x.RunAllUnitTests);
 
     GitHubActions? GitHubActions => GitHubActions.Instance;
     [Solution] readonly Solution Solution;
@@ -78,6 +34,10 @@ public partial class CICD : NukeBuild
     [NukeParameter] static GitHubClient GitHubClient;
 
     [NukeParameter(List = false)] static readonly Configuration Configuration = GetBuildConfig();
+
+    [NukeParameter] private static string? BuildSettingsDirPath { get; set; }
+
+    [NukeParameter] private static bool SkipTwitterAnnouncement { get; set; }
 
     [NukeParameter] [Secret] private string NugetOrgApiKey { get; set; } = string.Empty;
     [NukeParameter] [Secret] private string TwitterConsumerApiKey { get; set; } = string.Empty;
@@ -97,12 +57,6 @@ public partial class CICD : NukeBuild
     static AbsolutePath NugetOutputPath => RootDirectory / "Artifacts";
     static AbsolutePath PreviewReleaseNotesDirPath => ReleaseNotesBaseDirPath / "PreviewReleases";
     static AbsolutePath ProductionReleaseNotesDirPath => ReleaseNotesBaseDirPath / "ProductionReleases";
-
-    static bool AnnounceOnTwitter
-    {
-        get => buildSettings.AnnounceOnTwitter;
-        set => buildSettings.AnnounceOnTwitter = value;
-    }
 
     static Configuration GetBuildConfig()
     {

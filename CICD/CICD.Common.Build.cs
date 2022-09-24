@@ -2,6 +2,8 @@
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
+namespace CICDSystem;
+
 using System;
 using Nuke.Common;
 using Nuke.Common.Tools.DotNet;

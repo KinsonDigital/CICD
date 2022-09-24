@@ -1,9 +1,23 @@
+// <copyright file="CICD.Release.Production.cs" company="KinsonDigital">
+// Copyright (c) KinsonDigital. All rights reserved.
+// </copyright>
+
+namespace CICDSystem;
+
 using System;
 using Nuke.Common;
 using Serilog;
 
+/// <summary>
+/// Contains all of the functionality for production releases.
+/// </summary>
 public partial class CICD // Release.Production
 {
+    // ReSharper disable UnusedMember.Global
+
+    /// <summary>
+    /// Gets a target that performs a production release.
+    /// </summary>
     public Target ProductionRelease => _ => _
         .Requires(
             () => ThatThisIsExecutedManually(BranchType.Master),
@@ -24,9 +38,7 @@ public partial class CICD // Release.Production
             () => ThatTheProdReleaseNotesContainsPreviewReleaseItems(),
             () => ThatMilestoneIssuesExistInReleaseNotes(ReleaseType.Production),
             () => ThatGitHubReleaseDoesNotExist(ReleaseType.Production),
-            () => NugetPackageDoesNotExist()
-        )
-        .After(BuildAllProjects, RunAllUnitTests)
+            () => NugetPackageDoesNotExist()).After(BuildAllProjects, RunAllUnitTests)
         .DependsOn(BuildAllProjects, RunAllUnitTests)
         .Executes(async () =>
         {
@@ -87,7 +99,7 @@ public partial class CICD // Release.Production
                 Log.Information(nugetReleaseLog);
 
                 // Tweet about release
-                if (AnnounceOnTwitter)
+                if (SkipTwitterAnnouncement is false)
                 {
                     Log.Information("✅Announcing release on twitter . . .");
                     SendReleaseTweet(tweetTemplatePath, version);
@@ -119,4 +131,6 @@ public partial class CICD // Release.Production
                 Assert.Fail(e.Message);
             }
         });
+
+    // ReSharper restore UnusedMember.Global
 }

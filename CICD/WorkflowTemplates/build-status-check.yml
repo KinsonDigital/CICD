@@ -1,0 +1,23 @@
+name: ✅Build Status Check
+
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - develop
+      - preview/v*.*.*-preview.*
+      - release/v*.*.*
+      - master
+
+
+jobs:
+  build_project:
+    name: Build Project
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run Build Status Check
+      run: ./build.cmd BuildStatusCheck
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

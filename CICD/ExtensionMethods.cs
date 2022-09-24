@@ -1,3 +1,9 @@
+// <copyright file="ExtensionMethods.cs" company="KinsonDigital">
+// Copyright (c) KinsonDigital. All rights reserved.
+// </copyright>
+
+namespace CICDSystem;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,13 +15,16 @@ using Nuke.Common;
 using Nuke.Common.CI.GitHubActions;
 using Nuke.Common.Git;
 using Nuke.Common.ProjectModel;
-using Nuke.Common.Tools.Git;
 using Nuke.Common.Utilities;
 using Nuke.Common.Utilities.Collections;
 using Octokit;
 using Serilog;
 using Project = Nuke.Common.ProjectModel.Project;
+using static Nuke.Common.NukeBuild;
 
+/// <summary>
+/// Provides helper methods throughout the project.
+/// </summary>
 public static class ExtensionMethods
 {
     private static readonly char[] Digits = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', };
@@ -30,8 +39,6 @@ public static class ExtensionMethods
         'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
         'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
     };
-
-    private static readonly char[] SnakableCharacters = { ' ', '-' };
 
     private const char MatchNumbers = '#';
     private const char MatchAnything = '*';
@@ -114,11 +121,65 @@ public static class ExtensionMethods
             }
         }
 
-        return string.Join("", characters)
+        return string.Join(string.Empty, characters)
             .Replace("-", " ")
             .Replace("_", " ")
             .ToSpaceDelimitedSections();
     }
+
+    public static string ToKebabCase(this string value)
+    {
+        var allUpperCase = value.All(c => UpperCaseLetters.Contains(c));
+        var allLowerCase = value.All(c => LowerCaseLetters.Contains(c));
+        var noSpaces = value.All(c => c != ' ');
+        if (string.IsNullOrEmpty(value) ||
+            (noSpaces && (allUpperCase || allLowerCase)))
+        {
+            return value;
+        }
+
+        value = value.Trim();
+        value = value.Replace(' ', '-');
+        var result = string.Empty;
+
+        for (var i = 0; i < value.Length; i++)
+        {
+            if (i == 0)
+            {
+                result += value[i].IsUpperCase() ? value[i].ToLowerCase().ToString() : value[i].ToString();
+                continue;
+            }
+
+            if (i == value.Length - 1)
+            {
+                result += value[i].ToLowerCase();
+                continue;
+            }
+
+            var currentIsUpperCase = UpperCaseLetters.Contains(value[i]);
+            var prevIsHyphen = value[i - 1] == '-';
+
+            if (currentIsUpperCase && prevIsHyphen)
+            {
+                result += value[i].ToLowerCase();
+                continue;
+            }
+
+            var prevIsLowerCase = LowerCaseLetters.Contains(value[i - 1]);
+            var nextIsLowerCase = LowerCaseLetters.Contains(value[i + 1]);
+            var isValidForConversion = currentIsUpperCase && prevIsLowerCase && nextIsLowerCase;
+
+            result += isValidForConversion
+                ? $"-{value[i].ToLowerCase()}"
+                : value[i];
+        }
+
+        return result;
+    }
+
+    public static bool IsUpperCase(this char value) => UpperCaseLetters.Contains(value);
+
+    public static char ToLowerCase(this char value) => value.ToString().ToLower()[0];
 
     public static void LogRequirementTitle(this string requirementName, string value)
     {
@@ -161,7 +222,6 @@ public static class ExtensionMethods
             }
             else
             {
-                var stuff = word[1..];
                 var newWord = $"{word[0].ToString().ToUpper()}{word[1..]}";
                 result += $" {newWord} ";
             }
@@ -169,8 +229,6 @@ public static class ExtensionMethods
 
         return result.Trim().Replace("  ", " ");
     }
-
-    public static bool IsNotNullOrEmpty(this string value) => !string.IsNullOrEmpty(value);
 
     public static string ToSpaceDelimitedSections(this string value)
     {
@@ -232,104 +290,13 @@ public static class ExtensionMethods
 
     public static bool IsDevelopBranch(this string branch) => branch == "develop";
 
-    public static bool IsOnFeatureBranch(this GitRepository repo)
-    {
-        const string namingSyntax = "feature/#-*";
-        var errorMsg = "The feature branch '{Value}' does not follow the correct naming syntax.";
-        errorMsg += $"{Environment.NewLine}Use the naming syntax '{namingSyntax}' for feature branches.";
-        errorMsg += "Example: feature/123-my-feature-branch";
-
-        var result = IsOnCorrectBranch(repo, namingSyntax);
-
-        if (result is false)
-        {
-            Log.Error(errorMsg, repo.Branch);
-        }
-
-        return result;
-    }
-
     public static bool IsFeatureBranch(this string branch) => IsCorrectBranch(branch, "feature/#-*");
-
-    public static bool IsOnPreviewReleaseBranch(this GitRepository repo)
-    {
-        const string namingSyntax = "preview/v*.*.*-preview.#";
-        var errorMsg = "The preview release branch '{Value}' does not follow the correct naming syntax.";
-        errorMsg += $"{Environment.NewLine}Use the naming syntax '{namingSyntax}' for feature branches.";
-        errorMsg += "Example: preview/v1.2.3-preview.4";
-
-        var result = IsOnCorrectBranch(repo, namingSyntax);
-
-        if (result is false)
-        {
-            Log.Error(errorMsg, repo.Branch);
-        }
-
-        return result;
-    }
 
     public static bool IsPreviewBranch(this string branch) => IsCorrectBranch(branch, "preview/v*.*.*-preview.#");
 
-    public static bool IsOnReleaseBranch(this GitRepository repo)
-    {
-        const string namingSyntax = "release/v*.*.*";
-        var errorMsg = "The release branch '{Value}' does not follow the correct naming syntax.";
-        errorMsg += $"{Environment.NewLine}Use the naming syntax '{namingSyntax}' for feature branches.";
-        errorMsg += "Example: release/v1.2.3";
-
-        var result = IsOnCorrectBranch(repo, namingSyntax);
-
-        if (result is false)
-        {
-            Log.Error(errorMsg, repo.Branch);
-        }
-
-        return result;
-    }
-
     public static bool IsReleaseBranch(this string branch) => IsCorrectBranch(branch, "release/v*.*.*");
 
-    public static bool IsOnPreviewFeatureBranch(this GitRepository repo)
-    {
-        const string namingSyntax = "preview/feature/#-*";
-        var errorMsg = "The preview feature branch '{Value}' does not follow the correct naming syntax.";
-        errorMsg += $" {Environment.NewLine}Use the naming syntax '{namingSyntax}' for feature branches.";
-        errorMsg += "Example: preview/feature/123-my-preview-branch";
-
-        var result = IsOnCorrectBranch(repo, namingSyntax);
-
-        if (result is false)
-        {
-            Log.Error(errorMsg, repo.Branch);
-        }
-
-        return result;
-    }
-
     public static bool IsPreviewFeatureBranch(this string branch) => IsCorrectBranch(branch, "preview/feature/#-*");
-
-    public static bool IsOnHotFixBranch(this GitRepository repo)
-    {
-        const string namingSyntax = "hotfix/#-*";
-        var errorMsg = "The hotfix branch '{Value}' does not follow the correct naming syntax.";
-        errorMsg += $" {Environment.NewLine}Use the naming syntax '{namingSyntax}' for feature branches.";
-        errorMsg += "Example: hotfix/123-my-hotfix-branch";
-
-        var result = IsOnCorrectBranch(repo, namingSyntax);
-
-        if (result is false)
-        {
-            Log.Error(errorMsg, repo.Branch);
-        }
-
-        return result;
-    }
-
-    public static void CreateTag(this GitRepository _, string tag)
-    {
-        GitTasks.Git($"tag {tag}");
-        GitTasks.Git($"push origin {tag}");
-    }
 
     public static bool IsHotFixBranch(this string branch) => IsCorrectBranch(branch, "hotfix/#-*");
 
@@ -394,25 +361,11 @@ public static class ExtensionMethods
         return EqualTo(currentVersion, versionPattern);
     }
 
-    public static bool AllVersionsExist(this Project project)
-    {
-        return project.VersionExists() && project.FileVersionExists() && project.AssemblyVersionExists();
-    }
+    public static bool VersionExists(this Project project) => !string.IsNullOrEmpty(project.GetProperty("Version"));
 
-    public static bool VersionExists(this Project project)
-    {
-        return !string.IsNullOrEmpty(project.GetProperty("Version"));
-    }
+    public static bool FileVersionExists(this Project project) => !string.IsNullOrEmpty(project.GetProperty("FileVersion"));
 
-    public static bool FileVersionExists(this Project project)
-    {
-        return !string.IsNullOrEmpty(project.GetProperty("FileVersion"));
-    }
-
-    public static bool AssemblyVersionExists(this Project project)
-    {
-        return !string.IsNullOrEmpty(project.GetProperty("AssemblyVersion"));
-    }
+    public static bool AssemblyVersionExists(this Project project) => !string.IsNullOrEmpty(project.GetProperty("AssemblyVersion"));
 
     public static string GetVersion(this Project project)
     {
@@ -472,18 +425,6 @@ public static class ExtensionMethods
     }
 
     public static async Task<bool> LabelExists(
-        this IIssuesLabelsClient client,
-        string repoOwner,
-        string repoName,
-        int issueNumber,
-        string labelName)
-    {
-        var issueLabels = await client.GetAllForIssue(repoOwner, repoName, issueNumber);
-
-        return issueLabels.Any(l => l.Name == labelName);
-    }
-
-    public static async Task<bool> LabelExists(
         this IPullRequestsClient client,
         string repoOwner,
         string repoName,
@@ -494,18 +435,6 @@ public static class ExtensionMethods
 
         return pr.Labels.Any(l => l.Name == labelName);
     }
-
-    public static async Task<bool> TagDoesNotExist(
-        this IRepositoriesClient client,
-        string repoOwner,
-        string repoName,
-        string tag)
-    {
-        return !await TagExists(client, repoOwner, repoName, tag);
-    }
-
-    public static bool IsManuallyExecuted(this GitHubActions gitHubActions)
-        => gitHubActions.IsPullRequest is false && gitHubActions.EventName == "workflow_dispatch";
 
     public static async Task<bool> IssueExists(
         this IIssuesClient client,
@@ -519,12 +448,10 @@ public static class ExtensionMethods
 
             return result.PullRequest is null;
         }
-        catch (NotFoundException e)
+        catch (NotFoundException)
         {
             return false;
         }
-
-        return true;
     }
 
     public static async Task<bool> HasLabels(
@@ -539,7 +466,7 @@ public static class ExtensionMethods
 
             return issue is not null && issue.PullRequest is null && issue.Labels.Count >= 1;
         }
-        catch (NotFoundException e)
+        catch (NotFoundException)
         {
             return false;
         }
@@ -566,27 +493,6 @@ public static class ExtensionMethods
         return issues;
     }
 
-    public static async Task<Issue[]> IssuesForMilestones(
-        this IIssuesClient client,
-        string owner,
-        string name,
-        string[] milestoneNames)
-    {
-        var issueRequest = new RepositoryIssueRequest
-        {
-            Filter = IssueFilter.All,
-            State = ItemStateFilter.All,
-        };
-
-        var issues = (await client.GetAllForRepository(owner, name, issueRequest))
-            .Where(i =>
-                i.PullRequest is null &&
-                i.Milestone is not null &&
-                milestoneNames.Contains(i.Milestone.Title)).ToArray();
-
-        return issues;
-    }
-
     public static async Task<Issue[]> PullRequestsForMilestone(
         this IIssuesClient client,
         string owner,
@@ -606,24 +512,6 @@ public static class ExtensionMethods
         return pullRequests;
     }
 
-    public static async Task<bool> HasReviewers(
-        this IPullRequestsClient client,
-        string owner,
-        string name,
-        int prNumber)
-    {
-        try
-        {
-            var pr = await client.Get(owner, name, prNumber);
-
-            return pr is not null && pr.RequestedReviewers.Count >= 1;
-        }
-        catch (NotFoundException e)
-        {
-            return false;
-        }
-    }
-
     public static async Task<bool> HasAssignees(
         this IPullRequestsClient client,
         string owner,
@@ -636,7 +524,7 @@ public static class ExtensionMethods
 
             return pr is not null && pr.Assignees.Count >= 1;
         }
-        catch (NotFoundException e)
+        catch (NotFoundException)
         {
             return false;
         }
@@ -654,7 +542,7 @@ public static class ExtensionMethods
 
             return pr is not null && pr.Labels.Count >= 1;
         }
-        catch (NotFoundException e)
+        catch (NotFoundException)
         {
             return false;
         }
@@ -664,12 +552,10 @@ public static class ExtensionMethods
         this IReleasesClient client,
         string owner,
         string repoName,
-        string tag)
-    {
-        return (from r in await client.GetAll(owner, repoName)
+        string tag) =>
+        (from r in await client.GetAll(owner, repoName)
             where r.TagName == tag
             select r).ToArray().Any();
-    }
 
     public static async Task UploadTextFileAsset(this IReleasesClient client, Release release, string filePath)
     {
@@ -687,7 +573,7 @@ public static class ExtensionMethods
         {
             FileName = Path.GetFileName(filePath),
             ContentType = "application/zip",
-            RawData = fileAsset
+            RawData = fileAsset,
         };
 
         try
@@ -711,12 +597,10 @@ public static class ExtensionMethods
         this IMilestonesClient client,
         string owner,
         string repoName,
-        string version)
-    {
-        return (from m in await client.GetAllForRepository(owner, repoName)
+        string version) =>
+        (from m in await client.GetAllForRepository(owner, repoName)
             where m.Title == version
             select m).Any();
-    }
 
     public static async Task<Milestone?> GetByTitle(
         this IMilestonesClient client,
@@ -984,6 +868,32 @@ public static class ExtensionMethods
             : (string.IsNullOrEmpty(pattern) && string.IsNullOrEmpty(value)) || pattern == value;
 
         return isEqual;
+    }
+
+    /// <summary>
+    /// Returns the name of the repository.
+    /// </summary>
+    /// <param name="actions">GitHub actions related functionality.</param>
+    /// <returns>The name of the repository.</returns>
+    public static string RepositoryName(this GitHubActions actions)
+    {
+        if (IsLocalBuild)
+        {
+            var projectFileSections = BuildProjectFile?
+                .ToString()
+                .Replace('\\', '/')
+                .Split('/') ?? Array.Empty<string>();
+
+            var file = projectFileSections.FirstOrDefault(s => s.StartsWith('.') is false && s.Contains(".csproj"));
+
+            return file?.Split('.')[0] ?? string.Empty;
+        }
+
+        var sections = actions.Repository.Split('/');
+
+        return sections.Length >= 2
+            ? sections[1]
+            : string.Empty;
     }
 
     /// <summary>
