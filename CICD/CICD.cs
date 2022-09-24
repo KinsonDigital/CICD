@@ -87,36 +87,6 @@ public partial class CICD : NukeBuild
         return localSecretService.LoadSecret(tokenName);
     }
 
-    static GitHubClient GetGitHubClient()
-    {
-        var token = GetGitHubToken();
-        GitHubClient client;
-
-        if (IsServerBuild)
-        {
-            client = new GitHubClient(new ProductHeaderValue(RepoName),
-                new InMemoryCredentialStore(new Credentials(token)));
-        }
-        else
-        {
-            if (string.IsNullOrEmpty(token))
-            {
-                var warning = "No token has been loaded from the local 'local-secrets.json' file.";
-                warning += $"{Environment.NewLine}GitHub API requests will be unauthorized and you may run into API request limits.";
-                Console.WriteLine();
-                LogWarning(warning);
-                client = new GitHubClient(new ProductHeaderValue(RepoName));
-            }
-            else
-            {
-                client = new GitHubClient(new ProductHeaderValue(RepoName),
-                    new InMemoryCredentialStore(new Credentials(token)));
-            }
-        }
-
-        return client;
-    }
-
     static void LogWarning(string warning)
     {
         var color = Console.ForegroundColor;
