@@ -71,6 +71,9 @@
             "type": "string"
           }
         },
+        "RepoOwner": {
+          "type": "string"
+        },
         "Root": {
           "type": "string",
           "description": "Root directory during build execution"

@@ -39,13 +39,13 @@ public partial class CICD : NukeBuild
 
     [NukeParameter] private static bool SkipTwitterAnnouncement { get; set; }
 
+    [NukeParameter] private string RepoOwner { get; set; }
     [NukeParameter] [Secret] private string NugetOrgApiKey { get; set; } = string.Empty;
     [NukeParameter] [Secret] private string TwitterConsumerApiKey { get; set; } = string.Empty;
     [NukeParameter] [Secret] private string TwitterConsumerApiSecret { get; set; } = string.Empty;
     [NukeParameter] [Secret] private string TwitterAccessToken { get; set; } = string.Empty;
     [NukeParameter] [Secret] private string TwitterAccessTokenSecret { get; set; } = string.Empty;
 
-    static string Owner = string.Empty;
     static string MainProjName = string.Empty;
     static string MainProjFileName = $"{MainProjName}.{ProjFileExt}";
     static string DocumentationDirName = "Documentation";

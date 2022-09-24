@@ -71,13 +71,13 @@ public partial class CICD // Requirements
 
         var prNumber = GitHubActions?.PullRequestNumber ?? -1;
 
-        if (prClient.HasAssignees(Owner, MainProjName, prNumber).Result)
+        if (prClient.HasAssignees(RepoOwner, MainProjName, prNumber).Result)
         {
             Log.Information($"{ConsoleTab}✅The pull request '{prNumber}' is properly assigned.");
         }
         else
         {
-            var prLink = $"https://github.com/{Owner}/{MainProjName}/pull/{prNumber}";
+            var prLink = $"https://github.com/{RepoOwner}/{MainProjName}/pull/{prNumber}";
             var errorMsg = "The pull request '{Value1}' is not assigned to anyone.";
             errorMsg += $"{Environment.NewLine}{ConsoleTab}To set an assignee, go to 👉🏼 '{{Value2}}'.";
             Log.Error(errorMsg, prNumber, prLink);
@@ -95,7 +95,7 @@ public partial class CICD // Requirements
             .LogRequirementTitle($"Checking that the issue number in the feature branch exists.");
 
         var branchIssueNumber = ExtractIssueNumber(BranchType.Feature, sourceBranch);
-        var issueExists = GitHubClient.Issue.IssueExists(Owner, MainProjName, branchIssueNumber).Result;
+        var issueExists = GitHubClient.Issue.IssueExists(RepoOwner, MainProjName, branchIssueNumber).Result;
 
         if (issueExists is false)
         {
@@ -120,7 +120,7 @@ public partial class CICD // Requirements
             .LogRequirementTitle($"Checking that the issue number in the preview feature branch exists.");
 
         var branchIssueNumber = ExtractIssueNumber(BranchType.PreviewFeature, sourceBranch);
-        var issueExists = GitHubClient.Issue.IssueExists(Owner, MainProjName, branchIssueNumber).Result;
+        var issueExists = GitHubClient.Issue.IssueExists(RepoOwner, MainProjName, branchIssueNumber).Result;
 
         if (issueExists is false)
         {
@@ -160,11 +160,11 @@ public partial class CICD // Requirements
         {
             var sourceBranch = GitHubActions?.HeadRef ?? string.Empty;
             var branchIssueNumber = ExtractIssueNumber(branchType, sourceBranch);
-            var issueExists = GitHubClient.Issue.IssueExists(Owner, MainProjName, branchIssueNumber).Result;
+            var issueExists = GitHubClient.Issue.IssueExists(RepoOwner, MainProjName, branchIssueNumber).Result;
 
             if (issueExists)
             {
-                var containsLabels = GitHubClient.Issue.HasLabels(Owner, MainProjName, branchIssueNumber).Result;
+                var containsLabels = GitHubClient.Issue.HasLabels(RepoOwner, MainProjName, branchIssueNumber).Result;
 
                 if (containsLabels)
                 {
@@ -205,13 +205,13 @@ public partial class CICD // Requirements
             ? -1
             : (int)GitHubActions.PullRequestNumber;
 
-        if (prClient.HasLabels(Owner, MainProjName, prNumber).Result)
+        if (prClient.HasLabels(RepoOwner, MainProjName, prNumber).Result)
         {
             Log.Information($"{ConsoleTab}✅The pull request '{prNumber}' has labels.");
         }
         else
         {
-            var prLink = $"https://github.com/{Owner}/{MainProjName}/pull/{prNumber}";
+            var prLink = $"https://github.com/{RepoOwner}/{MainProjName}/pull/{prNumber}";
             var errorMsg = "The pull request '{Value1}' does not have any labels.";
             errorMsg += $"{Environment.NewLine}{ConsoleTab}To add a label, go to 👉🏼 '{{Value2}}'.";
             Log.Error(errorMsg, prNumber, prLink);
@@ -235,7 +235,7 @@ public partial class CICD // Requirements
             Assert.Fail("The workflow is not being executed as a pull request in the GitHub environment.");
         }
 
-        var labelExists = GitHubClient.PullRequest.LabelExists(Owner, MainProjName, prNumber, labelName).Result;
+        var labelExists = GitHubClient.PullRequest.LabelExists(RepoOwner, MainProjName, prNumber, labelName).Result;
 
         if (labelExists)
         {
@@ -243,7 +243,7 @@ public partial class CICD // Requirements
         }
         else
         {
-            var prLink = $"https://github.com/{Owner}/{MainProjName}/pull/{prNumber}";
+            var prLink = $"https://github.com/{RepoOwner}/{MainProjName}/pull/{prNumber}";
             var errorMsg = $"The pull request '{{Value1}}' does not have the preview release label '{labelName}'.";
             errorMsg += $"{Environment.NewLine}{ConsoleTab}To add the label, go to 👉🏼 '{{Value2}}'.";
             Log.Error(errorMsg, prNumber, prLink);
@@ -684,11 +684,11 @@ public partial class CICD // Requirements
         var projectVersion = project?.GetVersion() ?? string.Empty;
         var milestoneClient = GitHubClient.Issue.Milestone;
 
-        var milestoneExists = milestoneClient.MilestoneExists(Owner, MainProjName, $"v{projectVersion}").Result;
+        var milestoneExists = milestoneClient.MilestoneExists(RepoOwner, MainProjName, $"v{projectVersion}").Result;
 
         if (milestoneExists is false)
         {
-            var milestoneUrl = $"https://github.com/{Owner}/{MainProjName}/milestones/new";
+            var milestoneUrl = $"https://github.com/{RepoOwner}/{MainProjName}/milestones/new";
             var errorMsg = $"The milestone for version '{projectVersion}' does not exist.";
             errorMsg += $"{Environment.NewLine}{ConsoleTab}To create a milestone, go here 👉🏼 {milestoneUrl}";
             errors.Add(errorMsg);
@@ -720,11 +720,11 @@ public partial class CICD // Requirements
         var projectVersion = project?.GetVersion() ?? string.Empty;
         var milestoneClient = GitHubClient.Issue.Milestone;
 
-        var milestone = milestoneClient.GetByTitle(Owner, MainProjName, $"v{projectVersion}").Result;
+        var milestone = milestoneClient.GetByTitle(RepoOwner, MainProjName, $"v{projectVersion}").Result;
 
         if (milestone is null)
         {
-            var milestoneUrl = $"https://github.com/{Owner}/{MainProjName}/milestones/new";
+            var milestoneUrl = $"https://github.com/{RepoOwner}/{MainProjName}/milestones/new";
             var errorMsg = $"The milestone for version '{projectVersion}' does not exist.";
             errorMsg += $"{Environment.NewLine}{ConsoleTab}To create a milestone, go here 👉🏼 {milestoneUrl}";
             errors.Add(errorMsg);
@@ -770,11 +770,11 @@ public partial class CICD // Requirements
         var mileStoneTitle = $"v{projectVersion}";
         var issueClient = GitHubClient.Issue;
         var mileStoneClient = GitHubClient.Issue.Milestone;
-        var milestone = mileStoneClient.GetByTitle(Owner, MainProjName, mileStoneTitle).Result;
+        var milestone = mileStoneClient.GetByTitle(RepoOwner, MainProjName, mileStoneTitle).Result;
 
         if (milestone is null)
         {
-            var milestoneUrl = $"https://github.com/{Owner}/{MainProjName}/milestones/new";
+            var milestoneUrl = $"https://github.com/{RepoOwner}/{MainProjName}/milestones/new";
             var errorMsg = "Cannot check a milestone that does not exist.";
             errorMsg += $"{Environment.NewLine}{ConsoleTab}To create a milestone, go here 👉🏼 {milestoneUrl}";
             errors.Add(errorMsg);
@@ -782,8 +782,8 @@ public partial class CICD // Requirements
 
         var pullRequests = itemType switch
         {
-            ItemType.Issue => issueClient.IssuesForMilestone(Owner, MainProjName, mileStoneTitle).Result,
-            ItemType.PullRequest => issueClient.PullRequestsForMilestone(Owner, MainProjName, mileStoneTitle).Result,
+            ItemType.Issue => issueClient.IssuesForMilestone(RepoOwner, MainProjName, mileStoneTitle).Result,
+            ItemType.PullRequest => issueClient.PullRequestsForMilestone(RepoOwner, MainProjName, mileStoneTitle).Result,
             _ => throw new ArgumentOutOfRangeException(nameof(itemType), itemType, null)
         };
 
@@ -869,9 +869,9 @@ public partial class CICD // Requirements
             ? projectVersion
             : $"v{projectVersion}";
 
-        var milestoneUrl = GitHubClient.Issue.Milestone.GetHtmlUrl(Owner, MainProjName, projectVersion).Result;
+        var milestoneUrl = GitHubClient.Issue.Milestone.GetHtmlUrl(RepoOwner, MainProjName, projectVersion).Result;
 
-        var openMilestoneIssues = GitHubClient.Issue.IssuesForMilestone(Owner, MainProjName, projectVersion)
+        var openMilestoneIssues = GitHubClient.Issue.IssuesForMilestone(RepoOwner, MainProjName, projectVersion)
             .Result
             .Where(i => (skipReleaseToDoIssues || i.IsReleaseToDoIssue(releaseType)) && i.State == ItemState.Open).ToArray();
 
@@ -908,9 +908,9 @@ public partial class CICD // Requirements
 
         var projectVersion = project?.GetVersion() ?? string.Empty;
 
-        var milestoneUrl = GitHubClient.Issue.Milestone.GetHtmlUrl(Owner, MainProjName, $"v{projectVersion}").Result;
+        var milestoneUrl = GitHubClient.Issue.Milestone.GetHtmlUrl(RepoOwner, MainProjName, $"v{projectVersion}").Result;
 
-        var openMilestonePullRequests = GitHubClient.Issue.PullRequestsForMilestone(Owner, MainProjName, $"v{projectVersion}")
+        var openMilestonePullRequests = GitHubClient.Issue.PullRequestsForMilestone(RepoOwner, MainProjName, $"v{projectVersion}")
             .Result
             .Where(i => (skipReleaseToDoPullRequests || i.IsReleasePullRequest(releaseType)) && i.State == ItemState.Open).ToArray();
 
@@ -948,11 +948,11 @@ public partial class CICD // Requirements
         var projectVersion = project?.GetVersion() ?? string.Empty;
         var milestoneTitle = $"v{projectVersion}";
         var milestoneClient = GitHubClient.Issue.Milestone;
-        var milestoneUrl = milestoneClient.GetHtmlUrl(Owner, MainProjName, milestoneTitle).Result;
+        var milestoneUrl = milestoneClient.GetHtmlUrl(RepoOwner, MainProjName, milestoneTitle).Result;
 
         var issueClient = GitHubClient.Issue;
 
-        var milestoneIssues = issueClient.IssuesForMilestone(Owner, MainProjName, milestoneTitle).Result;
+        var milestoneIssues = issueClient.IssuesForMilestone(RepoOwner, MainProjName, milestoneTitle).Result;
 
         var issueHasNoLabels = milestoneIssues.Any(i => i.Labels.Count <= 0);
 
@@ -991,11 +991,11 @@ public partial class CICD // Requirements
         var projectVersion = project?.GetVersion() ?? string.Empty;
         var milestoneTitle = $"v{projectVersion}";
         var milestoneClient = GitHubClient.Issue.Milestone;
-        var milestoneUrl = milestoneClient.GetHtmlUrl(Owner, MainProjName, milestoneTitle).Result;
+        var milestoneUrl = milestoneClient.GetHtmlUrl(RepoOwner, MainProjName, milestoneTitle).Result;
 
         var issueClient = GitHubClient.Issue;
 
-        var milestonePullRequests = issueClient.PullRequestsForMilestone(Owner, MainProjName, milestoneTitle).Result;
+        var milestonePullRequests = issueClient.PullRequestsForMilestone(RepoOwner, MainProjName, milestoneTitle).Result;
 
         var issueHasNoLabels = milestonePullRequests.Any(i => i.Labels.Count <= 0);
 
@@ -1035,11 +1035,11 @@ public partial class CICD // Requirements
         var projectVersion = project?.GetVersion() ?? string.Empty;
 
         var repoClient = GitHubClient.Repository;
-        var tagExists = repoClient.TagExists(Owner, MainProjName, $"v{projectVersion}").Result;
+        var tagExists = repoClient.TagExists(RepoOwner, MainProjName, $"v{projectVersion}").Result;
 
         if (tagExists)
         {
-            var tagUrl = $"https://github.com/{Owner}/{MainProjName}/tree/{projectVersion}";
+            var tagUrl = $"https://github.com/{RepoOwner}/{MainProjName}/tree/{projectVersion}";
             var errorMsg = $"The {releaseTypeStr} release tag '{projectVersion}' already exists.";
             errorMsg += $"{Environment.NewLine}{ConsoleTab}To view the tag, go here 👉🏼 {tagUrl}";
             errors.Add(errorMsg);
@@ -1169,7 +1169,7 @@ public partial class CICD // Requirements
         var projectVersion = project?.GetVersion() ?? string.Empty;
         var milestoneTitle = $"v{projectVersion}";
 
-        var milestoneIssues = GitHubClient.Issue.IssuesForMilestone(Owner, MainProjName, milestoneTitle).Result;
+        var milestoneIssues = GitHubClient.Issue.IssuesForMilestone(RepoOwner, MainProjName, milestoneTitle).Result;
         var releaseNotes = this.Solution.GetReleaseNotes(releaseType, projectVersion);
         if (string.IsNullOrEmpty(releaseNotes))
         {
@@ -1180,7 +1180,7 @@ public partial class CICD // Requirements
             ? Array.Empty<Issue>()
             : milestoneIssues.Where(i =>
             {
-                var issueNote = $"[#{i.Number}]({baseUrl}/{Owner}/{MainProjName}/issues/{i.Number})";
+                var issueNote = $"[#{i.Number}]({baseUrl}/{RepoOwner}/{MainProjName}/issues/{i.Number})";
                 return !i.IsReleaseToDoIssue(releaseType) &&
                        !releaseNotes.Contains(issueNote);
             }).ToArray();
@@ -1312,7 +1312,7 @@ public partial class CICD // Requirements
                 milestoneRequest.State = ItemStateFilter.All;
 
                 var prevReleaseItems =
-                    (from m in GitHubClient.Issue.Milestone.GetAllForRepository(Owner, MainProjName, milestoneRequest).Result
+                    (from m in GitHubClient.Issue.Milestone.GetAllForRepository(RepoOwner, MainProjName, milestoneRequest).Result
                         where m.Title.IsPreviewVersion() && m.Title.StartsWith(prodVersion)
                         select (
                             m.Title,
@@ -1386,7 +1386,7 @@ public partial class CICD // Requirements
 
         var releaseClient = GitHubClient.Repository.Release;
 
-        var releaseExists = releaseClient.ReleaseExists(Owner, MainProjName, releaseTag).Result;
+        var releaseExists = releaseClient.ReleaseExists(RepoOwner, MainProjName, releaseTag).Result;
 
         if (releaseExists)
         {

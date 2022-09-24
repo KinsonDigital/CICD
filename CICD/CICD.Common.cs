@@ -83,7 +83,7 @@ public partial class CICD // Common
         var tweetTemplate = File.ReadAllText(templateFilePath);
 
         tweetTemplate = tweetTemplate.Replace(projLocation, MainProjName);
-        tweetTemplate = tweetTemplate.Replace(repoOwner, "KinsonDigital");
+        tweetTemplate = tweetTemplate.Replace(repoOwner, RepoOwner);
         tweetTemplate = tweetTemplate.Replace(version, releaseVersion);
 
         TwitterTasks.SendTweet(tweetTemplate, TwitterConsumerApiKey, TwitterConsumerApiSecret, TwitterAccessToken, TwitterAccessTokenSecret);
@@ -164,7 +164,7 @@ public partial class CICD // Common
 
         var issueClient = GitHubClient.Issue;
         var request = new MilestoneRequest { State = ItemStateFilter.All };
-        var previewMilestones = (await issueClient.Milestone.GetAllForRepository(Owner, MainProjName, request))
+        var previewMilestones = (await issueClient.Milestone.GetAllForRepository(RepoOwner, MainProjName, request))
             .Where(m => m.Title.IsPreviewVersion() && m.Title.StartsWith(version)).ToArray();
 
         var result = $"Container for holding everything released in version {version}";
@@ -173,7 +173,7 @@ public partial class CICD // Common
         {
             var tableDataRows = previewMilestones.Select(m =>
             {
-                var totalMilestoneIssues = issueClient.IssuesForMilestone(Owner, MainProjName, m.Title).Result.Length;
+                var totalMilestoneIssues = issueClient.IssuesForMilestone(RepoOwner, MainProjName, m.Title).Result.Length;
 
                 return $"{Environment.NewLine}|[🚀{m.Title}]({m.HtmlUrl})|{totalMilestoneIssues}|";
             });
@@ -236,7 +236,7 @@ public partial class CICD // Common
 
         var releaseClient = GitHubClient.Repository.Release;
 
-        var releaseResult = await releaseClient.Create(Owner, MainProjName, newRelease);
+        var releaseResult = await releaseClient.Create(RepoOwner, MainProjName, newRelease);
         await releaseClient.UploadTextFileAsset(releaseResult, releaseNotesFilePath);
 
         return releaseResult.HtmlUrl;
@@ -335,7 +335,7 @@ public partial class CICD // Common
             CommitMessage = $"Merge the branch '{sourceBranch}' into the branch '{targetBranch}' for production release.",
         };
 
-        var mergeResult = await mergeClient.Create(Owner, MainProjName, newMerge);
+        var mergeResult = await mergeClient.Create(RepoOwner, MainProjName, newMerge);
 
         return mergeResult?.HtmlUrl ?? string.Empty;
     }
@@ -355,7 +355,7 @@ public partial class CICD // Common
             State = ItemStateFilter.All,
         };
 
-        var prodContainsPreviewReleases = (await milestoneClient.GetAllForRepository(Owner, MainProjName, milestoneRequest))
+        var prodContainsPreviewReleases = (await milestoneClient.GetAllForRepository(RepoOwner, MainProjName, milestoneRequest))
             .Any(m => m.Title.IsPreviewVersion() && m.Title.StartsWith(prodVersion));
 
         return prodContainsPreviewReleases;
