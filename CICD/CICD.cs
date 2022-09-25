@@ -3,6 +3,7 @@
 // </copyright>
 
 using CICDSystem.Services;
+using Serilog;
 
 namespace CICDSystem;
 
@@ -22,6 +23,9 @@ public partial class CICD : NukeBuild
 {
     private const string NugetOrgSource = "https://api.nuget.org/v3/index.json";
     private const string ConsoleTab = "\t       ";
+    private static string DocumentationDirName = "Documentation";
+    private static string ReleaseNotesDirName = "ReleaseNotes";
+    private string previewReleaseNotesDirName;
 
     /// <summary>
     /// The main entry point of the build system.
@@ -60,6 +64,9 @@ public partial class CICD : NukeBuild
     private string ProjectName { get; set; } = string.Empty;
 
     [NukeParameter]
+    private string PreviewReleaseNotesDirName { get; set; } = "PreviewReleases";
+
+    [NukeParameter]
     [Secret]
     private string NugetOrgApiKey { get; set; } = string.Empty;
 
@@ -78,9 +85,6 @@ public partial class CICD : NukeBuild
     [NukeParameter]
     [Secret]
     private string TwitterAccessTokenSecret { get; set; } = string.Empty;
-
-    static string DocumentationDirName = "Documentation";
-    static string ReleaseNotesDirName = "ReleaseNotes";
 
     static AbsolutePath DocumentationPath => RootDirectory / DocumentationDirName;
     static AbsolutePath ReleaseNotesBaseDirPath => DocumentationPath / ReleaseNotesDirName;
