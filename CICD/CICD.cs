@@ -13,52 +13,82 @@ using Nuke.Common.Git;
 using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
 using Octokit;
-using Octokit.Internal;
 using NukeParameter = Nuke.Common.ParameterAttribute;
 
-// TODO: Add editorconfig to build project and tweak until it fits
-
+/// <summary>
+/// Contains all of the base setup and init code for the build process.
+/// </summary>
 public partial class CICD : NukeBuild
 {
-    private const string ProjFileExt = "csproj";
     private const string NugetOrgSource = "https://api.nuget.org/v3/index.json";
     private const string ConsoleTab = "\t       ";
 
+    /// <summary>
+    /// The main entry point of the build system.
+    /// </summary>
+    /// <returns>An <c>integer</c> value representing an error code or 0 for no errors.</returns>
     public static int Main() =>
         Execute<CICD>(x => x.BuildAllProjects, x => x.RunAllUnitTests);
 
     GitHubActions? GitHubActions => GitHubActions.Instance;
-    [Solution] readonly Solution Solution;
-    [GitRepository] readonly GitRepository Repo;
 
-    [NukeParameter] static GitHubClient GitHubClient;
+    [Solution]
+    readonly Solution Solution;
 
-    [NukeParameter(List = false)] static readonly Configuration Configuration = GetBuildConfig();
+    [GitRepository]
+    readonly GitRepository Repo;
 
-    [NukeParameter] private static string? BuildSettingsDirPath { get; set; }
+    [NukeParameter]
+    static GitHubClient GitHubClient;
 
-    [NukeParameter] private static bool SkipTwitterAnnouncement { get; set; }
+    [NukeParameter(List = false)]
+    static readonly Configuration Configuration = GetBuildConfig();
 
-    [NukeParameter] [Secret] private string NugetOrgApiKey { get; set; } = string.Empty;
-    [NukeParameter] [Secret] private string TwitterConsumerApiKey { get; set; } = string.Empty;
-    [NukeParameter] [Secret] private string TwitterConsumerApiSecret { get; set; } = string.Empty;
-    [NukeParameter] [Secret] private string TwitterAccessToken { get; set; } = string.Empty;
-    [NukeParameter] [Secret] private string TwitterAccessTokenSecret { get; set; } = string.Empty;
+    [NukeParameter]
+    private static string? BuildSettingsDirPath { get; set; }
 
-    static string Owner = string.Empty;
-    static string MainProjName = string.Empty;
-    static string MainProjFileName = $"{MainProjName}.{ProjFileExt}";
+    [NukeParameter]
+    private static bool SkipTwitterAnnouncement { get; set; }
+
+    [NukeParameter]
+    private string RepoOwner { get; set; } = string.Empty;
+
+    [NukeParameter]
+    private string RepoName { get; set; } = string.Empty;
+
+    [NukeParameter]
+    private string ProjectName { get; set; } = string.Empty;
+
+    [NukeParameter]
+    [Secret]
+    private string NugetOrgApiKey { get; set; } = string.Empty;
+
+    [NukeParameter]
+    [Secret]
+    private string TwitterConsumerApiKey { get; set; } = string.Empty;
+
+    [NukeParameter]
+    [Secret]
+    private string TwitterConsumerApiSecret { get; set; } = string.Empty;
+
+    [NukeParameter]
+    [Secret]
+    private string TwitterAccessToken { get; set; } = string.Empty;
+
+    [NukeParameter]
+    [Secret]
+    private string TwitterAccessTokenSecret { get; set; } = string.Empty;
+
     static string DocumentationDirName = "Documentation";
     static string ReleaseNotesDirName = "ReleaseNotes";
 
     static AbsolutePath DocumentationPath => RootDirectory / DocumentationDirName;
     static AbsolutePath ReleaseNotesBaseDirPath => DocumentationPath / ReleaseNotesDirName;
-    static AbsolutePath MainProjPath => RootDirectory / MainProjName / MainProjFileName;
     static AbsolutePath NugetOutputPath => RootDirectory / "Artifacts";
     static AbsolutePath PreviewReleaseNotesDirPath => ReleaseNotesBaseDirPath / "PreviewReleases";
     static AbsolutePath ProductionReleaseNotesDirPath => ReleaseNotesBaseDirPath / "ProductionReleases";
 
-    static Configuration GetBuildConfig()
+    private static Configuration GetBuildConfig()
     {
         var repo = GitRepository.FromLocalDirectory(RootDirectory);
 
@@ -86,36 +116,6 @@ public partial class CICD : NukeBuild
         const string tokenName = "GitHubApiToken";
 
         return localSecretService.LoadSecret(tokenName);
-    }
-
-    static GitHubClient GetGitHubClient()
-    {
-        var token = GetGitHubToken();
-        GitHubClient client;
-
-        if (IsServerBuild)
-        {
-            client = new GitHubClient(new ProductHeaderValue(MainProjName),
-                new InMemoryCredentialStore(new Credentials(token)));
-        }
-        else
-        {
-            if (string.IsNullOrEmpty(token))
-            {
-                var warning = "No token has been loaded from the local 'local-secrets.json' file.";
-                warning += $"{Environment.NewLine}GitHub API requests will be unauthorized and you may run into API request limits.";
-                Console.WriteLine();
-                LogWarning(warning);
-                client = new GitHubClient(new ProductHeaderValue(MainProjName));
-            }
-            else
-            {
-                client = new GitHubClient(new ProductHeaderValue(MainProjName),
-                    new InMemoryCredentialStore(new Credentials(token)));
-            }
-        }
-
-        return client;
     }
 
     static void LogWarning(string warning)

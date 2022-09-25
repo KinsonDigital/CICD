@@ -38,8 +38,17 @@ public partial class CICD // Common
     {
         DeleteAllNugetPackages();
 
-        DotNetTasks.DotNetPack(s => DotNetPackSettingsExtensions.SetConfiguration<DotNetPackSettings>(s, Configuration)
-            .SetProject(MainProjPath)
+        var project = Solution.GetProjects(ProjectName).FirstOrDefault();
+
+        if (project is null)
+        {
+            var exMsg = $"The project named '{ProjectName}' could not be found.";
+            exMsg += $"{Environment.NewLine}Check that the 'ProjectName' param in the parameters.json is set correctly.";
+            throw new Exception(exMsg);
+        }
+
+        DotNetTasks.DotNetPack(s => s.SetConfiguration<DotNetPackSettings>(Configuration)
+            .SetProject(project.Path)
             .SetOutputDirectory(NugetOutputPath)
             .EnableNoRestore());
     }
@@ -82,8 +91,8 @@ public partial class CICD // Common
 
         var tweetTemplate = File.ReadAllText(templateFilePath);
 
-        tweetTemplate = tweetTemplate.Replace(projLocation, MainProjName);
-        tweetTemplate = tweetTemplate.Replace(repoOwner, "KinsonDigital");
+        tweetTemplate = tweetTemplate.Replace(projLocation, RepoName);
+        tweetTemplate = tweetTemplate.Replace(repoOwner, RepoOwner);
         tweetTemplate = tweetTemplate.Replace(version, releaseVersion);
 
         TwitterTasks.SendTweet(tweetTemplate, TwitterConsumerApiKey, TwitterConsumerApiSecret, TwitterAccessToken, TwitterAccessTokenSecret);
@@ -164,7 +173,7 @@ public partial class CICD // Common
 
         var issueClient = GitHubClient.Issue;
         var request = new MilestoneRequest { State = ItemStateFilter.All };
-        var previewMilestones = (await issueClient.Milestone.GetAllForRepository(Owner, MainProjName, request))
+        var previewMilestones = (await issueClient.Milestone.GetAllForRepository(RepoOwner, RepoName, request))
             .Where(m => m.Title.IsPreviewVersion() && m.Title.StartsWith(version)).ToArray();
 
         var result = $"Container for holding everything released in version {version}";
@@ -173,7 +182,7 @@ public partial class CICD // Common
         {
             var tableDataRows = previewMilestones.Select(m =>
             {
-                var totalMilestoneIssues = issueClient.IssuesForMilestone(Owner, MainProjName, m.Title).Result.Length;
+                var totalMilestoneIssues = issueClient.IssuesForMilestone(RepoOwner, RepoName, m.Title).Result.Length;
 
                 return $"{Environment.NewLine}|[🚀{m.Title}]({m.HtmlUrl})|{totalMilestoneIssues}|";
             });
@@ -236,7 +245,7 @@ public partial class CICD // Common
 
         var releaseClient = GitHubClient.Repository.Release;
 
-        var releaseResult = await releaseClient.Create(Owner, MainProjName, newRelease);
+        var releaseResult = await releaseClient.Create(RepoOwner, RepoName, newRelease);
         await releaseClient.UploadTextFileAsset(releaseResult, releaseNotesFilePath);
 
         return releaseResult.HtmlUrl;
@@ -276,7 +285,7 @@ public partial class CICD // Common
 
     private bool NugetPackageDoesNotExist()
     {
-        var project = this.Solution.GetProject(MainProjName);
+        var project = this.Solution.GetProject(RepoName);
         var errors = new List<string>();
 
         nameof(NugetPackageDoesNotExist)
@@ -284,13 +293,13 @@ public partial class CICD // Common
 
         if (project is null)
         {
-            errors.Add($"Could not find the project '{MainProjName}'");
+            errors.Add($"Could not find the project '{RepoName}'");
         }
 
         var projectVersion = project?.GetVersion() ?? string.Empty;
 
         // TODO: This package name might be the owner.reponame.  It could be something different entirely
-        var packageName = MainProjName;
+        var packageName = RepoName;
         var nugetService = new NugetDataService();
 
         var packageVersions = nugetService.GetNugetVersions(packageName).Result;
@@ -335,7 +344,7 @@ public partial class CICD // Common
             CommitMessage = $"Merge the branch '{sourceBranch}' into the branch '{targetBranch}' for production release.",
         };
 
-        var mergeResult = await mergeClient.Create(Owner, MainProjName, newMerge);
+        var mergeResult = await mergeClient.Create(RepoOwner, RepoName, newMerge);
 
         return mergeResult?.HtmlUrl ?? string.Empty;
     }
@@ -355,7 +364,7 @@ public partial class CICD // Common
             State = ItemStateFilter.All,
         };
 
-        var prodContainsPreviewReleases = (await milestoneClient.GetAllForRepository(Owner, MainProjName, milestoneRequest))
+        var prodContainsPreviewReleases = (await milestoneClient.GetAllForRepository(RepoOwner, RepoName, milestoneRequest))
             .Any(m => m.Title.IsPreviewVersion() && m.Title.StartsWith(prodVersion));
 
         return prodContainsPreviewReleases;

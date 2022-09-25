@@ -42,7 +42,7 @@ public partial class CICD // Release.Preview
         .Executes(async () =>
         {
             var tweetTemplatePath = RootDirectory / ".github" / "ReleaseTweetTemplate.txt";
-            var version = this.Solution.GetProject(MainProjName)?.GetVersion() ?? string.Empty;
+            var version = this.Solution.GetProject(RepoName)?.GetVersion() ?? string.Empty;
 
             version = version.StartsWith("v")
                 ? version
@@ -66,7 +66,7 @@ public partial class CICD // Release.Preview
                 // Close the milestone
                 Log.Information($"✅Closing GitHub milestone '{version}' . . .");
                 var milestoneClient = GitHubClient.Issue.Milestone;
-                var milestoneResult = await milestoneClient.CloseMilestone(Owner, MainProjName, version);
+                var milestoneResult = await milestoneClient.CloseMilestone(RepoOwner, RepoName, version);
                 var milestoneMsg = $"The GitHub milestone '{version}' as been closed.";
                 milestoneMsg += $"{Environment.NewLine}{ConsoleTab}To view the milestone, go here 👉🏼 {milestoneResult.HtmlUrl}{Environment.NewLine}";
                 Log.Information(milestoneMsg);
@@ -74,13 +74,13 @@ public partial class CICD // Release.Preview
                 // Update the milestone description
                 Log.Information($"✅Updating description for milestone '{version}' . . .");
                 var description = $"Container for holding everything released in version {version}";
-                var updatedMilestone = await milestoneClient.UpdateMilestoneDescription(Owner, MainProjName, version, description);
+                var updatedMilestone = await milestoneClient.UpdateMilestoneDescription(RepoOwner, RepoName, version, description);
                 var updateMsg = $"The GitHub Milestone '{version}' description has been updated.";
                 updateMsg += $"{Environment.NewLine}{ConsoleTab}To view the milestone, go here 👉🏼 {updatedMilestone.HtmlUrl}{Environment.NewLine}";
                 Log.Information(updateMsg);
 
                 // Create the nuget package to deploy
-                var fileName = $"{MainProjName}.{version.TrimStart('v')}.nupkg";
+                var fileName = $"{RepoName}.{version.TrimStart('v')}.nupkg";
                 var nugetPath = $"{NugetOutputPath}/{fileName}"
                     .Replace(RootDirectory, "~")
                     .Replace(@"\", "/");
@@ -90,7 +90,7 @@ public partial class CICD // Release.Preview
 
                 // Publish nuget package to nuget.org
                 Log.Information("✅Publishing nuget package to nuget.org . . .");
-                var nugetUrl = $"https://www.nuget.org/packages/{Owner}.{MainProjName}/{version.TrimStart('v')}";
+                var nugetUrl = $"https://www.nuget.org/packages/{RepoOwner}.{RepoName}/{version.TrimStart('v')}";
                 PublishNugetPackage();
                 var nugetReleaseLog = "Nuget package published!!🚀";
                 nugetReleaseLog += $"To view the nuget package, go here 👉🏼 {nugetUrl}";

@@ -202,7 +202,7 @@ public partial class CICD // StatusChecks
     ///     </list>
     /// </para>
     /// </returns>
-    private static async Task<bool> ValidBranchIssueNumber(string branch)
+    private async Task<bool> ValidBranchIssueNumber(string branch)
     {
         // If the branch is not a branch with an issue number, return as valid
         if (!branch.IsFeatureBranch() && !branch.IsPreviewFeatureBranch() && !branch.IsHotFixBranch())
@@ -214,7 +214,7 @@ public partial class CICD // StatusChecks
 
         var issueClient = GitHubClient.Issue;
 
-        return await issueClient.IssueExists(Owner, MainProjName, issueNumber);
+        return await issueClient.IssueExists(RepoOwner, RepoName, issueNumber);
     }
 
     /// <summary>
