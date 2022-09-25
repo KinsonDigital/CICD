@@ -5,12 +5,11 @@
 // ReSharper disable InconsistentNaming
 namespace CICDSystem.Services;
 
+using Guards;
 using System.IO.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Text.Json;
 
 /// <inheritdoc/>
 public class LoadSecretsService : ILoadSecretsService
@@ -20,6 +19,7 @@ public class LoadSecretsService : ILoadSecretsService
     private readonly string rootRepoDirPath;
     private readonly IDirectory directory;
     private readonly IFile file;
+    private readonly IJsonService jsonService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="LoadSecretsService"/> class.
@@ -27,17 +27,36 @@ public class LoadSecretsService : ILoadSecretsService
     /// <param name="directory">Manages directories.</param>
     /// <param name="file">Manages files.</param>
     /// <param name="path">Manages paths.</param>
-    /// <exception cref="Exception"></exception>
-    // TODO: Add exceptions for the null param checks
-    // TODO: Add an exception doc if the root of the repository does not exist.
-    public LoadSecretsService(IDirectory directory, IFile file, IPath path)
+    /// <param name="jsonService">Serializes and deserializes JSON data.</param>
+    /// <param name="currentDirService">Gets the current execution directory.</param>
+    /// <exception cref="ArgumentNullException">
+    /// Occurs when the following parameters are null:
+    /// <list type="bullet">
+    ///     <item><paramref name="directory"/></item>
+    ///     <item><paramref name="file"/></item>
+    ///     <item><paramref name="path"/></item>
+    ///     <item><paramref name="jsonService"/></item>
+    ///     <item><paramref name="currentDirService"/></item>
+    /// </list>
+    /// </exception>
+    public LoadSecretsService(
+        IDirectory directory,
+        IFile file,
+        IPath path,
+        IJsonService jsonService,
+        ICurrentDirService currentDirService)
     {
-        // TODO: Create unit tests to check null for all params.  Create Ensure guard pattern
+        EnsureThat.ParamIsNotNull(directory, nameof(directory));
+        EnsureThat.ParamIsNotNull(file, nameof(file));
+        EnsureThat.ParamIsNotNull(path, nameof(path));
+        EnsureThat.ParamIsNotNull(jsonService, nameof(jsonService));
+        EnsureThat.ParamIsNotNull(currentDirService, nameof(currentDirService));
 
         this.directory = directory;
         this.file = file;
+        this.jsonService = jsonService;
 
-        this.executionPath = @$"{path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}";
+        this.executionPath = @$"{path.GetDirectoryName(currentDirService.GetCurrentDirectory())}";
         this.executionPath = this.executionPath.Replace('\\', '/').TrimEnd('/');
         this.rootRepoDirPath = GetRepoRootDirPath().TrimEnd('/');
 
@@ -46,20 +65,15 @@ public class LoadSecretsService : ILoadSecretsService
             throw new Exception("The root repository directory path could not be found.  Could not load local secrets.");
         }
 
-        var secretFilePath = $"{this.rootRepoDirPath}/.github/{SecretFileName}";
+        var secretFilePath = $"{this.rootRepoDirPath}/.github/{SecretFileName}".Replace('\\', '/');
 
         if (this.file.Exists(secretFilePath))
         {
             return;
         }
 
-        var options = new JsonSerializerOptions
-        {
-            WriteIndented = true,
-        };
-
         var emptyData = new KeyValuePair<string, string>[] { new (string.Empty, string.Empty) };
-        var emptyJsonData = JsonSerializer.Serialize(emptyData, options);
+        var emptyJsonData = this.jsonService.Serialize(emptyData);
 
         this.file.WriteAllText(secretFilePath, emptyJsonData);
     }
@@ -67,10 +81,12 @@ public class LoadSecretsService : ILoadSecretsService
     /// <inheritdoc/>
     public string LoadSecret(string secretName)
     {
+        EnsureThat.StringParamIsNotNullOrEmpty(secretName, nameof(secretName));
+
         var secretFilePath = $"{this.rootRepoDirPath}/.github/{SecretFileName}";
         var jsonData = this.file.ReadAllText(secretFilePath);
 
-        var secrets = JsonSerializer.Deserialize<KeyValuePair<string, string>[]>(jsonData);
+        var secrets = this.jsonService.Deserialize<KeyValuePair<string, string>[]>(jsonData);
 
         var foundSecret = (from s in secrets
             where s.Key == secretName
