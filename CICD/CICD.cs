@@ -25,6 +25,8 @@ public partial class CICD : NukeBuild
     private const string ConsoleTab = "\t       ";
     [NukeParameter(List = false)]
     private static readonly Configuration Configuration = GetBuildConfig();
+    [Solution]
+    private readonly Solution? solution;
     [GitRepository]
     private readonly GitRepository repo;
 
@@ -36,9 +38,6 @@ public partial class CICD : NukeBuild
         Execute<CICD>(x => x.BuildAllProjects, x => x.RunAllUnitTests);
 
     private GitHubActions? GitHubActions => GitHubActions.Instance;
-
-    [Solution]
-    private readonly Solution Solution;
 
     [NukeParameter]
     private static GitHubClient GitHubClient;
