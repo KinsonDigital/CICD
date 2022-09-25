@@ -23,9 +23,8 @@ public partial class CICD : NukeBuild
 {
     private const string NugetOrgSource = "https://api.nuget.org/v3/index.json";
     private const string ConsoleTab = "\t       ";
-    private static string DocumentationDirName = "Documentation";
-    private static string ReleaseNotesDirName = "ReleaseNotes";
-    private string previewReleaseNotesDirName;
+    private static string DefaultDocumentationDirName = "Documentation";
+    private static string DefaultReleaseNotesDirName = "ReleaseNotes";
 
     /// <summary>
     /// The main entry point of the build system.
@@ -70,6 +69,9 @@ public partial class CICD : NukeBuild
     private string ProductionReleaseNotesDirName { get; set; } = "ProductionReleases";
 
     [NukeParameter]
+    private AbsolutePath ReleaseNotesBaseDirPath { get; set; } = RootDirectory / "Documentation" / DefaultReleaseNotesDirName;
+
+    [NukeParameter]
     [Secret]
     private string NugetOrgApiKey { get; set; } = string.Empty;
 
@@ -89,11 +91,11 @@ public partial class CICD : NukeBuild
     [Secret]
     private string TwitterAccessTokenSecret { get; set; } = string.Empty;
 
-    static AbsolutePath DocumentationPath => RootDirectory / DocumentationDirName;
-    static AbsolutePath ReleaseNotesBaseDirPath => DocumentationPath / ReleaseNotesDirName;
-    static AbsolutePath NugetOutputPath => RootDirectory / "Artifacts";
-    static AbsolutePath PreviewReleaseNotesDirPath => ReleaseNotesBaseDirPath / "PreviewReleases";
-    static AbsolutePath ProductionReleaseNotesDirPath => ReleaseNotesBaseDirPath / "ProductionReleases";
+    private static AbsolutePath NugetOutputPath => RootDirectory / "Artifacts";
+
+    private AbsolutePath PreviewReleaseNotesDirPath => ReleaseNotesBaseDirPath / PreviewReleaseNotesDirName;
+
+    private AbsolutePath ProductionReleaseNotesDirPath => ReleaseNotesBaseDirPath / ProductionReleaseNotesDirName;
 
     private static Configuration GetBuildConfig()
     {

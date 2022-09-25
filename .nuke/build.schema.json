@@ -67,6 +67,9 @@
         "PreviewReleaseNotesDirName": {
           "type": "string"
         },
+        "ProductionReleaseNotesDirName": {
+          "type": "string"
+        },
         "Profile": {
           "type": "array",
           "description": "Defines the profiles to load",
@@ -75,6 +78,9 @@
           }
         },
         "ProjectName": {
+          "type": "string"
+        },
+        "ReleaseNotesBaseDirPath": {
           "type": "string"
         },
         "RepoName": {
