@@ -5,6 +5,6 @@
   "RepoName": "CICD",
   "ProjectName": "CICD",
   "ReleaseNotesBaseDirPath": "ReleaseNotes",
-  "PreviewReleaseNotesDirName": "PrevNotes",
-  "ProductionReleaseNotesDirName": "ProdNotes"
+  "PreviewReleaseNotesDirName": "PreviewNotes",
+  "ProductionReleaseNotesDirName": "ProductionNotes"
 }
