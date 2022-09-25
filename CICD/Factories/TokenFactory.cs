@@ -12,22 +12,22 @@ namespace CICDSystem.Factories;
 /// <inheritdoc/>
 public class TokenFactory : ITokenFactory
 {
-    private readonly ILoadSecretsService secretsService;
+    private readonly ISecretService secretService;
     private readonly IExecutionContextService executionContextService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TokenFactory"/> class.
     /// </summary>
-    /// <param name="secretsService">Loads secrets locally.</param>
+    /// <param name="secretService">Loads secrets locally.</param>
     /// <param name="executionContextService">Determines the execution context.</param>
     public TokenFactory(
-        ILoadSecretsService secretsService,
+        ISecretService secretService,
         IExecutionContextService executionContextService)
     {
-        EnsureThat.ParamIsNotNull(secretsService, nameof(secretsService));
+        EnsureThat.ParamIsNotNull(secretService, nameof(secretService));
         EnsureThat.ParamIsNotNull(executionContextService, nameof(executionContextService));
 
-        this.secretsService = secretsService;
+        this.secretService = secretService;
         this.executionContextService = executionContextService;
     }
 
@@ -35,5 +35,5 @@ public class TokenFactory : ITokenFactory
     public string GetToken() =>
         this.executionContextService.IsServerBuild
             ? GitHubActions.Instance.Token // NOTE: This branch is not to be tested
-            : this.secretsService.LoadSecret("GithubAPIToken");
+            : this.secretService.LoadSecret("GithubAPIToken");
 }

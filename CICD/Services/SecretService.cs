@@ -1,4 +1,4 @@
-// <copyright file="LoadSecretsService.cs" company="KinsonDigital">
+// <copyright file="SecretService.cs" company="KinsonDigital">
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
@@ -12,7 +12,7 @@ using CICDSystem.Guards;
 namespace CICDSystem.Services;
 
 /// <inheritdoc/>
-public class LoadSecretsService : ILoadSecretsService
+public class SecretService : ISecretService
 {
     private const string SecretFileName = "local-secrets.json";
     private readonly string executionPath;
@@ -22,7 +22,7 @@ public class LoadSecretsService : ILoadSecretsService
     private readonly IJsonService jsonService;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="LoadSecretsService"/> class.
+    /// Initializes a new instance of the <see cref="SecretService"/> class.
     /// </summary>
     /// <param name="directory">Manages directories.</param>
     /// <param name="file">Manages files.</param>
@@ -39,7 +39,7 @@ public class LoadSecretsService : ILoadSecretsService
     ///     <item><paramref name="currentDirService"/></item>
     /// </list>
     /// </exception>
-    public LoadSecretsService(
+    public SecretService(
         IDirectory directory,
         IFile file,
         IPath path,

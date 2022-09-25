@@ -1,4 +1,4 @@
-﻿// <copyright file="LoadSecretsServiceTests.cs" company="KinsonDigital">
+﻿// <copyright file="SecretServiceTests.cs" company="KinsonDigital">
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
@@ -11,9 +11,9 @@ using Xunit;
 namespace CICDSystemTests.Services;
 
 /// <summary>
-/// Tests the <see cref="LoadSecretsService"/> class.
+/// Tests the <see cref="SecretService"/> class.
 /// </summary>
-public class LoadSecretsServiceTests
+public class SecretServiceTests
 {
     private const string ExecutionDir = @"C:/MyProject/bin/debug";
     private const string RootRepoDir = @"C:/MyProject";
@@ -25,9 +25,9 @@ public class LoadSecretsServiceTests
     private readonly Mock<ICurrentDirService> mockCurrentDirService;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="LoadSecretsServiceTests"/> class.
+    /// Initializes a new instance of the <see cref="SecretServiceTests"/> class.
     /// </summary>
-    public LoadSecretsServiceTests()
+    public SecretServiceTests()
     {
         this.mockDirectory = new Mock<IDirectory>();
         this.mockDirectory.Setup(m => m.GetDirectories(RootRepoDir))
@@ -58,7 +58,7 @@ public class LoadSecretsServiceTests
         // Arrange & Act
         var act = () =>
         {
-            _ = new LoadSecretsService(
+            _ = new SecretService(
                 null,
                 this.mockFile.Object,
                 this.mockPath.Object,
@@ -78,7 +78,7 @@ public class LoadSecretsServiceTests
         // Arrange & Act
         var act = () =>
         {
-            _ = new LoadSecretsService(
+            _ = new SecretService(
                 this.mockDirectory.Object,
                 null,
                 this.mockPath.Object,
@@ -98,7 +98,7 @@ public class LoadSecretsServiceTests
         // Arrange & Act
         var act = () =>
         {
-            _ = new LoadSecretsService(
+            _ = new SecretService(
                 this.mockDirectory.Object,
                 this.mockFile.Object,
                 null,
@@ -118,7 +118,7 @@ public class LoadSecretsServiceTests
         // Arrange & Act
         var act = () =>
         {
-            _ = new LoadSecretsService(
+            _ = new SecretService(
                 this.mockDirectory.Object,
                 this.mockFile.Object,
                 this.mockPath.Object,
@@ -138,7 +138,7 @@ public class LoadSecretsServiceTests
         // Arrange & Act
         var act = () =>
         {
-            _ = new LoadSecretsService(
+            _ = new SecretService(
                 this.mockDirectory.Object,
                 this.mockFile.Object,
                 this.mockPath.Object,
@@ -258,10 +258,10 @@ public class LoadSecretsServiceTests
     #endregion
 
     /// <summary>
-    /// Creates a new instance of <see cref="LoadSecretsService"/> for the purpose of testing.
+    /// Creates a new instance of <see cref="SecretService"/> for the purpose of testing.
     /// </summary>
     /// <returns>The instance to test.</returns>
-    private LoadSecretsService CreateService()
+    private SecretService CreateService()
         => new (this.mockDirectory.Object,
             this.mockFile.Object,
             this.mockPath.Object,

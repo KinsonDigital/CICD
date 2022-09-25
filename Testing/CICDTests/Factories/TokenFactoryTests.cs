@@ -15,7 +15,7 @@ namespace CICDSystemTests.Factories;
 /// </summary>
 public class TokenFactoryTests
 {
-    private readonly Mock<ILoadSecretsService> mockSecretsService;
+    private readonly Mock<ISecretService> mockSecretService;
     private readonly Mock<IExecutionContextService> mockExecutionService;
 
     /// <summary>
@@ -23,13 +23,13 @@ public class TokenFactoryTests
     /// </summary>
     public TokenFactoryTests()
     {
-        this.mockSecretsService = new Mock<ILoadSecretsService>();
+        this.mockSecretService = new Mock<ISecretService>();
         this.mockExecutionService = new Mock<IExecutionContextService>();
     }
 
     #region Constructor Tests
     [Fact]
-    public void Ctor_WithNullSecretsServiceParam_ThrowsException()
+    public void Ctor_WithNullSecretServiceParam_ThrowsException()
     {
         // Arrange & Act
         var act = () =>
@@ -40,7 +40,7 @@ public class TokenFactoryTests
         // Assert
         act.Should()
             .Throw<ArgumentNullException>()
-            .WithMessage("The parameter must not be null. (Parameter 'secretsService')");
+            .WithMessage("The parameter must not be null. (Parameter 'secretService')");
     }
 
     [Fact]
@@ -49,7 +49,7 @@ public class TokenFactoryTests
         // Arrange & Act
         var act = () =>
         {
-            _ = new TokenFactory(this.mockSecretsService.Object, null);
+            _ = new TokenFactory(this.mockSecretService.Object, null);
         };
 
         // Assert
@@ -65,10 +65,10 @@ public class TokenFactoryTests
     public void GetToken_WhenInvokedInLocalExecutionContext_ReturnCorrectValue()
     {
         // Arrange
-        this.mockSecretsService.Setup(m => m.LoadSecret("GithubAPIToken"))
+        this.mockSecretService.Setup(m => m.LoadSecret("GithubAPIToken"))
             .Returns("test-token");
 
-        var factory = new TokenFactory(this.mockSecretsService.Object, this.mockExecutionService.Object);
+        var factory = new TokenFactory(this.mockSecretService.Object, this.mockExecutionService.Object);
 
         // Act
         var actual = factory.GetToken();

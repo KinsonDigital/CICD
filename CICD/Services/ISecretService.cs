@@ -1,4 +1,4 @@
-﻿// <copyright file="ILoadSecretsService.cs" company="KinsonDigital">
+﻿// <copyright file="ISecretService.cs" company="KinsonDigital">
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
@@ -7,7 +7,7 @@ namespace CICDSystem.Services;
 /// <summary>
 /// Generates workflow files for the targets in the Nuke build system.
 /// </summary>
-public interface ILoadSecretsService
+public interface ISecretService
 {
     /// <summary>
     /// Loads a secret with the given <paramref name="secretName"/> from the <c>local-secrets.json</c>

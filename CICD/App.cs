@@ -51,7 +51,7 @@ internal static class App
         IoCContainer.Register<IHttpClientFactory, HttpClientFactory>(Lifestyle.Singleton);
         IoCContainer.Register<IGitHubClientService, GitHubClientService>(Lifestyle.Singleton);
         IoCContainer.Register<IWorkflowService, WorkflowService>(Lifestyle.Singleton);
-        IoCContainer.Register<ILoadSecretsService, LoadSecretsService>(Lifestyle.Singleton);
+        IoCContainer.Register<ISecretService, SecretService>(Lifestyle.Singleton);
         IoCContainer.Register<IJsonService, JsonService>(Lifestyle.Singleton);
         IoCContainer.Register<ICurrentDirService, CurrentDirService>(Lifestyle.Singleton);
 
