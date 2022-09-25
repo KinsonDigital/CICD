@@ -57,7 +57,7 @@ public partial class CICD : NukeBuild
     static AbsolutePath PreviewReleaseNotesDirPath => ReleaseNotesBaseDirPath / "PreviewReleases";
     static AbsolutePath ProductionReleaseNotesDirPath => ReleaseNotesBaseDirPath / "ProductionReleases";
 
-    static Configuration GetBuildConfig()
+    private static Configuration GetBuildConfig()
     {
         var repo = GitRepository.FromLocalDirectory(RootDirectory);
 

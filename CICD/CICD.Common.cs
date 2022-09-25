@@ -47,7 +47,7 @@ public partial class CICD // Common
             throw new Exception(exMsg);
         }
 
-        DotNetTasks.DotNetPack(s => DotNetPackSettingsExtensions.SetConfiguration<DotNetPackSettings>(s, Configuration)
+        DotNetTasks.DotNetPack(s => s.SetConfiguration<DotNetPackSettings>(Configuration)
             .SetProject(project.Path)
             .SetOutputDirectory(NugetOutputPath)
             .EnableNoRestore());
