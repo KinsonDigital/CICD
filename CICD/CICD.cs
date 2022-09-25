@@ -13,11 +13,11 @@ using Nuke.Common.Git;
 using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
 using Octokit;
-using Octokit.Internal;
 using NukeParameter = Nuke.Common.ParameterAttribute;
 
-// TODO: Add editorconfig to build project and tweak until it fits
-
+/// <summary>
+/// Contains all of the base setup and init code for the build process.
+/// </summary>
 public partial class CICD : NukeBuild
 {
     private const string ProjFileExt = "csproj";
