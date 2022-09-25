@@ -43,6 +43,11 @@ internal static class App
         IoCContainer.Register(() => FileSystem.File, Lifestyle.Singleton);
         IoCContainer.Register(() => FileSystem.Directory, Lifestyle.Singleton);
         IoCContainer.Register(() => FileSystem.Path, Lifestyle.Singleton);
-        IoCContainer.Register<IWorkflowService, WorkflowService>();
+        IoCContainer.Register<IWorkflowService, WorkflowService>(Lifestyle.Singleton);
+        IoCContainer.Register<ILoadSecretsService, LoadSecretsService>(Lifestyle.Singleton);
+        IoCContainer.Register<IJsonService, JsonService>(Lifestyle.Singleton);
+        IoCContainer.Register<ICurrentDirService, CurrentDirService>(Lifestyle.Singleton);
+
+        isInitialized = true;
     }
 }
