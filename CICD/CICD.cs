@@ -39,9 +39,9 @@ public partial class CICD : NukeBuild
 
     [NukeParameter] private static bool SkipTwitterAnnouncement { get; set; }
 
-    [NukeParameter] private string RepoOwner { get; set; }
-    [NukeParameter] private string RepoName { get; set; }
-    [NukeParameter] private string ProjectName { get; set; }
+    [NukeParameter] private string RepoOwner { get; set; } = string.Empty;
+    [NukeParameter] private string RepoName { get; set; } = string.Empty;
+    [NukeParameter] private string ProjectName { get; set; } = string.Empty;
     [NukeParameter] [Secret] private string NugetOrgApiKey { get; set; } = string.Empty;
     [NukeParameter] [Secret] private string TwitterConsumerApiKey { get; set; } = string.Empty;
     [NukeParameter] [Secret] private string TwitterConsumerApiSecret { get; set; } = string.Empty;
