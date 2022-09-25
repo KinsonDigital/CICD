@@ -64,6 +64,12 @@
           "type": "boolean",
           "description": "Shows the execution plan (HTML)"
         },
+        "PreviewReleaseNotesDirName": {
+          "type": "string"
+        },
+        "ProductionReleaseNotesDirName": {
+          "type": "string"
+        },
         "Profile": {
           "type": "array",
           "description": "Defines the profiles to load",
@@ -72,6 +78,9 @@
           }
         },
         "ProjectName": {
+          "type": "string"
+        },
+        "ReleaseNotesBaseDirPath": {
           "type": "string"
         },
         "RepoName": {
@@ -111,7 +120,7 @@
         "SkipTwitterAnnouncement": {
           "type": "boolean"
         },
-        "Solution": {
+        "solution": {
           "type": "string",
           "description": "Path to a solution file that is automatically loaded"
         },

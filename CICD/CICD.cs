@@ -2,10 +2,10 @@
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
-using CICDSystem.Services;
-
+// ReSharper disable InconsistentNaming
 namespace CICDSystem;
 
+using Services;
 using System;
 using Nuke.Common;
 using Nuke.Common.CI.GitHubActions;
@@ -22,6 +22,12 @@ public partial class CICD : NukeBuild
 {
     private const string NugetOrgSource = "https://api.nuget.org/v3/index.json";
     private const string ConsoleTab = "\t       ";
+    [NukeParameter(List = false)]
+    private static readonly Configuration Configuration = GetBuildConfig();
+    [Solution]
+    private readonly Solution? solution;
+    [GitRepository]
+    private readonly GitRepository repo;
 
     /// <summary>
     /// The main entry point of the build system.
@@ -30,19 +36,10 @@ public partial class CICD : NukeBuild
     public static int Main() =>
         Execute<CICD>(x => x.BuildAllProjects, x => x.RunAllUnitTests);
 
-    GitHubActions? GitHubActions => GitHubActions.Instance;
-
-    [Solution]
-    readonly Solution Solution;
-
-    [GitRepository]
-    readonly GitRepository Repo;
+    private GitHubActions? GitHubActions => GitHubActions.Instance;
 
     [NukeParameter]
-    static GitHubClient GitHubClient;
-
-    [NukeParameter(List = false)]
-    static readonly Configuration Configuration = GetBuildConfig();
+    private static GitHubClient GitHubClient;
 
     [NukeParameter]
     private static string? BuildSettingsDirPath { get; set; }
@@ -58,6 +55,15 @@ public partial class CICD : NukeBuild
 
     [NukeParameter]
     private string ProjectName { get; set; } = string.Empty;
+
+    [NukeParameter]
+    private string PreviewReleaseNotesDirName { get; set; } = "PreviewReleases";
+
+    [NukeParameter]
+    private string ProductionReleaseNotesDirName { get; set; } = "ProductionReleases";
+
+    [NukeParameter]
+    private AbsolutePath ReleaseNotesBaseDirPath { get; set; } = RootDirectory / "Documentation" / "ReleaseNotes";
 
     [NukeParameter]
     [Secret]
@@ -79,14 +85,11 @@ public partial class CICD : NukeBuild
     [Secret]
     private string TwitterAccessTokenSecret { get; set; } = string.Empty;
 
-    static string DocumentationDirName = "Documentation";
-    static string ReleaseNotesDirName = "ReleaseNotes";
+    private static AbsolutePath NugetOutputPath => RootDirectory / "Artifacts";
 
-    static AbsolutePath DocumentationPath => RootDirectory / DocumentationDirName;
-    static AbsolutePath ReleaseNotesBaseDirPath => DocumentationPath / ReleaseNotesDirName;
-    static AbsolutePath NugetOutputPath => RootDirectory / "Artifacts";
-    static AbsolutePath PreviewReleaseNotesDirPath => ReleaseNotesBaseDirPath / "PreviewReleases";
-    static AbsolutePath ProductionReleaseNotesDirPath => ReleaseNotesBaseDirPath / "ProductionReleases";
+    private AbsolutePath PreviewReleaseNotesDirPath => ReleaseNotesBaseDirPath / PreviewReleaseNotesDirName;
+
+    private AbsolutePath ProductionReleaseNotesDirPath => ReleaseNotesBaseDirPath / ProductionReleaseNotesDirName;
 
     private static Configuration GetBuildConfig()
     {

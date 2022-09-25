@@ -32,7 +32,7 @@ public partial class CICD // Common.Tests
     /// </summary>
     private void RunTests()
     {
-        var projects = this.Solution.AllProjects.Where(p => p.Path.Name.EndsWith("Tests.csproj")).ToArray();
+        var projects = this.solution.AllProjects.Where(p => p.Path.Name.EndsWith("Tests.csproj")).ToArray();
 
         if (projects.Any() is false)
         {

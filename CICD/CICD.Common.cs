@@ -23,7 +23,7 @@ public partial class CICD // Common
         .After(BuildStatusCheck, UnitTestStatusCheck)
         .Executes(() =>
         {
-            DotNetTasks.DotNetRestore(s => s.SetProjectFile<DotNetRestoreSettings>(this.Solution));
+            DotNetTasks.DotNetRestore(s => s.SetProjectFile<DotNetRestoreSettings>(this.solution));
         });
 
     private Target GenerateWorkflows => _ => _
@@ -38,7 +38,7 @@ public partial class CICD // Common
     {
         DeleteAllNugetPackages();
 
-        var project = Solution.GetProjects(ProjectName).FirstOrDefault();
+        var project = this.solution.GetProjects(ProjectName).FirstOrDefault();
 
         if (project is null)
         {
@@ -226,8 +226,8 @@ public partial class CICD // Common
             throw new ArgumentException($"The version does not have the correct syntax for a {releaseType.ToString().ToLower()} release.");
         }
 
-        var releaseNotesFilePath = this.Solution.BuildReleaseNotesFilePath(releaseType, version);
-        var releaseNotes = this.Solution.GetReleaseNotes(releaseType, version);
+        var releaseNotesFilePath = this.solution.BuildReleaseNotesFilePath(releaseType, version);
+        var releaseNotes = this.solution.GetReleaseNotes(releaseType, version);
 
         if (string.IsNullOrEmpty(releaseNotes))
         {
@@ -240,7 +240,7 @@ public partial class CICD // Common
             Body = releaseNotes,
             Prerelease = releaseType == ReleaseType.Preview,
             Draft = false,
-            TargetCommitish = this.Repo.Commit,
+            TargetCommitish = this.repo.Commit,
         };
 
         var releaseClient = GitHubClient.Repository.Release;
@@ -285,7 +285,7 @@ public partial class CICD // Common
 
     private bool NugetPackageDoesNotExist()
     {
-        var project = this.Solution.GetProject(RepoName);
+        var project = this.solution.GetProject(RepoName);
         var errors = new List<string>();
 
         nameof(NugetPackageDoesNotExist)

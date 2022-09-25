@@ -300,27 +300,27 @@ public partial class CICD // Requirements
         nameof(ThatTheCurrentBranchIsCorrect)
             .LogRequirementTitle($"Checking that the current branch is a {branchTypeStr} branch.");
 
-        if (string.IsNullOrEmpty(this.Repo.Branch))
+        if (string.IsNullOrEmpty(this.repo.Branch))
         {
             return false;
         }
 
         var isCorrectBranch = branchType switch
         {
-            BranchType.Master => this.Repo.Branch.IsMasterBranch(),
-            BranchType.Develop => this.Repo.Branch.IsDevelopBranch(),
-            BranchType.Feature => this.Repo.Branch.IsFeatureBranch(),
-            BranchType.PreviewFeature => this.Repo.Branch.IsPreviewFeatureBranch(),
-            BranchType.Release => this.Repo.Branch.IsReleaseBranch(),
-            BranchType.Preview => this.Repo.Branch.IsPreviewBranch(),
-            BranchType.HotFix => this.Repo.Branch.IsHotFixBranch(),
+            BranchType.Master => this.repo.Branch.IsMasterBranch(),
+            BranchType.Develop => this.repo.Branch.IsDevelopBranch(),
+            BranchType.Feature => this.repo.Branch.IsFeatureBranch(),
+            BranchType.PreviewFeature => this.repo.Branch.IsPreviewFeatureBranch(),
+            BranchType.Release => this.repo.Branch.IsReleaseBranch(),
+            BranchType.Preview => this.repo.Branch.IsPreviewBranch(),
+            BranchType.HotFix => this.repo.Branch.IsHotFixBranch(),
             BranchType.Other => true,
             _ => throw new ArgumentOutOfRangeException(nameof(branchType), branchType, null)
         };
 
         if (isCorrectBranch is false)
         {
-            Log.Error($"The current branch {this.Repo.Branch} is not a '{branchTypeStr}' branch.");
+            Log.Error($"The current branch {this.repo.Branch} is not a '{branchTypeStr}' branch.");
             Assert.Fail("The current branch is incorrect.");
         }
 
@@ -450,8 +450,8 @@ public partial class CICD // Requirements
 
     private bool ThatTheCurrentBranchVersionMatchesProjectVersion(BranchType branchType)
     {
-        var targetBranch = this.Repo.Branch ?? string.Empty;
-        var project = this.Solution.GetProject(RepoName);
+        var targetBranch = this.repo.Branch ?? string.Empty;
+        var project = this.solution.GetProject(RepoName);
 
         var errors = new List<string>();
         var branchTypeStr = branchType.ToString().ToSpaceDelimitedSections().ToLower();
@@ -477,7 +477,7 @@ public partial class CICD // Requirements
             errors.Add($"Could not find the project '{RepoName}'");
         }
 
-        var branchVersion = this.Repo.Branch?.ExtractBranchVersion().version.TrimStart('v');
+        var branchVersion = this.repo.Branch?.ExtractBranchVersion().version.TrimStart('v');
         var projectVersion = string.IsNullOrEmpty(branchVersion)
             ? string.Empty
             : project?.GetVersion() ?? string.Empty;
@@ -506,7 +506,7 @@ public partial class CICD // Requirements
 
     private bool ThatTheProjectVersionsAreValid(ReleaseType releaseType)
     {
-        var project = this.Solution.GetProject(RepoName);
+        var project = this.solution.GetProject(RepoName);
         var errors = new List<string>();
 
         nameof(ThatTheProjectVersionsAreValid)
@@ -641,7 +641,7 @@ public partial class CICD // Requirements
 
         if (branchType is BranchType.Preview or BranchType.Release)
         {
-            var project = this.Solution.GetProject(RepoName);
+            var project = this.solution.GetProject(RepoName);
             if (project is null)
             {
                 errors.Add($"Could not find the project '{RepoName}'");
@@ -670,7 +670,7 @@ public partial class CICD // Requirements
 
     private bool ThatTheReleaseMilestoneExists()
     {
-        var project = this.Solution.GetProject(RepoName);
+        var project = this.solution.GetProject(RepoName);
         var errors = new List<string>();
 
         nameof(ThatTheReleaseMilestoneExists)
@@ -706,7 +706,7 @@ public partial class CICD // Requirements
 
     private bool ThatTheReleaseMilestoneContainsIssues()
     {
-        var project = this.Solution.GetProject(RepoName);
+        var project = this.solution.GetProject(RepoName);
         var errors = new List<string>();
 
         nameof(ThatTheReleaseMilestoneContainsIssues)
@@ -752,7 +752,7 @@ public partial class CICD // Requirements
     private bool ThatTheReleaseMilestoneOnlyContainsSingle(ReleaseType releaseType, ItemType itemType)
     {
         const int totalSpaces = 15;
-        var project = this.Solution.GetProject(RepoName);
+        var project = this.solution.GetProject(RepoName);
         var errors = new List<string>();
         var releaseTypeStr = releaseType.ToString().ToLower();
 
@@ -853,7 +853,7 @@ public partial class CICD // Requirements
 
     private bool ThatAllOfTheReleaseMilestoneIssuesAreClosed(ReleaseType releaseType, bool skipReleaseToDoIssues)
     {
-        var project = this.Solution.GetProject(RepoName);
+        var project = this.solution.GetProject(RepoName);
         var errors = new List<string>();
 
         nameof(ThatAllOfTheReleaseMilestoneIssuesAreClosed)
@@ -895,7 +895,7 @@ public partial class CICD // Requirements
 
     private bool ThatAllOfTheReleaseMilestonePullRequestsAreClosed(ReleaseType releaseType, bool skipReleaseToDoPullRequests)
     {
-        var project = this.Solution.GetProject(RepoName);
+        var project = this.solution.GetProject(RepoName);
         var errors = new List<string>();
 
         nameof(ThatAllOfTheReleaseMilestonePullRequestsAreClosed)
@@ -934,7 +934,7 @@ public partial class CICD // Requirements
 
     private bool ThatAllMilestoneIssuesHaveLabels()
     {
-        var project = this.Solution.GetProject(RepoName);
+        var project = this.solution.GetProject(RepoName);
         var errors = new List<string>();
 
         nameof(ThatAllMilestoneIssuesHaveLabels)
@@ -977,7 +977,7 @@ public partial class CICD // Requirements
 
     private bool ThatAllMilestonePullRequestsHaveLabels()
     {
-        var project = this.Solution.GetProject(RepoName);
+        var project = this.solution.GetProject(RepoName);
         var errors = new List<string>();
 
         nameof(ThatAllMilestonePullRequestsHaveLabels)
@@ -1019,7 +1019,7 @@ public partial class CICD // Requirements
 
     private bool ThatTheReleaseTagDoesNotAlreadyExist(ReleaseType releaseType)
     {
-        var project = this.Solution.GetProject(RepoName);
+        var project = this.solution.GetProject(RepoName);
         var errors = new List<string>();
 
         var releaseTypeStr = releaseType.ToString().ToLower();
@@ -1057,7 +1057,7 @@ public partial class CICD // Requirements
 
     private bool ThatTheReleaseNotesExist(ReleaseType releaseType)
     {
-        var project = this.Solution.GetProject(RepoName);
+        var project = this.solution.GetProject(RepoName);
         var errors = new List<string>();
 
         var releaseTypeStr = releaseType.ToString().ToLower();
@@ -1076,7 +1076,7 @@ public partial class CICD // Requirements
 
         if (releaseNotesDoNotExist)
         {
-            var notesDirPath = $"~/Documentation/ReleaseNotes/{releaseType.ToString()}Releases";
+            var notesDirPath = $"./Documentation/ReleaseNotes/{releaseType.ToString()}Releases";
             var errorMsg = $"The {releaseTypeStr} release notes do not exist for version {projectVersion}";
             var notesFileName = $"Release-Notes-{projectVersion}.md";
             errorMsg += $"{Environment.NewLine}{ConsoleTab}The {releaseTypeStr} release notes go in the directory '{notesDirPath}'";
@@ -1096,7 +1096,7 @@ public partial class CICD // Requirements
 
     private bool ThatTheReleaseNotesTitleIsCorrect(ReleaseType releaseType)
     {
-        var project = this.Solution.GetProject(RepoName);
+        var project = this.solution.GetProject(RepoName);
         var errors = new List<string>();
 
         var releaseTypeStr = releaseType.ToString().ToLower();
@@ -1115,7 +1115,7 @@ public partial class CICD // Requirements
 
         if (releaseNotesDoNotExist)
         {
-            var notesDirPath = $"~/Documentation/ReleaseNotes/{releaseType.ToString()}Releases";
+            var notesDirPath = $"./Documentation/ReleaseNotes/{releaseType.ToString()}Releases";
             var errorMsg = $"The {releaseTypeStr} release notes do not exist for version {projectVersion}";
             var notesFileName = $"Release-Notes-{projectVersion}.md";
             errorMsg += $"{Environment.NewLine}{ConsoleTab}The {releaseTypeStr} release notes go in the directory '{notesDirPath}'";
@@ -1123,7 +1123,7 @@ public partial class CICD // Requirements
             errors.Add(errorMsg);
         }
 
-        var releaseNotes = this.Solution.GetReleaseNotesAsLines(releaseType, projectVersion);
+        var releaseNotes = this.solution.GetReleaseNotesAsLines(releaseType, projectVersion);
 
         var releaseNotesTitleSection = $"{RepoName} {releaseType} Release Notes - ";
         var foundTitle = releaseNotes.Where(l => l.Contains(releaseNotesTitleSection)).ToArray();
@@ -1153,7 +1153,7 @@ public partial class CICD // Requirements
         const int totalIndexSpaces = 15;
         var indent = totalIndexSpaces.CreateDuplicateCharacters(' ');
         const string baseUrl = "https://github.com";
-        var project = this.Solution.GetProject(RepoName);
+        var project = this.solution.GetProject(RepoName);
         var errors = new List<string>();
 
         var releaseTypeStr = releaseType.ToString().ToLower();
@@ -1170,7 +1170,7 @@ public partial class CICD // Requirements
         var milestoneTitle = $"v{projectVersion}";
 
         var milestoneIssues = GitHubClient.Issue.IssuesForMilestone(RepoOwner, RepoName, milestoneTitle).Result;
-        var releaseNotes = this.Solution.GetReleaseNotes(releaseType, projectVersion);
+        var releaseNotes = this.solution.GetReleaseNotes(releaseType, projectVersion);
         if (string.IsNullOrEmpty(releaseNotes))
         {
             errors.Add($"No {releaseTypeStr} release notes exist to check for issue numbers.");
@@ -1204,7 +1204,7 @@ public partial class CICD // Requirements
 
     private bool ThatTheProdReleaseNotesContainsPreviewReleaseSection()
     {
-        var project = this.Solution.GetProject(RepoName);
+        var project = this.solution.GetProject(RepoName);
         var errors = new List<string>();
 
         nameof(ThatTheProdReleaseNotesContainsPreviewReleaseSection)
@@ -1229,11 +1229,11 @@ public partial class CICD // Requirements
 
         if (containsPreviewReleases)
         {
-            var releaseNotes = this.Solution.GetReleaseNotes(ReleaseType.Production, prodVersion);
+            var releaseNotes = this.solution.GetReleaseNotes(ReleaseType.Production, prodVersion);
 
             if (string.IsNullOrEmpty(releaseNotes))
             {
-                const string notesDirPath = $"~/Documentation/ReleaseNotes/ProductionReleases";
+                const string notesDirPath = $"./Documentation/ReleaseNotes/ProductionReleases";
                 var errorMsg = $"The production release notes do not exist for version {prodVersion}";
                 var notesFileName = $"Release-Notes-{prodVersion}.md";
                 errorMsg += $"{Environment.NewLine}{ConsoleTab}The production release notes go in the directory '{notesDirPath}'";
@@ -1270,7 +1270,7 @@ public partial class CICD // Requirements
 
     private bool ThatTheProdReleaseNotesContainsPreviewReleaseItems()
     {
-        var project = this.Solution.GetProject(RepoName);
+        var project = this.solution.GetProject(RepoName);
         var errors = new List<string>();
 
         nameof(ThatTheProdReleaseNotesContainsPreviewReleaseSection)
@@ -1295,11 +1295,11 @@ public partial class CICD // Requirements
 
         if (containsPreviewReleases)
         {
-            var releaseNotes = this.Solution.GetReleaseNotes(ReleaseType.Production, prodVersion);
+            var releaseNotes = this.solution.GetReleaseNotes(ReleaseType.Production, prodVersion);
 
             if (string.IsNullOrEmpty(releaseNotes))
             {
-                const string notesDirPath = $"~/Documentation/ReleaseNotes/ProductionReleases";
+                const string notesDirPath = $"./Documentation/ReleaseNotes/ProductionReleases";
                 var errorMsg = $"The production release notes do not exist for version {prodVersion}";
                 var notesFileName = $"Release-Notes-{prodVersion}.md";
                 errorMsg += $"{Environment.NewLine}{ConsoleTab}The production release notes go in the directory '{notesDirPath}'";
@@ -1351,7 +1351,7 @@ public partial class CICD // Requirements
 
     private bool ThatGitHubReleaseDoesNotExist(ReleaseType releaseType)
     {
-        var project = this.Solution.GetProject(RepoName);
+        var project = this.solution.GetProject(RepoName);
         var errors = new List<string>();
 
         var releaseTypeStr = releaseType.ToString().ToLower();

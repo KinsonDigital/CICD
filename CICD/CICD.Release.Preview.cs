@@ -42,7 +42,7 @@ public partial class CICD // Release.Preview
         .Executes(async () =>
         {
             var tweetTemplatePath = RootDirectory / ".github" / "ReleaseTweetTemplate.txt";
-            var version = this.Solution.GetProject(RepoName)?.GetVersion() ?? string.Empty;
+            var version = this.solution.GetProject(RepoName)?.GetVersion() ?? string.Empty;
 
             version = version.StartsWith("v")
                 ? version
@@ -82,7 +82,7 @@ public partial class CICD // Release.Preview
                 // Create the nuget package to deploy
                 var fileName = $"{RepoName}.{version.TrimStart('v')}.nupkg";
                 var nugetPath = $"{NugetOutputPath}/{fileName}"
-                    .Replace(RootDirectory, "~")
+                    .Replace(RootDirectory, "./")
                     .Replace(@"\", "/");
                 Log.Information("✅Creating a nuget package . . .");
                 CreateNugetPackage();

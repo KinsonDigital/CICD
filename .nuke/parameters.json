@@ -3,5 +3,8 @@
   "Solution": "CICD.sln",
   "RepoOwner": "KinsonDigital",
   "RepoName": "CICD",
-  "ProjectName": "CICD"
+  "ProjectName": "CICD",
+  "ReleaseNotesBaseDirPath": "ReleaseNotes",
+  "PreviewReleaseNotesDirName": "PreviewNotes",
+  "ProductionReleaseNotesDirName": "ProductionNotes"
 }
