@@ -2,7 +2,7 @@
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
-namespace CICDTests;
+namespace CICDSystemTests.Services;
 
 using System.IO.Abstractions;
 using System.Reflection;
