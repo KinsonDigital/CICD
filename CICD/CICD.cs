@@ -2,11 +2,10 @@
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
-using CICDSystem.Services;
-using Serilog;
-
+// ReSharper disable InconsistentNaming
 namespace CICDSystem;
 
+using Services;
 using System;
 using Nuke.Common;
 using Nuke.Common.CI.GitHubActions;
