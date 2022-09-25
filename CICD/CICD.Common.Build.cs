@@ -32,7 +32,7 @@ public partial class CICD // Common.Build
 
     private void BuildProjects(ProjectTypes projectTypes)
     {
-        var projects = this.Solution.AllProjects;
+        var projects = this.solution.AllProjects;
 
         foreach (var project in projects)
         {

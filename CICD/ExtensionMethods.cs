@@ -772,14 +772,20 @@ public static class ExtensionMethods
     public static void LogAsInfo(this IReadOnlyList<Issue> issues, int totalIndentSpaces = 0)
         => Log.Information(issues.GetLogText(totalIndentSpaces));
 
-    public static string BuildReleaseNotesFilePath(this Solution solution, ReleaseType releaseType, string version)
+    public static string BuildReleaseNotesFilePath(this Solution? solution, ReleaseType releaseType, string version)
     {
+        if (solution is null)
+        {
+            return string.Empty;
+        }
+
         const string relativeDir = "Documentation/ReleaseNotes";
 
         var notesDirPath = releaseType switch
         {
             ReleaseType.Preview => $"{solution.Directory}/{relativeDir}/PreviewReleases",
             ReleaseType.Production => $"{solution.Directory}/{relativeDir}/ProductionReleases",
+            ReleaseType.HotFix => throw new NotImplementedException("Hot Fix Release Notes not implemented yet."),
             _ => throw new ArgumentOutOfRangeException(nameof(releaseType), releaseType, null)
         };
 
@@ -792,38 +798,52 @@ public static class ExtensionMethods
         return $"{notesDirPath}/{fileName}";
     }
 
-    public static string GetReleaseNotes(this Solution solution, ReleaseType releaseType, string version)
+    public static string GetReleaseNotes(this Solution? solution, ReleaseType releaseType, string version)
     {
+        if (solution is null)
+        {
+            return string.Empty;
+        }
+
         var fullFilePath = solution.BuildReleaseNotesFilePath(releaseType, version);
 
-        if (File.Exists(fullFilePath) is false)
+        if (File.Exists(fullFilePath))
         {
-            var errorMsg = "The {Value1} release notes for version '{Value2}' at file path '{Value3}'";
-            errorMsg += " could not be found.";
-            Log.Error(errorMsg,
-                releaseType.ToString().ToLower(),
-                version,
-                fullFilePath.Replace(solution.Directory, "./"));
-            Assert.Fail("The release notes file could not be found.");
+            return File.ReadAllText(fullFilePath);
         }
+
+        var errorMsg = "The {Value1} release notes for version '{Value2}' at file path '{Value3}'";
+        errorMsg += " could not be found.";
+        Log.Error(errorMsg,
+            releaseType.ToString().ToLower(),
+            version,
+            fullFilePath.Replace(solution.Directory, "./"));
+        Assert.Fail("The release notes file could not be found.");
 
         return File.ReadAllText(fullFilePath);
     }
 
-    public static string[] GetReleaseNotesAsLines(this Solution solution, ReleaseType releaseType, string version)
+    public static IEnumerable<string> GetReleaseNotesAsLines(this Solution? solution, ReleaseType releaseType, string version)
     {
+        if (solution is null)
+        {
+            return Array.Empty<string>();
+        }
+
         var fullFilePath = solution.BuildReleaseNotesFilePath(releaseType, version);
 
-        if (File.Exists(fullFilePath) is false)
+        if (File.Exists(fullFilePath))
         {
-            var errorMsg = "The {Value1} release notes for version '{Value2}' at file path '{Value3}'";
-            errorMsg += " could not be found.";
-            Log.Error(errorMsg,
-                releaseType.ToString().ToLower(),
-                version,
-                fullFilePath.Replace(solution.Directory, "./"));
-            Assert.Fail("The release notes file could not be found.");
+            return File.ReadAllLines(fullFilePath);
         }
+
+        var errorMsg = "The {Value1} release notes for version '{Value2}' at file path '{Value3}'";
+        errorMsg += " could not be found.";
+        Log.Error(errorMsg,
+            releaseType.ToString().ToLower(),
+            version,
+            fullFilePath.Replace(solution.Directory, "./"));
+        Assert.Fail("The release notes file could not be found.");
 
         return File.ReadAllLines(fullFilePath);
     }
