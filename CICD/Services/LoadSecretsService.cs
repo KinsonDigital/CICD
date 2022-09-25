@@ -3,13 +3,13 @@
 // </copyright>
 
 // ReSharper disable InconsistentNaming
-namespace CICDSystem.Services;
-
-using Guards;
-using System.IO.Abstractions;
 using System;
 using System.Collections.Generic;
+using System.IO.Abstractions;
 using System.Linq;
+using CICDSystem.Guards;
+
+namespace CICDSystem.Services;
 
 /// <inheritdoc/>
 public class LoadSecretsService : ILoadSecretsService

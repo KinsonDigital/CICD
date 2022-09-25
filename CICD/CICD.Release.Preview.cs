@@ -2,11 +2,11 @@
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
-namespace CICDSystem;
-
 using System;
 using Nuke.Common;
 using Serilog;
+
+namespace CICDSystem;
 
 /// <summary>
 /// Contains all of the functionality for preview releases.

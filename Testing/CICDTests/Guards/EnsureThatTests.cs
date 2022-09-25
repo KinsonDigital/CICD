@@ -4,11 +4,9 @@
 
 using CICDSystem.Guards;
 using CICDSystemTests.Helpers;
+using Xunit;
 
 namespace CICDSystemTests.Guards;
-
-using System;
-using Xunit;
 
 /// <summary>
 /// Tests the <see cref="EnsureThat"/> class.

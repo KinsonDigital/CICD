@@ -2,14 +2,14 @@
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
-namespace CICDSystemTests.Services;
-
 using System.IO.Abstractions;
 using System.Reflection;
+using CICDSystem.Services;
 using FluentAssertions;
 using Moq;
-using CICDSystem.Services;
 using Xunit;
+
+namespace CICDSystemTests.Services;
 
 /// <summary>
 /// Tests the <see cref="WorkflowService"/> class.
