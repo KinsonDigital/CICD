@@ -67,6 +67,9 @@ public partial class CICD : NukeBuild
     private string PreviewReleaseNotesDirName { get; set; } = "PreviewReleases";
 
     [NukeParameter]
+    private string ProductionReleaseNotesDirName { get; set; } = "ProductionReleases";
+
+    [NukeParameter]
     [Secret]
     private string NugetOrgApiKey { get; set; } = string.Empty;
 
