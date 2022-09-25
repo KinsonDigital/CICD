@@ -28,25 +28,53 @@ public partial class CICD : NukeBuild
         Execute<CICD>(x => x.BuildAllProjects, x => x.RunAllUnitTests);
 
     GitHubActions? GitHubActions => GitHubActions.Instance;
-    [Solution] readonly Solution Solution;
-    [GitRepository] readonly GitRepository Repo;
 
-    [NukeParameter] static GitHubClient GitHubClient;
+    [Solution]
+    readonly Solution Solution;
 
-    [NukeParameter(List = false)] static readonly Configuration Configuration = GetBuildConfig();
+    [GitRepository]
+    readonly GitRepository Repo;
 
-    [NukeParameter] private static string? BuildSettingsDirPath { get; set; }
+    [NukeParameter]
+    static GitHubClient GitHubClient;
 
-    [NukeParameter] private static bool SkipTwitterAnnouncement { get; set; }
+    [NukeParameter(List = false)]
+    static readonly Configuration Configuration = GetBuildConfig();
 
-    [NukeParameter] private string RepoOwner { get; set; } = string.Empty;
-    [NukeParameter] private string RepoName { get; set; } = string.Empty;
-    [NukeParameter] private string ProjectName { get; set; } = string.Empty;
-    [NukeParameter] [Secret] private string NugetOrgApiKey { get; set; } = string.Empty;
-    [NukeParameter] [Secret] private string TwitterConsumerApiKey { get; set; } = string.Empty;
-    [NukeParameter] [Secret] private string TwitterConsumerApiSecret { get; set; } = string.Empty;
-    [NukeParameter] [Secret] private string TwitterAccessToken { get; set; } = string.Empty;
-    [NukeParameter] [Secret] private string TwitterAccessTokenSecret { get; set; } = string.Empty;
+    [NukeParameter]
+    private static string? BuildSettingsDirPath { get; set; }
+
+    [NukeParameter]
+    private static bool SkipTwitterAnnouncement { get; set; }
+
+    [NukeParameter]
+    private string RepoOwner { get; set; } = string.Empty;
+
+    [NukeParameter]
+    private string RepoName { get; set; } = string.Empty;
+
+    [NukeParameter]
+    private string ProjectName { get; set; } = string.Empty;
+
+    [NukeParameter]
+    [Secret]
+    private string NugetOrgApiKey { get; set; } = string.Empty;
+
+    [NukeParameter]
+    [Secret]
+    private string TwitterConsumerApiKey { get; set; } = string.Empty;
+
+    [NukeParameter]
+    [Secret]
+    private string TwitterConsumerApiSecret { get; set; } = string.Empty;
+
+    [NukeParameter]
+    [Secret]
+    private string TwitterAccessToken { get; set; } = string.Empty;
+
+    [NukeParameter]
+    [Secret]
+    private string TwitterAccessTokenSecret { get; set; } = string.Empty;
 
     static string DocumentationDirName = "Documentation";
     static string ReleaseNotesDirName = "ReleaseNotes";
