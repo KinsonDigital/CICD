@@ -33,19 +33,19 @@ public partial class CICD : NukeBuild
     public static int Main() =>
         Execute<CICD>(x => x.BuildAllProjects, x => x.RunAllUnitTests);
 
-    GitHubActions? GitHubActions => GitHubActions.Instance;
+    private GitHubActions? GitHubActions => GitHubActions.Instance;
 
     [Solution]
-    readonly Solution Solution;
+    private readonly Solution Solution;
 
     [GitRepository]
-    readonly GitRepository Repo;
+    private readonly GitRepository Repo;
 
     [NukeParameter]
-    static GitHubClient GitHubClient;
+    private static GitHubClient GitHubClient;
 
     [NukeParameter(List = false)]
-    static readonly Configuration Configuration = GetBuildConfig();
+    private static readonly Configuration Configuration = GetBuildConfig();
 
     [NukeParameter]
     private static string? BuildSettingsDirPath { get; set; }
