@@ -20,10 +20,13 @@ using NukeParameter = Nuke.Common.ParameterAttribute;
 /// </summary>
 public partial class CICD : NukeBuild
 {
-    private const string ProjFileExt = "csproj";
     private const string NugetOrgSource = "https://api.nuget.org/v3/index.json";
     private const string ConsoleTab = "\t       ";
 
+    /// <summary>
+    /// The main entry point of the build system.
+    /// </summary>
+    /// <returns>An <c>integer</c> value representing an error code or 0 for no errors.</returns>
     public static int Main() =>
         Execute<CICD>(x => x.BuildAllProjects, x => x.RunAllUnitTests);
 
