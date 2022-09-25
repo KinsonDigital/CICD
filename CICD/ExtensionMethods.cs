@@ -803,7 +803,7 @@ public static class ExtensionMethods
             Log.Error(errorMsg,
                 releaseType.ToString().ToLower(),
                 version,
-                fullFilePath.Replace(solution.Directory, "~"));
+                fullFilePath.Replace(solution.Directory, "./"));
             Assert.Fail("The release notes file could not be found.");
         }
 
@@ -821,7 +821,7 @@ public static class ExtensionMethods
             Log.Error(errorMsg,
                 releaseType.ToString().ToLower(),
                 version,
-                fullFilePath.Replace(solution.Directory, "~"));
+                fullFilePath.Replace(solution.Directory, "./"));
             Assert.Fail("The release notes file could not be found.");
         }
 

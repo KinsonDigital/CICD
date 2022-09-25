@@ -1076,7 +1076,7 @@ public partial class CICD // Requirements
 
         if (releaseNotesDoNotExist)
         {
-            var notesDirPath = $"~/Documentation/ReleaseNotes/{releaseType.ToString()}Releases";
+            var notesDirPath = $"./Documentation/ReleaseNotes/{releaseType.ToString()}Releases";
             var errorMsg = $"The {releaseTypeStr} release notes do not exist for version {projectVersion}";
             var notesFileName = $"Release-Notes-{projectVersion}.md";
             errorMsg += $"{Environment.NewLine}{ConsoleTab}The {releaseTypeStr} release notes go in the directory '{notesDirPath}'";
@@ -1115,7 +1115,7 @@ public partial class CICD // Requirements
 
         if (releaseNotesDoNotExist)
         {
-            var notesDirPath = $"~/Documentation/ReleaseNotes/{releaseType.ToString()}Releases";
+            var notesDirPath = $"./Documentation/ReleaseNotes/{releaseType.ToString()}Releases";
             var errorMsg = $"The {releaseTypeStr} release notes do not exist for version {projectVersion}";
             var notesFileName = $"Release-Notes-{projectVersion}.md";
             errorMsg += $"{Environment.NewLine}{ConsoleTab}The {releaseTypeStr} release notes go in the directory '{notesDirPath}'";
@@ -1233,7 +1233,7 @@ public partial class CICD // Requirements
 
             if (string.IsNullOrEmpty(releaseNotes))
             {
-                const string notesDirPath = $"~/Documentation/ReleaseNotes/ProductionReleases";
+                const string notesDirPath = $"./Documentation/ReleaseNotes/ProductionReleases";
                 var errorMsg = $"The production release notes do not exist for version {prodVersion}";
                 var notesFileName = $"Release-Notes-{prodVersion}.md";
                 errorMsg += $"{Environment.NewLine}{ConsoleTab}The production release notes go in the directory '{notesDirPath}'";
@@ -1299,7 +1299,7 @@ public partial class CICD // Requirements
 
             if (string.IsNullOrEmpty(releaseNotes))
             {
-                const string notesDirPath = $"~/Documentation/ReleaseNotes/ProductionReleases";
+                const string notesDirPath = $"./Documentation/ReleaseNotes/ProductionReleases";
                 var errorMsg = $"The production release notes do not exist for version {prodVersion}";
                 var notesFileName = $"Release-Notes-{prodVersion}.md";
                 errorMsg += $"{Environment.NewLine}{ConsoleTab}The production release notes go in the directory '{notesDirPath}'";

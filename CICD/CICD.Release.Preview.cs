@@ -82,7 +82,7 @@ public partial class CICD // Release.Preview
                 // Create the nuget package to deploy
                 var fileName = $"{RepoName}.{version.TrimStart('v')}.nupkg";
                 var nugetPath = $"{NugetOutputPath}/{fileName}"
-                    .Replace(RootDirectory, "~")
+                    .Replace(RootDirectory, "./")
                     .Replace(@"\", "/");
                 Log.Information("✅Creating a nuget package . . .");
                 CreateNugetPackage();
