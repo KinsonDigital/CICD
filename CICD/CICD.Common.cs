@@ -240,7 +240,7 @@ public partial class CICD // Common
             Body = releaseNotes,
             Prerelease = releaseType == ReleaseType.Preview,
             Draft = false,
-            TargetCommitish = this.Repo.Commit,
+            TargetCommitish = this.repo.Commit,
         };
 
         var releaseClient = GitHubClient.Repository.Release;

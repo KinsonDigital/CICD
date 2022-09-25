@@ -23,8 +23,10 @@ public partial class CICD : NukeBuild
 {
     private const string NugetOrgSource = "https://api.nuget.org/v3/index.json";
     private const string ConsoleTab = "\t       ";
-    private static string DefaultDocumentationDirName = "Documentation";
-    private static string DefaultReleaseNotesDirName = "ReleaseNotes";
+    [NukeParameter(List = false)]
+    private static readonly Configuration Configuration = GetBuildConfig();
+    [GitRepository]
+    private readonly GitRepository repo;
 
     /// <summary>
     /// The main entry point of the build system.
@@ -38,14 +40,8 @@ public partial class CICD : NukeBuild
     [Solution]
     private readonly Solution Solution;
 
-    [GitRepository]
-    private readonly GitRepository Repo;
-
     [NukeParameter]
     private static GitHubClient GitHubClient;
-
-    [NukeParameter(List = false)]
-    private static readonly Configuration Configuration = GetBuildConfig();
 
     [NukeParameter]
     private static string? BuildSettingsDirPath { get; set; }
@@ -69,7 +65,7 @@ public partial class CICD : NukeBuild
     private string ProductionReleaseNotesDirName { get; set; } = "ProductionReleases";
 
     [NukeParameter]
-    private AbsolutePath ReleaseNotesBaseDirPath { get; set; } = RootDirectory / "Documentation" / DefaultReleaseNotesDirName;
+    private AbsolutePath ReleaseNotesBaseDirPath { get; set; } = RootDirectory / "Documentation" / "ReleaseNotes";
 
     [NukeParameter]
     [Secret]

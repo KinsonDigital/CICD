@@ -300,27 +300,27 @@ public partial class CICD // Requirements
         nameof(ThatTheCurrentBranchIsCorrect)
             .LogRequirementTitle($"Checking that the current branch is a {branchTypeStr} branch.");
 
-        if (string.IsNullOrEmpty(this.Repo.Branch))
+        if (string.IsNullOrEmpty(this.repo.Branch))
         {
             return false;
         }
 
         var isCorrectBranch = branchType switch
         {
-            BranchType.Master => this.Repo.Branch.IsMasterBranch(),
-            BranchType.Develop => this.Repo.Branch.IsDevelopBranch(),
-            BranchType.Feature => this.Repo.Branch.IsFeatureBranch(),
-            BranchType.PreviewFeature => this.Repo.Branch.IsPreviewFeatureBranch(),
-            BranchType.Release => this.Repo.Branch.IsReleaseBranch(),
-            BranchType.Preview => this.Repo.Branch.IsPreviewBranch(),
-            BranchType.HotFix => this.Repo.Branch.IsHotFixBranch(),
+            BranchType.Master => this.repo.Branch.IsMasterBranch(),
+            BranchType.Develop => this.repo.Branch.IsDevelopBranch(),
+            BranchType.Feature => this.repo.Branch.IsFeatureBranch(),
+            BranchType.PreviewFeature => this.repo.Branch.IsPreviewFeatureBranch(),
+            BranchType.Release => this.repo.Branch.IsReleaseBranch(),
+            BranchType.Preview => this.repo.Branch.IsPreviewBranch(),
+            BranchType.HotFix => this.repo.Branch.IsHotFixBranch(),
             BranchType.Other => true,
             _ => throw new ArgumentOutOfRangeException(nameof(branchType), branchType, null)
         };
 
         if (isCorrectBranch is false)
         {
-            Log.Error($"The current branch {this.Repo.Branch} is not a '{branchTypeStr}' branch.");
+            Log.Error($"The current branch {this.repo.Branch} is not a '{branchTypeStr}' branch.");
             Assert.Fail("The current branch is incorrect.");
         }
 
@@ -477,7 +477,7 @@ public partial class CICD // Requirements
             errors.Add($"Could not find the project '{RepoName}'");
         }
 
-        var branchVersion = this.Repo.Branch?.ExtractBranchVersion().version.TrimStart('v');
+        var branchVersion = this.repo.Branch?.ExtractBranchVersion().version.TrimStart('v');
         var projectVersion = string.IsNullOrEmpty(branchVersion)
             ? string.Empty
             : project?.GetVersion() ?? string.Empty;
