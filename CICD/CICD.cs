@@ -3,7 +3,6 @@
 // </copyright>
 
 // ReSharper disable InconsistentNaming
-
 using System;
 using CICDSystem.Services;
 using Nuke.Common;
@@ -105,20 +104,6 @@ public partial class CICD : NukeBuild
         return (GitHubActions.Instance?.BaseRef  ?? string.Empty).IsMasterBranch()
             ? Configuration.Release
             : Configuration.Debug;
-    }
-
-    static string GetGitHubToken()
-    {
-        if (IsServerBuild)
-        {
-            return GitHubActions.Instance.Token;
-        }
-
-        var localSecretService = new LoadSecretsService();
-
-        const string tokenName = "GitHubApiToken";
-
-        return localSecretService.LoadSecret(tokenName);
     }
 
     static void LogWarning(string warning)

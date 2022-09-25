@@ -4,7 +4,6 @@
 
 using System;
 using System.Threading.Tasks;
-using CICDSystem.Services;
 using Nuke.Common;
 using Serilog;
 
