@@ -2,6 +2,9 @@
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
+using CICDSystem.Factories;
+
+// ReSharper disable InconsistentNaming
 namespace CICDSystem;
 
 using System.IO.Abstractions;
@@ -43,6 +46,10 @@ internal static class App
         IoCContainer.Register(() => FileSystem.File, Lifestyle.Singleton);
         IoCContainer.Register(() => FileSystem.Directory, Lifestyle.Singleton);
         IoCContainer.Register(() => FileSystem.Path, Lifestyle.Singleton);
+        IoCContainer.Register<IExecutionContextService, ExecutionContextService>(Lifestyle.Singleton);
+        IoCContainer.Register<ITokenFactory, TokenFactory>(Lifestyle.Singleton);
+        IoCContainer.Register<IHttpClientFactory, HttpClientFactory>(Lifestyle.Singleton);
+        IoCContainer.Register<IGitHubClientService, GitHubClientService>(Lifestyle.Singleton);
         IoCContainer.Register<IWorkflowService, WorkflowService>(Lifestyle.Singleton);
         IoCContainer.Register<ILoadSecretsService, LoadSecretsService>(Lifestyle.Singleton);
         IoCContainer.Register<IJsonService, JsonService>(Lifestyle.Singleton);
