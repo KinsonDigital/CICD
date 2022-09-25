@@ -84,6 +84,12 @@ public class LoadSecretsService : ILoadSecretsService
         EnsureThat.StringParamIsNotNullOrEmpty(secretName, nameof(secretName));
 
         var secretFilePath = $"{this.rootRepoDirPath}/.github/{SecretFileName}";
+
+        if (this.file.Exists(secretFilePath) is false)
+        {
+            return string.Empty;
+        }
+
         var jsonData = this.file.ReadAllText(secretFilePath);
 
         var secrets = this.jsonService.Deserialize<KeyValuePair<string, string>[]>(jsonData);

@@ -17,6 +17,7 @@ public class LoadSecretsServiceTests
 {
     private const string ExecutionDir = @"C:/MyProject/bin/debug";
     private const string RootRepoDir = @"C:/MyProject";
+    private const string SecretFileName = "local-secrets.json";
     private readonly Mock<IDirectory> mockDirectory;
     private readonly Mock<IFile> mockFile;
     private readonly Mock<IPath> mockPath;
@@ -38,7 +39,7 @@ public class LoadSecretsServiceTests
             });
 
         this.mockFile = new Mock<IFile>();
-        this.mockFile.Setup(m => m.Exists(It.IsAny<string>())).Returns(true);
+        this.mockFile.Setup(m => m.Exists($"{RootRepoDir}/.github/{SecretFileName}")).Returns(true);
 
         this.mockPath = new Mock<IPath>();
         this.mockPath.Setup(m => m.GetDirectoryName(It.IsAny<string>()))
@@ -174,7 +175,7 @@ public class LoadSecretsServiceTests
 
         // Assert
         act.Should().NotThrow();
-        this.mockFile.Verify(m => m.Exists($"{RootRepoDir}/.github/local-secrets.json"));
+        this.mockFile.Verify(m => m.Exists($"{RootRepoDir}/.github/{SecretFileName}"));
     }
 
     [Fact]
@@ -182,7 +183,7 @@ public class LoadSecretsServiceTests
     {
         // Arrange
         var expectedSerializeType = new KeyValuePair<string, string>[] { new (string.Empty, string.Empty) };
-        var expectedSecretFilePath = $"{RootRepoDir}/.github/local-secrets.json";
+        var expectedSecretFilePath = $"{RootRepoDir}/.github/{SecretFileName}";
         this.mockFile.Setup(m => m.Exists(It.IsAny<string>())).Returns(false);
         this.mockJsonService.Setup(m => m.Serialize(expectedSerializeType)).Returns(string.Empty);
 
@@ -213,12 +214,31 @@ public class LoadSecretsServiceTests
     }
 
     [Fact]
+    public void LoadSecret_WhenSecretsFileDoesNotExist_ThrowException()
+    {
+        // Arrange
+        const string json = "json";
+        const string secretFilePath = $"{RootRepoDir}/.github/{SecretFileName}";
+        this.mockJsonService.Setup(m => m.Deserialize<KeyValuePair<string, string>[]>(It.IsAny<string>()))
+            .Throws(new ArgumentNullException(paramName: json));
+        this.mockFile.Setup(m => m.Exists(secretFilePath)).Returns(false);
+
+        var service = CreateService();
+
+        // Act
+        var actual = service.LoadSecret("test-secret");
+
+        // Assert
+        actual.Should().BeNullOrEmpty();
+    }
+
+    [Fact]
     public void LoadSecret_WhenInvoked_ReturnsCorrectResult()
     {
         // Arrange
         const string jsonData = "fake-json-data";
         const string expected = "test-secret-value";
-        const string secretFilePath = $"{RootRepoDir}/.github/local-secrets.json";
+        const string secretFilePath = $"{RootRepoDir}/.github/{SecretFileName}";
         this.mockFile.Setup(m => m.ReadAllText(secretFilePath)).Returns(jsonData);
         this.mockJsonService.Setup(m => m.Deserialize<KeyValuePair<string, string>[]>(jsonData))
             .Returns(() => new KeyValuePair<string, string>[]
