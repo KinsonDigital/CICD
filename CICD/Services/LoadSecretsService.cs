@@ -12,7 +12,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 
-public class LoadSecretsService
+/// <inheritdoc/>
+public class LoadSecretsService : ILoadSecretsService
 {
     private const string SecretFileName = "local-secrets.json";
     private readonly string executionPath;
@@ -20,6 +21,15 @@ public class LoadSecretsService
     private readonly IDirectory directory;
     private readonly IFile file;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="LoadSecretsService"/> class.
+    /// </summary>
+    /// <param name="directory">Manages directories.</param>
+    /// <param name="file">Manages files.</param>
+    /// <param name="path">Manages paths.</param>
+    /// <exception cref="Exception"></exception>
+    // TODO: Add exceptions for the null param checks
+    // TODO: Add an exception doc if the root of the repository does not exist.
     public LoadSecretsService(IDirectory directory, IFile file, IPath path)
     {
         // TODO: Create unit tests to check null for all params.  Create Ensure guard pattern
@@ -54,6 +64,7 @@ public class LoadSecretsService
         this.file.WriteAllText(secretFilePath, emptyJsonData);
     }
 
+    /// <inheritdoc/>
     public string LoadSecret(string secretName)
     {
         var secretFilePath = $"{this.rootRepoDirPath}/.github/{SecretFileName}";
@@ -68,6 +79,10 @@ public class LoadSecretsService
         return foundSecret ?? string.Empty;
     }
 
+    /// <summary>
+    /// Gets the directory path of the root of the repository.
+    /// </summary>
+    /// <returns>The directory path to the .github directory.</returns>
     private string GetRepoRootDirPath()
     {
         var pathSections = this.executionPath.Split('/').ToList();
