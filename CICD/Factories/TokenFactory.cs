@@ -34,6 +34,6 @@ public class TokenFactory : ITokenFactory
     /// <inheritdoc/>
     public string GetToken() =>
         this.executionContextService.IsServerBuild
-            ? GitHubActions.Instance.Token // NOTE: This branch is not to be tested
+            ? GitHubActions.Instance.Token // NOTE: This code branch is not to be tested
             : this.secretService.LoadSecret("GithubAPIToken");
 }
