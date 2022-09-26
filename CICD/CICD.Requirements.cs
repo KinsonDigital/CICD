@@ -2,14 +2,14 @@
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
-namespace CICDSystem;
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Nuke.Common;
 using Octokit;
 using Serilog;
+
+namespace CICDSystem;
 
 /// <summary>
 /// Contains all of the requirement related methods for Target requires setup.

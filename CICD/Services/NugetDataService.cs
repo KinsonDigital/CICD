@@ -2,16 +2,16 @@
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
-namespace CICDSystem.Services;
-
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Models;
+using CICDSystem.Models;
 using RestSharp;
+
+namespace CICDSystem.Services;
 
 /// <inheritdoc />
 [ExcludeFromCodeCoverage]

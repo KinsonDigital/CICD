@@ -3,10 +3,8 @@
 // </copyright>
 
 // ReSharper disable InconsistentNaming
-namespace CICDSystem;
-
-using Services;
 using System;
+using CICDSystem.Services;
 using Nuke.Common;
 using Nuke.Common.CI.GitHubActions;
 using Nuke.Common.Git;
@@ -14,6 +12,8 @@ using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
 using Octokit;
 using NukeParameter = Nuke.Common.ParameterAttribute;
+
+namespace CICDSystem;
 
 /// <summary>
 /// Contains all of the base setup and init code for the build process.
@@ -37,9 +37,6 @@ public partial class CICD : NukeBuild
         Execute<CICD>(x => x.BuildAllProjects, x => x.RunAllUnitTests);
 
     private GitHubActions? GitHubActions => GitHubActions.Instance;
-
-    [NukeParameter]
-    private static GitHubClient GitHubClient;
 
     [NukeParameter]
     private static string? BuildSettingsDirPath { get; set; }
@@ -85,6 +82,8 @@ public partial class CICD : NukeBuild
     [Secret]
     private string TwitterAccessTokenSecret { get; set; } = string.Empty;
 
+    private IGitHubClient GitHubClient => App.Container.GetInstance<IGitHubClientService>().GetClient(RepoName);
+
     private static AbsolutePath NugetOutputPath => RootDirectory / "Artifacts";
 
     private AbsolutePath PreviewReleaseNotesDirPath => ReleaseNotesBaseDirPath / PreviewReleaseNotesDirName;
@@ -105,20 +104,6 @@ public partial class CICD : NukeBuild
         return (GitHubActions.Instance?.BaseRef  ?? string.Empty).IsMasterBranch()
             ? Configuration.Release
             : Configuration.Debug;
-    }
-
-    static string GetGitHubToken()
-    {
-        if (IsServerBuild)
-        {
-            return GitHubActions.Instance.Token;
-        }
-
-        var localSecretService = new LoadSecretsService();
-
-        const string tokenName = "GitHubApiToken";
-
-        return localSecretService.LoadSecret(tokenName);
     }
 
     static void LogWarning(string warning)

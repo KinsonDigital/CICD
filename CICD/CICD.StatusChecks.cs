@@ -2,12 +2,12 @@
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
-namespace CICDSystem;
-
 using System;
 using System.Threading.Tasks;
 using Nuke.Common;
 using Serilog;
+
+namespace CICDSystem;
 
 /// <summary>
 /// Contains all of the status check targets and related methods.
