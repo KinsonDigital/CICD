@@ -2,10 +2,10 @@
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
-namespace CICDSystem.Services;
-
 using System;
 using System.IO;
+
+namespace CICDSystem.Services;
 
 /// <summary>
 /// Generates workflow files for the targets in the Nuke build system.

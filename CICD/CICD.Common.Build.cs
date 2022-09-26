@@ -32,7 +32,7 @@ public partial class CICD // Common.Build
 
     private void BuildProjects(ProjectTypes projectTypes)
     {
-        var projects = this.Solution.AllProjects;
+        var projects = this.solution.AllProjects;
 
         foreach (var project in projects)
         {
@@ -51,7 +51,7 @@ public partial class CICD // Common.Build
 
             if (runnable)
             {
-                DotNetTasks.DotNetBuild(s => DotNetBuildSettingsExtensions.SetProjectFile<DotNetBuildSettings>(s, project.Path)
+                DotNetTasks.DotNetBuild(s => s.SetProjectFile<DotNetBuildSettings>(project.Path)
                     .SetConfiguration(Configuration)
                     .EnableNoRestore());
             }

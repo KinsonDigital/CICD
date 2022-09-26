@@ -2,11 +2,11 @@
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
-namespace CICDTests;
-
 using CICDSystem;
 using FluentAssertions;
 using Xunit;
+
+namespace CICDSystemTests;
 
 public class ExtensionMethodsTests
 {

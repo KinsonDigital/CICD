@@ -2,14 +2,14 @@
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
-namespace CICDSystem;
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Nuke.Common;
 using Octokit;
 using Serilog;
+
+namespace CICDSystem;
 
 /// <summary>
 /// Contains all of the requirement related methods for Target requires setup.
@@ -71,13 +71,13 @@ public partial class CICD // Requirements
 
         var prNumber = GitHubActions?.PullRequestNumber ?? -1;
 
-        if (prClient.HasAssignees(Owner, MainProjName, prNumber).Result)
+        if (prClient.HasAssignees(RepoOwner, RepoName, prNumber).Result)
         {
             Log.Information($"{ConsoleTab}✅The pull request '{prNumber}' is properly assigned.");
         }
         else
         {
-            var prLink = $"https://github.com/{Owner}/{MainProjName}/pull/{prNumber}";
+            var prLink = $"https://github.com/{RepoOwner}/{RepoName}/pull/{prNumber}";
             var errorMsg = "The pull request '{Value1}' is not assigned to anyone.";
             errorMsg += $"{Environment.NewLine}{ConsoleTab}To set an assignee, go to 👉🏼 '{{Value2}}'.";
             Log.Error(errorMsg, prNumber, prLink);
@@ -95,7 +95,7 @@ public partial class CICD // Requirements
             .LogRequirementTitle($"Checking that the issue number in the feature branch exists.");
 
         var branchIssueNumber = ExtractIssueNumber(BranchType.Feature, sourceBranch);
-        var issueExists = GitHubClient.Issue.IssueExists(Owner, MainProjName, branchIssueNumber).Result;
+        var issueExists = GitHubClient.Issue.IssueExists(RepoOwner, RepoName, branchIssueNumber).Result;
 
         if (issueExists is false)
         {
@@ -120,7 +120,7 @@ public partial class CICD // Requirements
             .LogRequirementTitle($"Checking that the issue number in the preview feature branch exists.");
 
         var branchIssueNumber = ExtractIssueNumber(BranchType.PreviewFeature, sourceBranch);
-        var issueExists = GitHubClient.Issue.IssueExists(Owner, MainProjName, branchIssueNumber).Result;
+        var issueExists = GitHubClient.Issue.IssueExists(RepoOwner, RepoName, branchIssueNumber).Result;
 
         if (issueExists is false)
         {
@@ -160,11 +160,11 @@ public partial class CICD // Requirements
         {
             var sourceBranch = GitHubActions?.HeadRef ?? string.Empty;
             var branchIssueNumber = ExtractIssueNumber(branchType, sourceBranch);
-            var issueExists = GitHubClient.Issue.IssueExists(Owner, MainProjName, branchIssueNumber).Result;
+            var issueExists = GitHubClient.Issue.IssueExists(RepoOwner, RepoName, branchIssueNumber).Result;
 
             if (issueExists)
             {
-                var containsLabels = GitHubClient.Issue.HasLabels(Owner, MainProjName, branchIssueNumber).Result;
+                var containsLabels = GitHubClient.Issue.HasLabels(RepoOwner, RepoName, branchIssueNumber).Result;
 
                 if (containsLabels)
                 {
@@ -205,13 +205,13 @@ public partial class CICD // Requirements
             ? -1
             : (int)GitHubActions.PullRequestNumber;
 
-        if (prClient.HasLabels(Owner, MainProjName, prNumber).Result)
+        if (prClient.HasLabels(RepoOwner, RepoName, prNumber).Result)
         {
             Log.Information($"{ConsoleTab}✅The pull request '{prNumber}' has labels.");
         }
         else
         {
-            var prLink = $"https://github.com/{Owner}/{MainProjName}/pull/{prNumber}";
+            var prLink = $"https://github.com/{RepoOwner}/{RepoName}/pull/{prNumber}";
             var errorMsg = "The pull request '{Value1}' does not have any labels.";
             errorMsg += $"{Environment.NewLine}{ConsoleTab}To add a label, go to 👉🏼 '{{Value2}}'.";
             Log.Error(errorMsg, prNumber, prLink);
@@ -235,7 +235,7 @@ public partial class CICD // Requirements
             Assert.Fail("The workflow is not being executed as a pull request in the GitHub environment.");
         }
 
-        var labelExists = GitHubClient.PullRequest.LabelExists(Owner, MainProjName, prNumber, labelName).Result;
+        var labelExists = GitHubClient.PullRequest.LabelExists(RepoOwner, RepoName, prNumber, labelName).Result;
 
         if (labelExists)
         {
@@ -243,7 +243,7 @@ public partial class CICD // Requirements
         }
         else
         {
-            var prLink = $"https://github.com/{Owner}/{MainProjName}/pull/{prNumber}";
+            var prLink = $"https://github.com/{RepoOwner}/{RepoName}/pull/{prNumber}";
             var errorMsg = $"The pull request '{{Value1}}' does not have the preview release label '{labelName}'.";
             errorMsg += $"{Environment.NewLine}{ConsoleTab}To add the label, go to 👉🏼 '{{Value2}}'.";
             Log.Error(errorMsg, prNumber, prLink);
@@ -300,27 +300,27 @@ public partial class CICD // Requirements
         nameof(ThatTheCurrentBranchIsCorrect)
             .LogRequirementTitle($"Checking that the current branch is a {branchTypeStr} branch.");
 
-        if (string.IsNullOrEmpty(this.Repo.Branch))
+        if (string.IsNullOrEmpty(this.repo.Branch))
         {
             return false;
         }
 
         var isCorrectBranch = branchType switch
         {
-            BranchType.Master => this.Repo.Branch.IsMasterBranch(),
-            BranchType.Develop => this.Repo.Branch.IsDevelopBranch(),
-            BranchType.Feature => this.Repo.Branch.IsFeatureBranch(),
-            BranchType.PreviewFeature => this.Repo.Branch.IsPreviewFeatureBranch(),
-            BranchType.Release => this.Repo.Branch.IsReleaseBranch(),
-            BranchType.Preview => this.Repo.Branch.IsPreviewBranch(),
-            BranchType.HotFix => this.Repo.Branch.IsHotFixBranch(),
+            BranchType.Master => this.repo.Branch.IsMasterBranch(),
+            BranchType.Develop => this.repo.Branch.IsDevelopBranch(),
+            BranchType.Feature => this.repo.Branch.IsFeatureBranch(),
+            BranchType.PreviewFeature => this.repo.Branch.IsPreviewFeatureBranch(),
+            BranchType.Release => this.repo.Branch.IsReleaseBranch(),
+            BranchType.Preview => this.repo.Branch.IsPreviewBranch(),
+            BranchType.HotFix => this.repo.Branch.IsHotFixBranch(),
             BranchType.Other => true,
             _ => throw new ArgumentOutOfRangeException(nameof(branchType), branchType, null)
         };
 
         if (isCorrectBranch is false)
         {
-            Log.Error($"The current branch {this.Repo.Branch} is not a '{branchTypeStr}' branch.");
+            Log.Error($"The current branch {this.repo.Branch} is not a '{branchTypeStr}' branch.");
             Assert.Fail("The current branch is incorrect.");
         }
 
@@ -450,8 +450,8 @@ public partial class CICD // Requirements
 
     private bool ThatTheCurrentBranchVersionMatchesProjectVersion(BranchType branchType)
     {
-        var targetBranch = this.Repo.Branch ?? string.Empty;
-        var project = this.Solution.GetProject(MainProjName);
+        var targetBranch = this.repo.Branch ?? string.Empty;
+        var project = this.solution.GetProject(RepoName);
 
         var errors = new List<string>();
         var branchTypeStr = branchType.ToString().ToSpaceDelimitedSections().ToLower();
@@ -474,10 +474,10 @@ public partial class CICD // Requirements
 
         if (project is null)
         {
-            errors.Add($"Could not find the project '{MainProjName}'");
+            errors.Add($"Could not find the project '{RepoName}'");
         }
 
-        var branchVersion = this.Repo.Branch?.ExtractBranchVersion().version.TrimStart('v');
+        var branchVersion = this.repo.Branch?.ExtractBranchVersion().version.TrimStart('v');
         var projectVersion = string.IsNullOrEmpty(branchVersion)
             ? string.Empty
             : project?.GetVersion() ?? string.Empty;
@@ -506,7 +506,7 @@ public partial class CICD // Requirements
 
     private bool ThatTheProjectVersionsAreValid(ReleaseType releaseType)
     {
-        var project = this.Solution.GetProject(MainProjName);
+        var project = this.solution.GetProject(RepoName);
         var errors = new List<string>();
 
         nameof(ThatTheProjectVersionsAreValid)
@@ -514,7 +514,7 @@ public partial class CICD // Requirements
 
         if (project is null)
         {
-            Log.Error($"Could not find the project '{MainProjName}'");
+            Log.Error($"Could not find the project '{RepoName}'");
             Assert.Fail("There was an issue getting the project.");
             return false;
         }
@@ -641,10 +641,10 @@ public partial class CICD // Requirements
 
         if (branchType is BranchType.Preview or BranchType.Release)
         {
-            var project = this.Solution.GetProject(MainProjName);
+            var project = this.solution.GetProject(RepoName);
             if (project is null)
             {
-                errors.Add($"Could not find the project '{MainProjName}'");
+                errors.Add($"Could not find the project '{RepoName}'");
             }
 
             var setProjectVersion = project?.GetVersion() ?? string.Empty;
@@ -670,7 +670,7 @@ public partial class CICD // Requirements
 
     private bool ThatTheReleaseMilestoneExists()
     {
-        var project = this.Solution.GetProject(MainProjName);
+        var project = this.solution.GetProject(RepoName);
         var errors = new List<string>();
 
         nameof(ThatTheReleaseMilestoneExists)
@@ -678,17 +678,17 @@ public partial class CICD // Requirements
 
         if (project is null)
         {
-            errors.Add($"Could not find the project '{MainProjName}'");
+            errors.Add($"Could not find the project '{RepoName}'");
         }
 
         var projectVersion = project?.GetVersion() ?? string.Empty;
         var milestoneClient = GitHubClient.Issue.Milestone;
 
-        var milestoneExists = milestoneClient.MilestoneExists(Owner, MainProjName, $"v{projectVersion}").Result;
+        var milestoneExists = milestoneClient.MilestoneExists(RepoOwner, RepoName, $"v{projectVersion}").Result;
 
         if (milestoneExists is false)
         {
-            var milestoneUrl = $"https://github.com/{Owner}/{MainProjName}/milestones/new";
+            var milestoneUrl = $"https://github.com/{RepoOwner}/{RepoName}/milestones/new";
             var errorMsg = $"The milestone for version '{projectVersion}' does not exist.";
             errorMsg += $"{Environment.NewLine}{ConsoleTab}To create a milestone, go here 👉🏼 {milestoneUrl}";
             errors.Add(errorMsg);
@@ -706,7 +706,7 @@ public partial class CICD // Requirements
 
     private bool ThatTheReleaseMilestoneContainsIssues()
     {
-        var project = this.Solution.GetProject(MainProjName);
+        var project = this.solution.GetProject(RepoName);
         var errors = new List<string>();
 
         nameof(ThatTheReleaseMilestoneContainsIssues)
@@ -714,17 +714,17 @@ public partial class CICD // Requirements
 
         if (project is null)
         {
-            errors.Add($"Could not find the project '{MainProjName}'");
+            errors.Add($"Could not find the project '{RepoName}'");
         }
 
         var projectVersion = project?.GetVersion() ?? string.Empty;
         var milestoneClient = GitHubClient.Issue.Milestone;
 
-        var milestone = milestoneClient.GetByTitle(Owner, MainProjName, $"v{projectVersion}").Result;
+        var milestone = milestoneClient.GetByTitle(RepoOwner, RepoName, $"v{projectVersion}").Result;
 
         if (milestone is null)
         {
-            var milestoneUrl = $"https://github.com/{Owner}/{MainProjName}/milestones/new";
+            var milestoneUrl = $"https://github.com/{RepoOwner}/{RepoName}/milestones/new";
             var errorMsg = $"The milestone for version '{projectVersion}' does not exist.";
             errorMsg += $"{Environment.NewLine}{ConsoleTab}To create a milestone, go here 👉🏼 {milestoneUrl}";
             errors.Add(errorMsg);
@@ -752,7 +752,7 @@ public partial class CICD // Requirements
     private bool ThatTheReleaseMilestoneOnlyContainsSingle(ReleaseType releaseType, ItemType itemType)
     {
         const int totalSpaces = 15;
-        var project = this.Solution.GetProject(MainProjName);
+        var project = this.solution.GetProject(RepoName);
         var errors = new List<string>();
         var releaseTypeStr = releaseType.ToString().ToLower();
 
@@ -763,18 +763,18 @@ public partial class CICD // Requirements
 
         if (project is null)
         {
-            errors.Add($"Could not find the project '{MainProjName}'");
+            errors.Add($"Could not find the project '{RepoName}'");
         }
 
         var projectVersion = project?.GetVersion() ?? string.Empty;
         var mileStoneTitle = $"v{projectVersion}";
         var issueClient = GitHubClient.Issue;
         var mileStoneClient = GitHubClient.Issue.Milestone;
-        var milestone = mileStoneClient.GetByTitle(Owner, MainProjName, mileStoneTitle).Result;
+        var milestone = mileStoneClient.GetByTitle(RepoOwner, RepoName, mileStoneTitle).Result;
 
         if (milestone is null)
         {
-            var milestoneUrl = $"https://github.com/{Owner}/{MainProjName}/milestones/new";
+            var milestoneUrl = $"https://github.com/{RepoOwner}/{RepoName}/milestones/new";
             var errorMsg = "Cannot check a milestone that does not exist.";
             errorMsg += $"{Environment.NewLine}{ConsoleTab}To create a milestone, go here 👉🏼 {milestoneUrl}";
             errors.Add(errorMsg);
@@ -782,8 +782,8 @@ public partial class CICD // Requirements
 
         var pullRequests = itemType switch
         {
-            ItemType.Issue => issueClient.IssuesForMilestone(Owner, MainProjName, mileStoneTitle).Result,
-            ItemType.PullRequest => issueClient.PullRequestsForMilestone(Owner, MainProjName, mileStoneTitle).Result,
+            ItemType.Issue => issueClient.IssuesForMilestone(RepoOwner, RepoName, mileStoneTitle).Result,
+            ItemType.PullRequest => issueClient.PullRequestsForMilestone(RepoOwner, RepoName, mileStoneTitle).Result,
             _ => throw new ArgumentOutOfRangeException(nameof(itemType), itemType, null)
         };
 
@@ -853,7 +853,7 @@ public partial class CICD // Requirements
 
     private bool ThatAllOfTheReleaseMilestoneIssuesAreClosed(ReleaseType releaseType, bool skipReleaseToDoIssues)
     {
-        var project = this.Solution.GetProject(MainProjName);
+        var project = this.solution.GetProject(RepoName);
         var errors = new List<string>();
 
         nameof(ThatAllOfTheReleaseMilestoneIssuesAreClosed)
@@ -861,7 +861,7 @@ public partial class CICD // Requirements
 
         if (project is null)
         {
-            errors.Add($"Could not find the project '{MainProjName}'");
+            errors.Add($"Could not find the project '{RepoName}'");
         }
 
         var projectVersion = project?.GetVersion() ?? string.Empty;
@@ -869,9 +869,9 @@ public partial class CICD // Requirements
             ? projectVersion
             : $"v{projectVersion}";
 
-        var milestoneUrl = GitHubClient.Issue.Milestone.GetHtmlUrl(Owner, MainProjName, projectVersion).Result;
+        var milestoneUrl = GitHubClient.Issue.Milestone.GetHtmlUrl(RepoOwner, RepoName, projectVersion).Result;
 
-        var openMilestoneIssues = GitHubClient.Issue.IssuesForMilestone(Owner, MainProjName, projectVersion)
+        var openMilestoneIssues = GitHubClient.Issue.IssuesForMilestone(RepoOwner, RepoName, projectVersion)
             .Result
             .Where(i => (skipReleaseToDoIssues || i.IsReleaseToDoIssue(releaseType)) && i.State == ItemState.Open).ToArray();
 
@@ -895,7 +895,7 @@ public partial class CICD // Requirements
 
     private bool ThatAllOfTheReleaseMilestonePullRequestsAreClosed(ReleaseType releaseType, bool skipReleaseToDoPullRequests)
     {
-        var project = this.Solution.GetProject(MainProjName);
+        var project = this.solution.GetProject(RepoName);
         var errors = new List<string>();
 
         nameof(ThatAllOfTheReleaseMilestonePullRequestsAreClosed)
@@ -903,14 +903,14 @@ public partial class CICD // Requirements
 
         if (project is null)
         {
-            errors.Add($"Could not find the project '{MainProjName}'");
+            errors.Add($"Could not find the project '{RepoName}'");
         }
 
         var projectVersion = project?.GetVersion() ?? string.Empty;
 
-        var milestoneUrl = GitHubClient.Issue.Milestone.GetHtmlUrl(Owner, MainProjName, $"v{projectVersion}").Result;
+        var milestoneUrl = GitHubClient.Issue.Milestone.GetHtmlUrl(RepoOwner, RepoName, $"v{projectVersion}").Result;
 
-        var openMilestonePullRequests = GitHubClient.Issue.PullRequestsForMilestone(Owner, MainProjName, $"v{projectVersion}")
+        var openMilestonePullRequests = GitHubClient.Issue.PullRequestsForMilestone(RepoOwner, RepoName, $"v{projectVersion}")
             .Result
             .Where(i => (skipReleaseToDoPullRequests || i.IsReleasePullRequest(releaseType)) && i.State == ItemState.Open).ToArray();
 
@@ -934,7 +934,7 @@ public partial class CICD // Requirements
 
     private bool ThatAllMilestoneIssuesHaveLabels()
     {
-        var project = this.Solution.GetProject(MainProjName);
+        var project = this.solution.GetProject(RepoName);
         var errors = new List<string>();
 
         nameof(ThatAllMilestoneIssuesHaveLabels)
@@ -942,17 +942,17 @@ public partial class CICD // Requirements
 
         if (project is null)
         {
-            errors.Add($"Could not find the project '{MainProjName}'");
+            errors.Add($"Could not find the project '{RepoName}'");
         }
 
         var projectVersion = project?.GetVersion() ?? string.Empty;
         var milestoneTitle = $"v{projectVersion}";
         var milestoneClient = GitHubClient.Issue.Milestone;
-        var milestoneUrl = milestoneClient.GetHtmlUrl(Owner, MainProjName, milestoneTitle).Result;
+        var milestoneUrl = milestoneClient.GetHtmlUrl(RepoOwner, RepoName, milestoneTitle).Result;
 
         var issueClient = GitHubClient.Issue;
 
-        var milestoneIssues = issueClient.IssuesForMilestone(Owner, MainProjName, milestoneTitle).Result;
+        var milestoneIssues = issueClient.IssuesForMilestone(RepoOwner, RepoName, milestoneTitle).Result;
 
         var issueHasNoLabels = milestoneIssues.Any(i => i.Labels.Count <= 0);
 
@@ -977,7 +977,7 @@ public partial class CICD // Requirements
 
     private bool ThatAllMilestonePullRequestsHaveLabels()
     {
-        var project = this.Solution.GetProject(MainProjName);
+        var project = this.solution.GetProject(RepoName);
         var errors = new List<string>();
 
         nameof(ThatAllMilestonePullRequestsHaveLabels)
@@ -985,17 +985,17 @@ public partial class CICD // Requirements
 
         if (project is null)
         {
-            errors.Add($"Could not find the project '{MainProjName}'");
+            errors.Add($"Could not find the project '{RepoName}'");
         }
 
         var projectVersion = project?.GetVersion() ?? string.Empty;
         var milestoneTitle = $"v{projectVersion}";
         var milestoneClient = GitHubClient.Issue.Milestone;
-        var milestoneUrl = milestoneClient.GetHtmlUrl(Owner, MainProjName, milestoneTitle).Result;
+        var milestoneUrl = milestoneClient.GetHtmlUrl(RepoOwner, RepoName, milestoneTitle).Result;
 
         var issueClient = GitHubClient.Issue;
 
-        var milestonePullRequests = issueClient.PullRequestsForMilestone(Owner, MainProjName, milestoneTitle).Result;
+        var milestonePullRequests = issueClient.PullRequestsForMilestone(RepoOwner, RepoName, milestoneTitle).Result;
 
         var issueHasNoLabels = milestonePullRequests.Any(i => i.Labels.Count <= 0);
 
@@ -1019,7 +1019,7 @@ public partial class CICD // Requirements
 
     private bool ThatTheReleaseTagDoesNotAlreadyExist(ReleaseType releaseType)
     {
-        var project = this.Solution.GetProject(MainProjName);
+        var project = this.solution.GetProject(RepoName);
         var errors = new List<string>();
 
         var releaseTypeStr = releaseType.ToString().ToLower();
@@ -1029,17 +1029,17 @@ public partial class CICD // Requirements
 
         if (project is null)
         {
-            errors.Add($"Could not find the project '{MainProjName}'");
+            errors.Add($"Could not find the project '{RepoName}'");
         }
 
         var projectVersion = project?.GetVersion() ?? string.Empty;
 
         var repoClient = GitHubClient.Repository;
-        var tagExists = repoClient.TagExists(Owner, MainProjName, $"v{projectVersion}").Result;
+        var tagExists = repoClient.TagExists(RepoOwner, RepoName, $"v{projectVersion}").Result;
 
         if (tagExists)
         {
-            var tagUrl = $"https://github.com/{Owner}/{MainProjName}/tree/{projectVersion}";
+            var tagUrl = $"https://github.com/{RepoOwner}/{RepoName}/tree/{projectVersion}";
             var errorMsg = $"The {releaseTypeStr} release tag '{projectVersion}' already exists.";
             errorMsg += $"{Environment.NewLine}{ConsoleTab}To view the tag, go here 👉🏼 {tagUrl}";
             errors.Add(errorMsg);
@@ -1057,7 +1057,7 @@ public partial class CICD // Requirements
 
     private bool ThatTheReleaseNotesExist(ReleaseType releaseType)
     {
-        var project = this.Solution.GetProject(MainProjName);
+        var project = this.solution.GetProject(RepoName);
         var errors = new List<string>();
 
         var releaseTypeStr = releaseType.ToString().ToLower();
@@ -1067,7 +1067,7 @@ public partial class CICD // Requirements
 
         if (project is null)
         {
-            errors.Add($"Could not find the project '{MainProjName}'");
+            errors.Add($"Could not find the project '{RepoName}'");
         }
 
         var projectVersion = project?.GetVersion() ?? string.Empty;
@@ -1076,7 +1076,7 @@ public partial class CICD // Requirements
 
         if (releaseNotesDoNotExist)
         {
-            var notesDirPath = $"~/Documentation/ReleaseNotes/{releaseType.ToString()}Releases";
+            var notesDirPath = $"./Documentation/ReleaseNotes/{releaseType.ToString()}Releases";
             var errorMsg = $"The {releaseTypeStr} release notes do not exist for version {projectVersion}";
             var notesFileName = $"Release-Notes-{projectVersion}.md";
             errorMsg += $"{Environment.NewLine}{ConsoleTab}The {releaseTypeStr} release notes go in the directory '{notesDirPath}'";
@@ -1096,7 +1096,7 @@ public partial class CICD // Requirements
 
     private bool ThatTheReleaseNotesTitleIsCorrect(ReleaseType releaseType)
     {
-        var project = this.Solution.GetProject(MainProjName);
+        var project = this.solution.GetProject(RepoName);
         var errors = new List<string>();
 
         var releaseTypeStr = releaseType.ToString().ToLower();
@@ -1106,7 +1106,7 @@ public partial class CICD // Requirements
 
         if (project is null)
         {
-            errors.Add($"Could not find the project '{MainProjName}'");
+            errors.Add($"Could not find the project '{RepoName}'");
         }
 
         var projectVersion = project?.GetVersion() ?? string.Empty;
@@ -1115,7 +1115,7 @@ public partial class CICD // Requirements
 
         if (releaseNotesDoNotExist)
         {
-            var notesDirPath = $"~/Documentation/ReleaseNotes/{releaseType.ToString()}Releases";
+            var notesDirPath = $"./Documentation/ReleaseNotes/{releaseType.ToString()}Releases";
             var errorMsg = $"The {releaseTypeStr} release notes do not exist for version {projectVersion}";
             var notesFileName = $"Release-Notes-{projectVersion}.md";
             errorMsg += $"{Environment.NewLine}{ConsoleTab}The {releaseTypeStr} release notes go in the directory '{notesDirPath}'";
@@ -1123,14 +1123,14 @@ public partial class CICD // Requirements
             errors.Add(errorMsg);
         }
 
-        var releaseNotes = this.Solution.GetReleaseNotesAsLines(releaseType, projectVersion);
+        var releaseNotes = this.solution.GetReleaseNotesAsLines(releaseType, projectVersion);
 
-        var releaseNotesTitleSection = $"{MainProjName} {releaseType} Release Notes - ";
+        var releaseNotesTitleSection = $"{RepoName} {releaseType} Release Notes - ";
         var foundTitle = releaseNotes.Where(l => l.Contains(releaseNotesTitleSection)).ToArray();
 
         if (foundTitle.Length <= 0)
         {
-            var expectedReleaseNotesTitle = $"{MainProjName} {releaseType} Release Notes - v{projectVersion}";
+            var expectedReleaseNotesTitle = $"{RepoName} {releaseType} Release Notes - v{projectVersion}";
             const string titleSyntax = "<project-name> <release-type> Release Notes - v#.#.#-preview.#";
 
             var errorMsg = $"A release notes title with the syntax '{titleSyntax}' could not be found.";
@@ -1153,7 +1153,7 @@ public partial class CICD // Requirements
         const int totalIndexSpaces = 15;
         var indent = totalIndexSpaces.CreateDuplicateCharacters(' ');
         const string baseUrl = "https://github.com";
-        var project = this.Solution.GetProject(MainProjName);
+        var project = this.solution.GetProject(RepoName);
         var errors = new List<string>();
 
         var releaseTypeStr = releaseType.ToString().ToLower();
@@ -1163,14 +1163,14 @@ public partial class CICD // Requirements
 
         if (project is null)
         {
-            errors.Add($"Could not find the project '{MainProjName}'");
+            errors.Add($"Could not find the project '{RepoName}'");
         }
 
         var projectVersion = project?.GetVersion() ?? string.Empty;
         var milestoneTitle = $"v{projectVersion}";
 
-        var milestoneIssues = GitHubClient.Issue.IssuesForMilestone(Owner, MainProjName, milestoneTitle).Result;
-        var releaseNotes = this.Solution.GetReleaseNotes(releaseType, projectVersion);
+        var milestoneIssues = GitHubClient.Issue.IssuesForMilestone(RepoOwner, RepoName, milestoneTitle).Result;
+        var releaseNotes = this.solution.GetReleaseNotes(releaseType, projectVersion);
         if (string.IsNullOrEmpty(releaseNotes))
         {
             errors.Add($"No {releaseTypeStr} release notes exist to check for issue numbers.");
@@ -1180,7 +1180,7 @@ public partial class CICD // Requirements
             ? Array.Empty<Issue>()
             : milestoneIssues.Where(i =>
             {
-                var issueNote = $"[#{i.Number}]({baseUrl}/{Owner}/{MainProjName}/issues/{i.Number})";
+                var issueNote = $"[#{i.Number}]({baseUrl}/{RepoOwner}/{RepoName}/issues/{i.Number})";
                 return !i.IsReleaseToDoIssue(releaseType) &&
                        !releaseNotes.Contains(issueNote);
             }).ToArray();
@@ -1204,7 +1204,7 @@ public partial class CICD // Requirements
 
     private bool ThatTheProdReleaseNotesContainsPreviewReleaseSection()
     {
-        var project = this.Solution.GetProject(MainProjName);
+        var project = this.solution.GetProject(RepoName);
         var errors = new List<string>();
 
         nameof(ThatTheProdReleaseNotesContainsPreviewReleaseSection)
@@ -1212,7 +1212,7 @@ public partial class CICD // Requirements
 
         if (project is null)
         {
-            errors.Add($"Could not find the project '{MainProjName}'");
+            errors.Add($"Could not find the project '{RepoName}'");
         }
 
         var prodVersion = project?.GetVersion() ?? string.Empty;
@@ -1229,11 +1229,11 @@ public partial class CICD // Requirements
 
         if (containsPreviewReleases)
         {
-            var releaseNotes = this.Solution.GetReleaseNotes(ReleaseType.Production, prodVersion);
+            var releaseNotes = this.solution.GetReleaseNotes(ReleaseType.Production, prodVersion);
 
             if (string.IsNullOrEmpty(releaseNotes))
             {
-                const string notesDirPath = $"~/Documentation/ReleaseNotes/ProductionReleases";
+                const string notesDirPath = $"./Documentation/ReleaseNotes/ProductionReleases";
                 var errorMsg = $"The production release notes do not exist for version {prodVersion}";
                 var notesFileName = $"Release-Notes-{prodVersion}.md";
                 errorMsg += $"{Environment.NewLine}{ConsoleTab}The production release notes go in the directory '{notesDirPath}'";
@@ -1270,7 +1270,7 @@ public partial class CICD // Requirements
 
     private bool ThatTheProdReleaseNotesContainsPreviewReleaseItems()
     {
-        var project = this.Solution.GetProject(MainProjName);
+        var project = this.solution.GetProject(RepoName);
         var errors = new List<string>();
 
         nameof(ThatTheProdReleaseNotesContainsPreviewReleaseSection)
@@ -1278,7 +1278,7 @@ public partial class CICD // Requirements
 
         if (project is null)
         {
-            errors.Add($"Could not find the project '{MainProjName}'");
+            errors.Add($"Could not find the project '{RepoName}'");
         }
 
         var prodVersion = project?.GetVersion() ?? string.Empty;
@@ -1295,11 +1295,11 @@ public partial class CICD // Requirements
 
         if (containsPreviewReleases)
         {
-            var releaseNotes = this.Solution.GetReleaseNotes(ReleaseType.Production, prodVersion);
+            var releaseNotes = this.solution.GetReleaseNotes(ReleaseType.Production, prodVersion);
 
             if (string.IsNullOrEmpty(releaseNotes))
             {
-                const string notesDirPath = $"~/Documentation/ReleaseNotes/ProductionReleases";
+                const string notesDirPath = $"./Documentation/ReleaseNotes/ProductionReleases";
                 var errorMsg = $"The production release notes do not exist for version {prodVersion}";
                 var notesFileName = $"Release-Notes-{prodVersion}.md";
                 errorMsg += $"{Environment.NewLine}{ConsoleTab}The production release notes go in the directory '{notesDirPath}'";
@@ -1312,7 +1312,7 @@ public partial class CICD // Requirements
                 milestoneRequest.State = ItemStateFilter.All;
 
                 var prevReleaseItems =
-                    (from m in GitHubClient.Issue.Milestone.GetAllForRepository(Owner, MainProjName, milestoneRequest).Result
+                    (from m in GitHubClient.Issue.Milestone.GetAllForRepository(RepoOwner, RepoName, milestoneRequest).Result
                         where m.Title.IsPreviewVersion() && m.Title.StartsWith(prodVersion)
                         select (
                             m.Title,
@@ -1351,7 +1351,7 @@ public partial class CICD // Requirements
 
     private bool ThatGitHubReleaseDoesNotExist(ReleaseType releaseType)
     {
-        var project = this.Solution.GetProject(MainProjName);
+        var project = this.solution.GetProject(RepoName);
         var errors = new List<string>();
 
         var releaseTypeStr = releaseType.ToString().ToLower();
@@ -1361,7 +1361,7 @@ public partial class CICD // Requirements
 
         if (project is null)
         {
-            errors.Add($"Could not find the project '{MainProjName}'");
+            errors.Add($"Could not find the project '{RepoName}'");
         }
 
         var projectVersion = project?.GetVersion() ?? string.Empty;
@@ -1386,7 +1386,7 @@ public partial class CICD // Requirements
 
         var releaseClient = GitHubClient.Repository.Release;
 
-        var releaseExists = releaseClient.ReleaseExists(Owner, MainProjName, releaseTag).Result;
+        var releaseExists = releaseClient.ReleaseExists(RepoOwner, RepoName, releaseTag).Result;
 
         if (releaseExists)
         {

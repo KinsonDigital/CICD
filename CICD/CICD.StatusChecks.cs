@@ -2,12 +2,12 @@
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
-namespace CICDSystem;
-
 using System;
 using System.Threading.Tasks;
 using Nuke.Common;
 using Serilog;
+
+namespace CICDSystem;
 
 /// <summary>
 /// Contains all of the status check targets and related methods.
@@ -202,7 +202,7 @@ public partial class CICD // StatusChecks
     ///     </list>
     /// </para>
     /// </returns>
-    private static async Task<bool> ValidBranchIssueNumber(string branch)
+    private async Task<bool> ValidBranchIssueNumber(string branch)
     {
         // If the branch is not a branch with an issue number, return as valid
         if (!branch.IsFeatureBranch() && !branch.IsPreviewFeatureBranch() && !branch.IsHotFixBranch())
@@ -214,7 +214,7 @@ public partial class CICD // StatusChecks
 
         var issueClient = GitHubClient.Issue;
 
-        return await issueClient.IssueExists(Owner, MainProjName, issueNumber);
+        return await issueClient.IssueExists(RepoOwner, RepoName, issueNumber);
     }
 
     /// <summary>
@@ -233,13 +233,13 @@ public partial class CICD // StatusChecks
         // This is if the workflow is execution locally or manually in GitHub using workflow_dispatch
         bool ValidBranchForManualExecution()
         {
-            return (this.Repo.Branch?.IsMasterBranch() ?? false) ||
-                   (this.Repo.Branch?.IsDevelopBranch() ?? false) ||
-                   (this.Repo.Branch?.IsFeatureBranch() ?? false) ||
-                   (this.Repo.Branch?.IsPreviewFeatureBranch() ?? false) ||
-                   (this.Repo.Branch?.IsPreviewBranch() ?? false) ||
-                   (this.Repo.Branch?.IsReleaseBranch() ?? false) ||
-                   (this.Repo.Branch?.IsHotFixBranch() ?? false);
+            return (this.repo.Branch?.IsMasterBranch() ?? false) ||
+                   (this.repo.Branch?.IsDevelopBranch() ?? false) ||
+                   (this.repo.Branch?.IsFeatureBranch() ?? false) ||
+                   (this.repo.Branch?.IsPreviewFeatureBranch() ?? false) ||
+                   (this.repo.Branch?.IsPreviewBranch() ?? false) ||
+                   (this.repo.Branch?.IsReleaseBranch() ?? false) ||
+                   (this.repo.Branch?.IsHotFixBranch() ?? false);
         }
 
         // If the build is on the server and the GitHubActions object exists
@@ -250,12 +250,12 @@ public partial class CICD // StatusChecks
                   GitHubActions.BaseRef.IsDevelopBranch() || GitHubActions.BaseRef.IsMasterBranch()
                 : ValidBranchForManualExecution(); // Manual execution
 
-            branch = IsPullRequest() ? GitHubActions.BaseRef : this.Repo.Branch;
+            branch = IsPullRequest() ? GitHubActions.BaseRef : this.repo.Branch;
         }
         else if (IsLocalBuild || GitHubActions is null)
         {
             validBranch = ValidBranchForManualExecution();
-            branch = this.Repo.Branch;
+            branch = this.repo.Branch;
         }
 
         if (validBranch)
