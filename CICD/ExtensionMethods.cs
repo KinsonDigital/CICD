@@ -500,6 +500,17 @@ public static class ExtensionMethods
         return pullRequests;
     }
 
+    public static async Task<bool> Exists(
+        this IPullRequestsClient client,
+        string repoOwner,
+        string repoName,
+        int prNumber)
+    {
+        var pr = await client.Get(repoOwner, repoName, prNumber);
+
+        return pr is not null;
+    }
+
     public static async Task<bool> LabelExists(
         this IPullRequestsClient client,
         string repoOwner,
