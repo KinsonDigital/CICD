@@ -23,8 +23,6 @@ public partial class CICD : NukeBuild
 {
     private const string NugetOrgSource = "https://api.nuget.org/v3/index.json";
     private const string ConsoleTab = "\t       ";
-    [NukeParameter(List = false)]
-    private static readonly Configuration Configuration = GetBuildConfig();
     [Solution]
     private readonly Solution? solution;
 
@@ -39,6 +37,8 @@ public partial class CICD : NukeBuild
         ServiceFactory.CreateGitHubActionsService(PullRequestNumber, RepoOwner, RepoName);
 
     private IExecutionContextService ExecutionContext => App.Container.GetInstance<IExecutionContextService>();
+
+    private Configuration Configuration => GetBuildConfig();
 
     private IGitRepoService repo => App.Container.GetInstance<IGitRepoService>();
 
