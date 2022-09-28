@@ -52,12 +52,30 @@ public partial class CICD // Requirements
         return true;
     }
 
+    private bool ThatThePullRequestExists()
+    {
+        nameof(ThatThePullRequestExists)
+            .LogRequirementTitle("Checking if the pull request number exists.");
+
+        var result = PullRequestNumber != 0 && GitHubClient.PullRequest.Exists(RepoOwner, RepoName, PullRequestNumber).Result;
+
+        if (result)
+        {
+            Console.WriteLine($"{Environment.NewLine}{ConsoleTab}The pull request number '{PullRequestNumber}' exists.");
+            return true;
+        }
+
+        Log.Error($"The pull request number '{PullRequestNumber}' does not exist.");
+        Assert.Fail("Pull request failure.");
+        return false;
+    }
+
     private bool ThatThePRHasBeenAssigned()
     {
         var prClient = GitHubClient.PullRequest;
 
         nameof(ThatThePRHasBeenAssigned)
-            .LogRequirementTitle($"Checking if the pull request as been assigned to someone.");
+            .LogRequirementTitle("Checking if the pull request as been assigned to someone.");
 
         var prNumber = GitHubActionsService?.PullRequestNumber ?? -1;
 
