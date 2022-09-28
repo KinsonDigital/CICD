@@ -3,11 +3,9 @@
 // </copyright>
 
 // ReSharper disable InconsistentNaming
-
 using CICDSystem.Factories;
 using CICDSystem.Services;
 using Nuke.Common;
-using Nuke.Common.Git;
 using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
 using Octokit;
