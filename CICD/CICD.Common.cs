@@ -20,7 +20,7 @@ using Serilog;
 public partial class CICD // Common
 {
     private Target RestoreSolution => _ => _
-        .After(BuildStatusCheck, UnitTestStatusCheck)
+        .After(PRBuildStatusCheck, PRUnitTestStatusCheck)
         .Executes(() =>
         {
             DotNetTasks.DotNetRestore(s => s.SetProjectFile<DotNetRestoreSettings>(this.solution));

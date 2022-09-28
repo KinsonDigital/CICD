@@ -19,7 +19,7 @@ public partial class CICD // StatusChecks
     /// <summary>
     /// Gets a target to perform a build status check.
     /// </summary>
-    private Target BuildStatusCheck => _ => _
+    private Target PRBuildStatusCheck => _ => _
         .Before(BuildAllProjects)
         .Triggers(BuildAllProjects)
         .Executes(async () =>
@@ -35,7 +35,7 @@ public partial class CICD // StatusChecks
     /// <summary>
     /// Gets a target to perform a unit test status check.
     /// </summary>
-    private Target UnitTestStatusCheck => _ => _
+    private Target PRUnitTestStatusCheck => _ => _
         .Before(RunAllUnitTests)
         .Triggers(RunAllUnitTests)
         .Executes(async () =>

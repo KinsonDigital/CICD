@@ -94,19 +94,19 @@
             "enum": [
               "BuildAllProjects",
               "BuildAllTestProjects",
-              "BuildStatusCheck",
               "DebugTask",
               "FeaturePRStatusCheck",
               "GenerateWorkflows",
               "HotFixPRStatusCheck",
+              "PRBuildStatusCheck",
               "PreviewFeaturePRStatusCheck",
               "PreviewRelease",
               "PrevReleasePRStatusCheck",
               "ProdReleasePRStatusCheck",
               "ProductionRelease",
+              "PRUnitTestStatusCheck",
               "RestoreSolution",
-              "RunAllUnitTests",
-              "UnitTestStatusCheck"
+              "RunAllUnitTests"
             ]
           }
         },
@@ -125,19 +125,19 @@
             "enum": [
               "BuildAllProjects",
               "BuildAllTestProjects",
-              "BuildStatusCheck",
               "DebugTask",
               "FeaturePRStatusCheck",
               "GenerateWorkflows",
               "HotFixPRStatusCheck",
+              "PRBuildStatusCheck",
               "PreviewFeaturePRStatusCheck",
               "PreviewRelease",
               "PrevReleasePRStatusCheck",
               "ProdReleasePRStatusCheck",
               "ProductionRelease",
+              "PRUnitTestStatusCheck",
               "RestoreSolution",
-              "RunAllUnitTests",
-              "UnitTestStatusCheck"
+              "RunAllUnitTests"
             ]
           }
         },
