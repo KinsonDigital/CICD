@@ -7,7 +7,7 @@ namespace CICDSystem.Services;
 /// <summary>
 /// Gets the current execution directory/
 /// </summary>
-public interface ICurrentDirService
+internal interface ICurrentDirService
 {
     /// <summary>
     /// Returns the directory that the application is currently being executed in.

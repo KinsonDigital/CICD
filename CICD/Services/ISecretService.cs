@@ -7,7 +7,7 @@ namespace CICDSystem.Services;
 /// <summary>
 /// Generates workflow files for the targets in the Nuke build system.
 /// </summary>
-public interface ISecretService
+internal interface ISecretService
 {
     /// <summary>
     /// Loads a secret with the given <paramref name="secretName"/> from the <c>local-secrets.json</c>

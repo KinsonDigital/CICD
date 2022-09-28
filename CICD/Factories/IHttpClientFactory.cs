@@ -9,7 +9,7 @@ namespace CICDSystem.Factories;
 /// <summary>
 /// Creates new HTTP clients.
 /// </summary>
-public interface IHttpClientFactory
+internal interface IHttpClientFactory
 {
     /// <summary>
     /// Creates a new instance of the <see cref="IGitHubClient"/> to communicate with the GitHub API.

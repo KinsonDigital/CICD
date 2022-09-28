@@ -7,7 +7,7 @@ namespace CICDSystem.Services;
 /// <summary>
 /// Provides GitHub Action related services.
 /// </summary>
-public interface IGitHubActionsService
+internal interface IGitHubActionsService
 {
     /// <summary>
     /// Gets a value indicating whether or not the GitHub actions functionality is available.
