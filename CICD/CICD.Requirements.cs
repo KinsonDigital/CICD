@@ -16,6 +16,19 @@ namespace CICDSystem;
 /// </summary>
 public partial class CICD // Requirements
 {
+    private bool ThatPullRequestNumberIsProvided()
+    {
+        nameof(ThatPullRequestNumberIsProvided)
+            .LogRequirementTitle("Checking that a pull request number has been provided.");
+
+        if (ExecutionContext.IsServerBuild)
+        {
+            return GitHubActionsService.IsPullRequest;
+        }
+
+        return PullRequestNumber > 0;
+    }
+
     private bool ThatThisIsExecutedFromPullRequest(params BranchType[] targetBranches)
     {
         nameof(ThatThisIsExecutedFromPullRequest)

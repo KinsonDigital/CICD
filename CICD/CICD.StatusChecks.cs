@@ -56,7 +56,7 @@ public partial class CICD // StatusChecks
     /// </summary>
     private Target FeaturePRStatusCheck => _ => _
         .Requires(
-            () => ThatThisIsExecutedFromPullRequest(BranchType.Develop),
+            () => ThatPullRequestNumberIsProvided(),
             () => ThatThePRSourceBranchIsValid(BranchType.Feature),
             () => ThatFeaturePRIssueNumberExists(),
             () => ThatFeaturePRIssueHasLabel(BranchType.Feature),
@@ -69,7 +69,7 @@ public partial class CICD // StatusChecks
     /// </summary>
     private Target PreviewFeaturePRStatusCheck => _ => _
         .Requires(
-            () => ThatThisIsExecutedFromPullRequest(BranchType.PreviewFeature),
+            () => ThatPullRequestNumberIsProvided(),
             () => ThatThePRSourceBranchIsValid(BranchType.PreviewFeature),
             () => ThatPreviewFeaturePRIssueNumberExists(),
             () => ThatFeaturePRIssueHasLabel(BranchType.PreviewFeature),
@@ -79,7 +79,7 @@ public partial class CICD // StatusChecks
 
     private Target HotFixPRStatusCheck => _ => _
         .Requires(
-            () => ThatThisIsExecutedFromPullRequest(BranchType.Master),
+            () => ThatPullRequestNumberIsProvided(),
             () => ThatThePRSourceBranchIsValid(BranchType.HotFix),
             () => ThatPreviewFeaturePRIssueNumberExists(),
             () => ThatFeaturePRIssueHasLabel(BranchType.HotFix),
@@ -89,7 +89,7 @@ public partial class CICD // StatusChecks
 
     private Target PrevReleasePRStatusCheck => _ => _
         .Requires(
-            () => ThatThisIsExecutedFromPullRequest(BranchType.Release),
+            () => ThatPullRequestNumberIsProvided(),
             () => ThatThePRSourceBranchIsValid(BranchType.Preview),
             () => ThatThePRTargetBranchIsValid(BranchType.Release),
             () => ThatThePRHasBeenAssigned(),
@@ -113,7 +113,7 @@ public partial class CICD // StatusChecks
 
     private Target ProdReleasePRStatusCheck => _ => _
         .Requires(
-            () => ThatThisIsExecutedFromPullRequest(BranchType.Master, BranchType.Develop),
+            () => ThatPullRequestNumberIsProvided(),
             () => ThatThePRSourceBranchIsValid(BranchType.Release),
             () => ThatThePRTargetBranchIsValid(BranchType.Master),
             () => ThatThePRHasBeenAssigned(),
