@@ -123,10 +123,9 @@ public partial class CICD // Common
         // If the build is on the server and the GitHubActions object exists
         if (IsServerBuild)
         {
-            Log.Information("Is Server Build: {Value}", IsServerBuild);
-            Log.Information("Repository Owner: {Value}", GitHubActions?.RepositoryOwner);
+            Log.Information("Is Server Build: {Value}", ExecutionContext.IsServerBuild);
+            Log.Information("Is Local Build: {Value}", ExecutionContext.IsLocalBuild);
             Log.Information("Status Check Invoked By: {Value}", GitHubActionsService.Actor);
-            Log.Information("Is Local Build: {Value}", IsLocalBuild);
             Log.Information("Is PR: {Value}", GitHubActionsService.IsPullRequest);
             Log.Information("Ref: {Value}", GitHubActionsService?.Ref);
             Log.Information("Ref: {Value}", GitHubActionsService?.Ref);

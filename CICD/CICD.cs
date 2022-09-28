@@ -38,6 +38,8 @@ public partial class CICD : NukeBuild
     private IGitHubActionsService GitHubActionsService =>
         ServiceFactory.CreateGitHubActionsService(PullRequestNumber, RepoOwner, RepoName);
 
+    private IExecutionContextService ExecutionContext => App.Container.GetInstance<IExecutionContextService>();
+
     private IGitRepoService repo => App.Container.GetInstance<IGitRepoService>();
 
     [NukeParameter]
@@ -95,11 +97,11 @@ public partial class CICD : NukeBuild
 
     private AbsolutePath ProductionReleaseNotesDirPath => ReleaseNotesBaseDirPath / ProductionReleaseNotesDirName;
 
-    private static Configuration GetBuildConfig()
+    private Configuration GetBuildConfig()
     {
         var repo = GitRepository.FromLocalDirectory(RootDirectory);
 
-        if (IsLocalBuild || GitHubActions.Instance is null)
+        if (ExecutionContext.IsLocalBuild)
         {
             return (repo.Branch ?? string.Empty).IsMasterBranch()
                 ? Configuration.Release
