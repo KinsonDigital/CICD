@@ -26,8 +26,6 @@ public partial class CICD : NukeBuild
     private static readonly Configuration Configuration = GetBuildConfig();
     [Solution]
     private readonly Solution? solution;
-    [GitRepository]
-    private readonly GitRepository repo;
 
     /// <summary>
     /// The main entry point of the build system.
@@ -37,6 +35,8 @@ public partial class CICD : NukeBuild
         Execute<CICD>(x => x.BuildAllProjects, x => x.RunAllUnitTests);
 
     private GitHubActions? GitHubActions => GitHubActions.Instance;
+
+    private IGitRepoService repo => App.Container.GetInstance<IGitRepoService>();
 
     [NukeParameter]
     private static string? BuildSettingsDirPath { get; set; }

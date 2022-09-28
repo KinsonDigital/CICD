@@ -300,27 +300,27 @@ public partial class CICD // Requirements
         nameof(ThatTheCurrentBranchIsCorrect)
             .LogRequirementTitle($"Checking that the current branch is a {branchTypeStr} branch.");
 
-        if (string.IsNullOrEmpty(this.repo.Branch))
+        if (string.IsNullOrEmpty(repo.Branch))
         {
             return false;
         }
 
         var isCorrectBranch = branchType switch
         {
-            BranchType.Master => this.repo.Branch.IsMasterBranch(),
-            BranchType.Develop => this.repo.Branch.IsDevelopBranch(),
-            BranchType.Feature => this.repo.Branch.IsFeatureBranch(),
-            BranchType.PreviewFeature => this.repo.Branch.IsPreviewFeatureBranch(),
-            BranchType.Release => this.repo.Branch.IsReleaseBranch(),
-            BranchType.Preview => this.repo.Branch.IsPreviewBranch(),
-            BranchType.HotFix => this.repo.Branch.IsHotFixBranch(),
+            BranchType.Master => repo.Branch.IsMasterBranch(),
+            BranchType.Develop => repo.Branch.IsDevelopBranch(),
+            BranchType.Feature => repo.Branch.IsFeatureBranch(),
+            BranchType.PreviewFeature => repo.Branch.IsPreviewFeatureBranch(),
+            BranchType.Release => repo.Branch.IsReleaseBranch(),
+            BranchType.Preview => repo.Branch.IsPreviewBranch(),
+            BranchType.HotFix => repo.Branch.IsHotFixBranch(),
             BranchType.Other => true,
             _ => throw new ArgumentOutOfRangeException(nameof(branchType), branchType, null)
         };
 
         if (isCorrectBranch is false)
         {
-            Log.Error($"The current branch {this.repo.Branch} is not a '{branchTypeStr}' branch.");
+            Log.Error($"The current branch {repo.Branch} is not a '{branchTypeStr}' branch.");
             Assert.Fail("The current branch is incorrect.");
         }
 
@@ -450,7 +450,7 @@ public partial class CICD // Requirements
 
     private bool ThatTheCurrentBranchVersionMatchesProjectVersion(BranchType branchType)
     {
-        var targetBranch = this.repo.Branch ?? string.Empty;
+        var targetBranch = repo.Branch ?? string.Empty;
         var project = this.solution.GetProject(RepoName);
 
         var errors = new List<string>();
@@ -477,7 +477,7 @@ public partial class CICD // Requirements
             errors.Add($"Could not find the project '{RepoName}'");
         }
 
-        var branchVersion = this.repo.Branch?.ExtractBranchVersion().version.TrimStart('v');
+        var branchVersion = repo.Branch?.ExtractBranchVersion().version.TrimStart('v');
         var projectVersion = string.IsNullOrEmpty(branchVersion)
             ? string.Empty
             : project?.GetVersion() ?? string.Empty;
