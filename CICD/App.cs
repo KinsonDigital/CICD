@@ -1,4 +1,4 @@
-﻿// <copyright file="App.cs" company="KinsonDigital">
+// <copyright file="App.cs" company="KinsonDigital">
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
@@ -9,7 +9,11 @@ using Factories;
 using System.IO.Abstractions;
 using Services;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using SimpleInjector;
+
+[assembly: InternalsVisibleTo(assemblyName: "CICDTests", AllInternalsVisible = true)] // Make this libraries internals visible to the unit test project
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2", AllInternalsVisible = true)]
 
 /// <summary>
 /// Provides dependency injection for the application.
