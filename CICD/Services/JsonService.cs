@@ -11,7 +11,7 @@ namespace CICDSystem.Services;
 /// Performs JSON services.
 /// </summary>
 [ExcludeFromCodeCoverage]
-internal class JsonService : IJsonService
+internal sealed class JsonService : IJsonService
 {
     /// <inheritdoc/>
     public string Serialize<T>(T value)

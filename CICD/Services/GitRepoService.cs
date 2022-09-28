@@ -9,7 +9,7 @@ using Nuke.Common.Git;
 namespace CICDSystem.Services;
 
 /// <inheritdoc/>
-internal class GitRepoService : IGitRepoService
+internal sealed class GitRepoService : IGitRepoService
 {
     private readonly GitRepository gitRepository;
 

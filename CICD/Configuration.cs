@@ -11,7 +11,7 @@ using Nuke.Common.Tooling;
 /// Provides the various build configurations for the projects.
 /// </summary>
 [TypeConverter(typeof(TypeConverter<Configuration>))]
-internal class Configuration : Enumeration
+internal sealed class Configuration : Enumeration
 {
 #pragma warning disable SA1401
 #pragma warning disable CA2211

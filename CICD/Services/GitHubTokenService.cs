@@ -9,7 +9,7 @@ using Nuke.Common.CI.GitHubActions;
 namespace CICDSystem.Services;
 
 /// <inheritdoc/>
-internal class GitHubTokenService : IGitHubTokenService
+internal sealed class GitHubTokenService : IGitHubTokenService
 {
     private const string TokenKey = "GitHubApiToken";
     private readonly ISecretService secretService;

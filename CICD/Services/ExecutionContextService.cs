@@ -8,7 +8,7 @@ namespace CICDSystem.Services;
 
 /// <inheritdoc/>
 [ExcludeFromCodeCoverage]
-internal class ExecutionContextService : IExecutionContextService
+internal sealed class ExecutionContextService : IExecutionContextService
 {
     /// <inheritdoc/>
     public bool IsLocalBuild => Nuke.Common.NukeBuild.IsLocalBuild;

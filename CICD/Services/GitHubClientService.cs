@@ -11,7 +11,7 @@ using Octokit;
 namespace CICDSystem.Services;
 
 /// <inheritdoc/>
-internal class GitHubClientService : IGitHubClientService
+internal sealed class GitHubClientService : IGitHubClientService
 {
     private readonly IHttpClientFactory clientFactory;
     private readonly IGitHubTokenService tokenService;
