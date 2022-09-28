@@ -21,7 +21,7 @@ public partial class CICD // Requirements
         nameof(ThatThisIsExecutedFromPullRequest)
             .LogRequirementTitle($"Checking if the run was started automatically from a pull request.");
 
-        if (IsPullRequest() is false)
+        if (GitHubActionsService.IsPullRequest is false)
         {
             var errorMsg = "Can only be executed automatically from a pull request";
             errorMsg += targetBranches.Length > 0
@@ -44,7 +44,7 @@ public partial class CICD // Requirements
         nameof(ThatThisIsExecutedManually)
             .LogRequirementTitle($"Checking if the run was manually executed.");
 
-        if (IsPullRequest())
+        if (GitHubActionsService.IsPullRequest)
         {
             var errorMsg = "Can only be executed automatically from a pull request";
             errorMsg += targetBranches.Length > 0
@@ -69,7 +69,7 @@ public partial class CICD // Requirements
         nameof(ThatThePRHasBeenAssigned)
             .LogRequirementTitle($"Checking if the pull request as been assigned to someone.");
 
-        var prNumber = GitHubActions?.PullRequestNumber ?? -1;
+        var prNumber = GitHubActionsService?.PullRequestNumber ?? -1;
 
         if (prClient.HasAssignees(RepoOwner, RepoName, prNumber).Result)
         {
@@ -89,7 +89,7 @@ public partial class CICD // Requirements
 
     private bool ThatFeaturePRIssueNumberExists()
     {
-        var sourceBranch = GitHubActions?.HeadRef ?? string.Empty;
+        var sourceBranch = GitHubActionsService?.HeadRef ?? string.Empty;
 
         nameof(ThatFeaturePRIssueNumberExists)
             .LogRequirementTitle($"Checking that the issue number in the feature branch exists.");
@@ -114,7 +114,7 @@ public partial class CICD // Requirements
 
     private bool ThatPreviewFeaturePRIssueNumberExists()
     {
-        var sourceBranch = GitHubActions?.HeadRef ?? string.Empty;
+        var sourceBranch = GitHubActionsService?.HeadRef ?? string.Empty;
 
         nameof(ThatPreviewFeaturePRIssueNumberExists)
             .LogRequirementTitle($"Checking that the issue number in the preview feature branch exists.");
@@ -158,7 +158,7 @@ public partial class CICD // Requirements
         }
         else
         {
-            var sourceBranch = GitHubActions?.HeadRef ?? string.Empty;
+            var sourceBranch = GitHubActionsService?.HeadRef ?? string.Empty;
             var branchIssueNumber = ExtractIssueNumber(branchType, sourceBranch);
             var issueExists = GitHubClient.Issue.IssueExists(RepoOwner, RepoName, branchIssueNumber).Result;
 
@@ -201,9 +201,9 @@ public partial class CICD // Requirements
         nameof(ThatPRHasLabels)
             .LogRequirementTitle($"Checking if the pull request has labels.");
 
-        var prNumber = GitHubActions is null || GitHubActions.PullRequestNumber is null
+        var prNumber = GitHubActionsService is null || GitHubActionsService.PullRequestNumber is null
             ? -1
-            : (int)GitHubActions.PullRequestNumber;
+            : (int)GitHubActionsService.PullRequestNumber;
 
         if (prClient.HasLabels(RepoOwner, RepoName, prNumber).Result)
         {
@@ -223,7 +223,7 @@ public partial class CICD // Requirements
 
     private bool ThatThePRHasTheLabel(string labelName)
     {
-        var prNumber = GitHubActions?.PullRequestNumber ?? -1;
+        var prNumber = GitHubActionsService?.PullRequestNumber ?? -1;
 
         nameof(ThatThePRHasTheLabel)
             .LogRequirementTitle($"Checking if the pull request has a preview release label.");
@@ -255,7 +255,7 @@ public partial class CICD // Requirements
 
     private bool ThatThePRTargetBranchIsValid(BranchType branchType)
     {
-        var targetBranch = GitHubActions?.BaseRef ?? string.Empty;
+        var targetBranch = GitHubActionsService?.BaseRef ?? string.Empty;
         var validMsg = string.Empty;
         var isValidBranch = false;
 
@@ -288,7 +288,7 @@ public partial class CICD // Requirements
         }
 
         Log.Error(errorMsg, targetBranch);
-        var runType = IsPullRequest() ? "pull request" : "manual";
+        var runType = GitHubActionsService.IsPullRequest ? "pull request" : "manual";
         Assert.Fail($"Invalid target branch for the {runType} run.");
         return false;
     }
@@ -329,7 +329,7 @@ public partial class CICD // Requirements
 
     private bool ThatThePRSourceBranchIsValid(BranchType branchType)
     {
-        var sourceBranch = GitHubActions?.HeadRef ?? string.Empty;
+        var sourceBranch = GitHubActionsService?.HeadRef ?? string.Empty;
         var validMsg = string.Empty;
         var isValidBranch = false;
 
@@ -367,8 +367,8 @@ public partial class CICD // Requirements
 
     private bool ThatThePreviewPRBranchVersionsMatch(ReleaseType releaseType)
     {
-        var sourceBranch = GitHubActions?.HeadRef ?? string.Empty;
-        var targetBranch = GitHubActions?.BaseRef ?? string.Empty;
+        var sourceBranch = GitHubActionsService?.HeadRef ?? string.Empty;
+        var targetBranch = GitHubActionsService?.BaseRef ?? string.Empty;
         var errors = new List<string>();
         var releaseTypeStr = releaseType.ToString().ToLower();
 
@@ -622,7 +622,7 @@ public partial class CICD // Requirements
 
     private bool ThatThePRSourceBranchVersionSectionMatchesProjectVersion(ReleaseType releaseType)
     {
-        var sourceBranch = GitHubActions?.HeadRef ?? string.Empty;
+        var sourceBranch = GitHubActionsService?.HeadRef ?? string.Empty;
         var errors = new List<string>();
 
         var introMsg = "Checking that the project version matches the version section";

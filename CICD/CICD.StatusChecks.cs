@@ -243,16 +243,16 @@ public partial class CICD // StatusChecks
         }
 
         // If the build is on the server and the GitHubActions object exists
-        if (IsServerBuild && GitHubActions is not null)
+        if (IsServerBuild && GitHubActionsService is not null)
         {
-            validBranch = IsPullRequest()
-                ? GitHubActions.BaseRef.IsPreviewBranch() || GitHubActions.BaseRef.IsReleaseBranch() ||
-                  GitHubActions.BaseRef.IsDevelopBranch() || GitHubActions.BaseRef.IsMasterBranch()
+            validBranch = GitHubActionsService.IsPullRequest
+                ? GitHubActionsService.BaseRef.IsPreviewBranch() || GitHubActionsService.BaseRef.IsReleaseBranch() ||
+                  GitHubActionsService.BaseRef.IsDevelopBranch() || GitHubActionsService.BaseRef.IsMasterBranch()
                 : ValidBranchForManualExecution(); // Manual execution
 
-            branch = IsPullRequest() ? GitHubActions.BaseRef : this.repo.Branch;
+            branch = GitHubActionsService.IsPullRequest ? GitHubActionsService.BaseRef : this.repo.Branch;
         }
-        else if (IsLocalBuild || GitHubActions is null)
+        else if (IsLocalBuild || GitHubActionsService is null)
         {
             validBranch = ValidBranchForManualExecution();
             branch = this.repo.Branch;

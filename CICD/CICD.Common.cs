@@ -127,12 +127,14 @@ public partial class CICD // Common
         {
             Log.Information("Is Server Build: {Value}", IsServerBuild);
             Log.Information("Repository Owner: {Value}", GitHubActions?.RepositoryOwner);
-            Log.Information("Status Check Invoked By: {Value}", GitHubActions?.Actor);
+            Log.Information("Status Check Invoked By: {Value}", GitHubActionsService.Actor);
             Log.Information("Is Local Build: {Value}", IsLocalBuild);
-            Log.Information("Is PR: {Value}", IsPullRequest());
-            Log.Information("Ref: {Value}", GitHubActions?.Ref);
-            Log.Information("Source Branch: {Value}", GitHubActions?.HeadRef);
-            Log.Information("Destination Branch: {Value}", GitHubActions?.BaseRef);
+            Log.Information("Is PR: {Value}", GitHubActionsService.IsPullRequest);
+            Log.Information("Ref: {Value}", GitHubActionsService?.Ref);
+            Log.Information("Ref: {Value}", GitHubActionsService?.Ref);
+            Log.Information("Destination Branch: {Value}", GitHubActionsService?.BaseRef);
+            Log.Information("Source Branch: {Value}", GitHubActionsService?.HeadRef);
+            Log.Information("Destination Branch: {Value}", GitHubActionsService?.BaseRef);
         }
         else
         {

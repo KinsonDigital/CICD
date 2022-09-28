@@ -4,6 +4,7 @@
 
 // ReSharper disable InconsistentNaming
 using System;
+using CICDSystem.Factories;
 using CICDSystem.Services;
 using Nuke.Common;
 using Nuke.Common.CI.GitHubActions;
@@ -34,7 +35,8 @@ public partial class CICD : NukeBuild
     public static int Main() =>
         Execute<CICD>(x => x.BuildAllProjects, x => x.RunAllUnitTests);
 
-    private GitHubActions? GitHubActions => GitHubActions.Instance;
+    private IGitHubActionsService GitHubActionsService =>
+        ServiceFactory.CreateGitHubActionsService(PullRequestNumber, RepoOwner, RepoName);
 
     private IGitRepoService repo => App.Container.GetInstance<IGitRepoService>();
 
@@ -52,6 +54,9 @@ public partial class CICD : NukeBuild
 
     [NukeParameter]
     private string ProjectName { get; set; } = string.Empty;
+
+    [NukeParameter]
+    private int PullRequestNumber { get; set; }
 
     [NukeParameter]
     private string PreviewReleaseNotesDirName { get; set; } = "PreviewReleases";
@@ -101,7 +106,7 @@ public partial class CICD : NukeBuild
                 : Configuration.Debug;
         }
 
-        return (GitHubActions.Instance?.BaseRef  ?? string.Empty).IsMasterBranch()
+        return (GitHubActionsService.BaseRef ?? string.Empty).IsMasterBranch()
             ? Configuration.Release
             : Configuration.Debug;
     }
