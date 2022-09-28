@@ -1,4 +1,4 @@
-﻿// <copyright file="GitHubClientServiceTests.cs" company="KinsonDigital">
+// <copyright file="GitHubClientServiceTests.cs" company="KinsonDigital">
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
@@ -47,7 +47,7 @@ public class GitHubClientServiceTests
     }
 
     [Fact]
-    public void Ctor_WithNullGitHubActionsServiceParam_ThrowsException()
+    public void Ctor_WithNullTokenServiceParam_ThrowsException()
     {
         // Arrange & Act
         var act = () =>
@@ -60,7 +60,7 @@ public class GitHubClientServiceTests
         // Assert
         act.Should()
             .Throw<ArgumentNullException>()
-            .WithMessage("The parameter must not be null. (Parameter 'gitHubActionsService')");
+            .WithMessage("The parameter must not be null. (Parameter 'tokenService')");
     }
     #endregion
 
@@ -117,7 +117,7 @@ public class GitHubClientServiceTests
         var actualB = service.GetClient("test-product");
 
         // Assert
-        this.mockGithubTokenService.VerifyGet(m => m.GetToken() == string.Empty, Times.AtLeastOnce);
+        this.mockGithubTokenService.Verify(m => m.GetToken(), Times.AtLeastOnce);
         this.mockHttpClientFactory.Verify(m =>
             m.CreateGitHubClient("test-product", "test-token"), Times.AtLeastOnce);
         actualA.Should().BeSameAs(mockGitHubClient.Object);
@@ -130,6 +130,6 @@ public class GitHubClientServiceTests
     /// </summary>
     /// <returns>The instance to test.</returns>
     private GitHubClientService CreateService()
-        => new (this.mockHttpClientFactory.Object,
+        => new(this.mockHttpClientFactory.Object,
             this.mockGithubTokenService.Object);
 }

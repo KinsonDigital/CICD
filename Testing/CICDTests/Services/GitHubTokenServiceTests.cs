@@ -64,7 +64,7 @@ public class GitHubTokenServiceTests
     public void GetToken_WhenInvokedInLocalExecutionContext_ReturnCorrectValue()
     {
         // Arrange
-        this.mockSecretService.Setup(m => m.LoadSecret("GithubAPIToken"))
+        this.mockSecretService.Setup(m => m.LoadSecret("GitHubApiToken"))
             .Returns("test-token");
 
         var factory = new GitHubTokenService(this.mockSecretService.Object, this.mockExecutionService.Object);
