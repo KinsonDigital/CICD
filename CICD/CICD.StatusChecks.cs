@@ -28,7 +28,6 @@ public partial class CICD // StatusChecks
             Log.Information("✅Starting Status Check . . .");
 
             PrintPullRequestInfo();
-            await ValidateBranch();
 
             Log.Information("Branch Is Valid!!");
         });
@@ -46,7 +45,6 @@ public partial class CICD // StatusChecks
             Log.Information("✅Starting Status Check . . .");
 
             PrintPullRequestInfo();
-            await ValidateBranch();
 
             Log.Information("Branch Is Valid!!");
         });
@@ -215,59 +213,5 @@ public partial class CICD // StatusChecks
         var issueClient = GitHubClient.Issue;
 
         return await issueClient.IssueExists(RepoOwner, RepoName, issueNumber);
-    }
-
-    /// <summary>
-    /// Validates the current branch.
-    /// </summary>
-    private async Task ValidateBranch()
-    {
-        var validBranch = false;
-        var branch = string.Empty;
-
-        // This is if the workflow is execution locally or manually in GitHub using workflow_dispatch
-        bool ValidBranchForManualExecution()
-        {
-            return (this.repo.Branch?.IsMasterBranch() ?? false) ||
-                   (this.repo.Branch?.IsDevelopBranch() ?? false) ||
-                   (this.repo.Branch?.IsFeatureBranch() ?? false) ||
-                   (this.repo.Branch?.IsPreviewFeatureBranch() ?? false) ||
-                   (this.repo.Branch?.IsPreviewBranch() ?? false) ||
-                   (this.repo.Branch?.IsReleaseBranch() ?? false) ||
-                   (this.repo.Branch?.IsHotFixBranch() ?? false);
-        }
-
-        // If the build is on the server and the GitHubActions object exists
-        if (IsServerBuild && GitHubActionsService is not null)
-        {
-            validBranch = GitHubActionsService.IsPullRequest
-                ? GitHubActionsService.BaseRef.IsPreviewBranch() || GitHubActionsService.BaseRef.IsReleaseBranch() ||
-                  GitHubActionsService.BaseRef.IsDevelopBranch() || GitHubActionsService.BaseRef.IsMasterBranch()
-                : ValidBranchForManualExecution(); // Manual execution
-
-            branch = GitHubActionsService.IsPullRequest ? GitHubActionsService.BaseRef : this.repo.Branch;
-        }
-        else if (IsLocalBuild || GitHubActionsService is null)
-        {
-            validBranch = ValidBranchForManualExecution();
-            branch = this.repo.Branch;
-        }
-
-        if (validBranch)
-        {
-            var validIssueNumber = await ValidBranchIssueNumber(branch);
-
-            validBranch = validIssueNumber;
-
-            if (validIssueNumber is false)
-            {
-                Log.Error($"The issue number '{ParseIssueNumber(branch)}' in branch '{branch}' does not exist.");
-            }
-        }
-
-        if (validBranch is false)
-        {
-            Assert.Fail($"The branch '{branch}' is invalid.");
-        }
     }
 }

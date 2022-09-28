@@ -29,29 +29,6 @@ public partial class CICD // Requirements
         return PullRequestNumber > 0;
     }
 
-    private bool ThatThisIsExecutedFromPullRequest(params BranchType[] targetBranches)
-    {
-        nameof(ThatThisIsExecutedFromPullRequest)
-            .LogRequirementTitle("Checking if the run was started automatically from a pull request.");
-
-        if (GitHubActionsService.IsPullRequest is false)
-        {
-            var errorMsg = "Can only be executed automatically from a pull request";
-            errorMsg += targetBranches.Length > 0
-                ? " on the following branches."
-                : ".";
-
-            errorMsg = targetBranches
-                .Aggregate(errorMsg, (current, branch) =>
-                    current + $"{Environment.NewLine}{ConsoleTab}  - {branch.ToString().ToSpaceDelimitedSections().ToLower()}");
-
-            Log.Error(errorMsg);
-            Assert.Fail("Executed automatically.");
-        }
-
-        return true;
-    }
-
     private bool ThatThisIsExecutedManually(params BranchType[] targetBranches)
     {
         nameof(ThatThisIsExecutedManually)
