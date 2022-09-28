@@ -98,8 +98,6 @@ public partial class CICD // Common
         TwitterTasks.SendTweet(tweetTemplate, TwitterConsumerApiKey, TwitterConsumerApiSecret, TwitterAccessToken, TwitterAccessTokenSecret);
     }
 
-    private bool IsPullRequest() => GitHubActions?.IsPullRequest ?? false;
-
     private bool ReleaseNotesExist(ReleaseType releaseType, string version)
     {
         var releaseNotesDirPath = releaseType switch
