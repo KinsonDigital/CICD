@@ -19,7 +19,7 @@ public partial class CICD // Requirements
     private bool ThatThisIsExecutedFromPullRequest(params BranchType[] targetBranches)
     {
         nameof(ThatThisIsExecutedFromPullRequest)
-            .LogRequirementTitle($"Checking if the run was started automatically from a pull request.");
+            .LogRequirementTitle("Checking if the run was started automatically from a pull request.");
 
         if (GitHubActionsService.IsPullRequest is false)
         {
@@ -73,7 +73,7 @@ public partial class CICD // Requirements
 
         if (prClient.HasAssignees(RepoOwner, RepoName, prNumber).Result)
         {
-            Log.Information($"{ConsoleTab}✅The pull request '{prNumber}' is properly assigned.");
+            Console.WriteLine($"{ConsoleTab}The pull request '{prNumber}' is properly assigned.");
         }
         else
         {
@@ -117,7 +117,7 @@ public partial class CICD // Requirements
         var sourceBranch = GitHubActionsService?.HeadRef ?? string.Empty;
 
         nameof(ThatPreviewFeaturePRIssueNumberExists)
-            .LogRequirementTitle($"Checking that the issue number in the preview feature branch exists.");
+            .LogRequirementTitle("Checking that the issue number in the preview feature branch exists.");
 
         var branchIssueNumber = ExtractIssueNumber(BranchType.PreviewFeature, sourceBranch);
         var issueExists = GitHubClient.Issue.IssueExists(RepoOwner, RepoName, branchIssueNumber).Result;
@@ -132,7 +132,7 @@ public partial class CICD // Requirements
             return false;
         }
 
-        Log.Information($"{ConsoleTab}✅The preview feature branch '{sourceBranch}' is valid.");
+        Console.WriteLine($"{ConsoleTab}The preview feature branch '{sourceBranch}' is valid.");
 
         return true;
     }
@@ -168,7 +168,7 @@ public partial class CICD // Requirements
 
                 if (containsLabels)
                 {
-                    Log.Information($"{ConsoleTab}✅The issue '{branchIssueNumber}' contains at least 1 label.");
+                    Console.WriteLine($"{ConsoleTab}The issue '{branchIssueNumber}' contains at least 1 label.");
                 }
                 else
                 {
@@ -207,7 +207,7 @@ public partial class CICD // Requirements
 
         if (prClient.HasLabels(RepoOwner, RepoName, prNumber).Result)
         {
-            Log.Information($"{ConsoleTab}✅The pull request '{prNumber}' has labels.");
+            Console.WriteLine($"{ConsoleTab}The pull request '{prNumber}' has labels.");
         }
         else
         {
@@ -263,11 +263,11 @@ public partial class CICD // Requirements
             .LogRequirementTitle($"Checking if pull request target branch '{targetBranch}' is valid.");
 
         var branchTypeStr = branchType.ToString().ToSpaceDelimitedSections().ToLower();
-        validMsg += $"{Environment.NewLine}{ConsoleTab}✅The '{branchTypeStr}' branch '{targetBranch}' valid.";
+        validMsg += $"{Environment.NewLine}{ConsoleTab}The '{branchTypeStr}' branch '{targetBranch}' valid.";
 
         var branchSyntax = GetBranchSyntax(branchType);
         var errorMsg = $"The {branchTypeStr} branch '{{Value}}' is invalid.";
-        errorMsg += $"{Environment.NewLine}{ConsoleTab}The syntax for the develop branch is '{branchSyntax}'.";
+        errorMsg += $"{Environment.NewLine}{ConsoleTab}The syntax for the {branchTypeStr} branch is '{branchSyntax}'.";
 
         isValidBranch = branchType switch
         {
@@ -283,7 +283,7 @@ public partial class CICD // Requirements
 
         if (isValidBranch)
         {
-            Log.Information(validMsg);
+            Console.WriteLine(validMsg);
             return true;
         }
 
@@ -336,7 +336,7 @@ public partial class CICD // Requirements
         nameof(ThatThePRSourceBranchIsValid)
             .LogRequirementTitle("Validating Pull Request Source Branch:");
 
-        validMsg += $"{Environment.NewLine}{ConsoleTab}✅The '{branchType}' branch '{sourceBranch}' is valid.";
+        validMsg += $"{ConsoleTab}The '{branchType}' branch '{sourceBranch}' is valid.";
         var branchTypeStr = branchType.ToString().ToSpaceDelimitedSections().ToLower();
         var branchSyntax = GetBranchSyntax(branchType);
         var errorMsg = $"The {branchTypeStr} branch '{{Value}}' is invalid.";
@@ -356,7 +356,7 @@ public partial class CICD // Requirements
 
         if (isValidBranch)
         {
-            Log.Information(validMsg);
+            Console.WriteLine(validMsg);
             return true;
         }
 
