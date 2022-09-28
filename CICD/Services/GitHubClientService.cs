@@ -1,4 +1,4 @@
-﻿// <copyright file="GitHubClientService.cs" company="KinsonDigital">
+// <copyright file="GitHubClientService.cs" company="KinsonDigital">
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
@@ -13,26 +13,26 @@ namespace CICDSystem.Services;
 /// <inheritdoc/>
 public class GitHubClientService : IGitHubClientService
 {
-    private readonly ITokenFactory tokenFactory;
     private readonly IHttpClientFactory clientFactory;
+    private readonly IGitHubTokenService tokenService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GitHubClientService"/> class.
     /// </summary>
-    /// <param name="tokenFactory">Loads the GitHub API token.</param>
     /// <param name="clientFactory">Creates HTTP clients.</param>
+    /// <param name="tokenService">Gets the GitHub API token.</param>
     /// <exception cref="ArgumentNullException">
     ///     Thrown if the any of the parameters are null.
     /// </exception>
     public GitHubClientService(
-        ITokenFactory tokenFactory,
-        IHttpClientFactory clientFactory)
+        IHttpClientFactory clientFactory,
+        IGitHubTokenService tokenService)
     {
-        EnsureThat.ParamIsNotNull(tokenFactory, nameof(tokenFactory));
         EnsureThat.ParamIsNotNull(clientFactory, nameof(clientFactory));
+        EnsureThat.ParamIsNotNull(tokenService, nameof(tokenService));
 
-        this.tokenFactory = tokenFactory;
         this.clientFactory = clientFactory;
+        this.tokenService = tokenService;
     }
 
     /// <inheritdoc/>
@@ -44,7 +44,7 @@ public class GitHubClientService : IGitHubClientService
     {
         EnsureThat.StringParamIsNotNullOrEmpty(productName, nameof(productName));
 
-        var token = this.tokenFactory.GetToken();
+        var token = this.tokenService.GetToken();
 
         if (!string.IsNullOrEmpty(token))
         {

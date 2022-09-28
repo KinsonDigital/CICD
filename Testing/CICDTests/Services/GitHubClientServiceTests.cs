@@ -1,4 +1,4 @@
-﻿// <copyright file="GitHubClientServiceTests.cs" company="KinsonDigital">
+// <copyright file="GitHubClientServiceTests.cs" company="KinsonDigital">
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
@@ -16,17 +16,17 @@ namespace CICDSystemTests.Services;
 /// </summary>
 public class GitHubClientServiceTests
 {
-    private readonly Mock<ITokenFactory> mockTokenFactory;
     private readonly Mock<IHttpClientFactory> mockHttpClientFactory;
+    private readonly Mock<IGitHubTokenService> mockGithubTokenService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GitHubClientServiceTests"/> class.
     /// </summary>
     public GitHubClientServiceTests()
     {
-        this.mockTokenFactory = new Mock<ITokenFactory>();
         this.mockHttpClientFactory = new Mock<IHttpClientFactory>();
-     }
+        this.mockGithubTokenService = new Mock<IGitHubTokenService>();
+    }
 
     #region Constructor Tests
     [Fact]
@@ -36,14 +36,31 @@ public class GitHubClientServiceTests
         var act = () =>
         {
             _ = new GitHubClientService(
-                this.mockTokenFactory.Object,
-                null);
+                null,
+                this.mockGithubTokenService.Object);
         };
 
         // Assert
         act.Should()
             .Throw<ArgumentNullException>()
             .WithMessage("The parameter must not be null. (Parameter 'clientFactory')");
+    }
+
+    [Fact]
+    public void Ctor_WithNullGitHubActionsServiceParam_ThrowsException()
+    {
+        // Arrange & Act
+        var act = () =>
+        {
+            _ = new GitHubClientService(
+                this.mockHttpClientFactory.Object,
+                null);
+        };
+
+        // Assert
+        act.Should()
+            .Throw<ArgumentNullException>()
+            .WithMessage("The parameter must not be null. (Parameter 'gitHubActionsService')");
     }
     #endregion
 
@@ -73,7 +90,7 @@ public class GitHubClientServiceTests
         expectedMsg += $"{Environment.NewLine}If running on the server, verify that the workflow is setting up and environment variable named ";
         expectedMsg += $"{Environment.NewLine}'GITHUB_TOKEN' with the token value.";
 
-        this.mockTokenFactory.Setup(m => m.GetToken()).Returns(string.Empty);
+        this.mockGithubTokenService.Setup(m => m.GetToken()).Returns(string.Empty);
         var service = CreateService();
 
         // Act
@@ -89,7 +106,7 @@ public class GitHubClientServiceTests
     {
         // Arrange
         var mockGitHubClient = new Mock<IGitHubClient>();
-        this.mockTokenFactory.Setup(m => m.GetToken()).Returns("test-token");
+        this.mockGithubTokenService.Setup(m => m.GetToken()).Returns("test-token");
         this.mockHttpClientFactory.Setup(m => m.CreateGitHubClient(It.IsAny<string>(), It.IsAny<string>()))
             .Returns(mockGitHubClient.Object);
 
@@ -100,7 +117,7 @@ public class GitHubClientServiceTests
         var actualB = service.GetClient("test-product");
 
         // Assert
-        this.mockTokenFactory.Verify(m => m.GetToken(), Times.AtLeastOnce);
+        this.mockGithubTokenService.VerifyGet(m => m.GetToken() == string.Empty, Times.AtLeastOnce);
         this.mockHttpClientFactory.Verify(m =>
             m.CreateGitHubClient("test-product", "test-token"), Times.AtLeastOnce);
         actualA.Should().BeSameAs(mockGitHubClient.Object);
@@ -113,6 +130,6 @@ public class GitHubClientServiceTests
     /// </summary>
     /// <returns>The instance to test.</returns>
     private GitHubClientService CreateService()
-        => new (this.mockTokenFactory.Object,
-            this.mockHttpClientFactory.Object);
+        => new (this.mockHttpClientFactory.Object,
+            this.mockGithubTokenService.Object);
 }

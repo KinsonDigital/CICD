@@ -1,27 +1,26 @@
-﻿// <copyright file="TokenFactoryTests.cs" company="KinsonDigital">
+﻿// <copyright file="GitHubTokenServiceTests.cs" company="KinsonDigital">
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
-using CICDSystem.Factories;
 using CICDSystem.Services;
 using FluentAssertions;
 using Moq;
 using Xunit;
 
-namespace CICDSystemTests.Factories;
+namespace CICDSystemTests.Services;
 
 /// <summary>
-/// Tests the <see cref="TokenFactory"/> class.
+/// Tests the <see cref="GitHubTokenService"/> class.
 /// </summary>
-public class TokenFactoryTests
+public class GitHubTokenServiceTests
 {
     private readonly Mock<ISecretService> mockSecretService;
     private readonly Mock<IExecutionContextService> mockExecutionService;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="TokenFactoryTests"/> class.
+    /// Initializes a new instance of the <see cref="GitHubTokenServiceTests"/> class.
     /// </summary>
-    public TokenFactoryTests()
+    public GitHubTokenServiceTests()
     {
         this.mockSecretService = new Mock<ISecretService>();
         this.mockExecutionService = new Mock<IExecutionContextService>();
@@ -34,7 +33,7 @@ public class TokenFactoryTests
         // Arrange & Act
         var act = () =>
         {
-            _ = new TokenFactory(null, this.mockExecutionService.Object);
+            _ = new GitHubTokenService(null, this.mockExecutionService.Object);
         };
 
         // Assert
@@ -49,7 +48,7 @@ public class TokenFactoryTests
         // Arrange & Act
         var act = () =>
         {
-            _ = new TokenFactory(this.mockSecretService.Object, null);
+            _ = new GitHubTokenService(this.mockSecretService.Object, null);
         };
 
         // Assert
@@ -68,7 +67,7 @@ public class TokenFactoryTests
         this.mockSecretService.Setup(m => m.LoadSecret("GithubAPIToken"))
             .Returns("test-token");
 
-        var factory = new TokenFactory(this.mockSecretService.Object, this.mockExecutionService.Object);
+        var factory = new GitHubTokenService(this.mockSecretService.Object, this.mockExecutionService.Object);
 
         // Act
         var actual = factory.GetToken();

@@ -1,12 +1,11 @@
-﻿// <copyright file="App.cs" company="KinsonDigital">
+// <copyright file="App.cs" company="KinsonDigital">
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
-
-using CICDSystem.Factories;
 
 // ReSharper disable InconsistentNaming
 namespace CICDSystem;
 
+using Factories;
 using System.IO.Abstractions;
 using Services;
 using System.Diagnostics.CodeAnalysis;
@@ -47,7 +46,7 @@ internal static class App
         IoCContainer.Register(() => FileSystem.Directory, Lifestyle.Singleton);
         IoCContainer.Register(() => FileSystem.Path, Lifestyle.Singleton);
         IoCContainer.Register<IExecutionContextService, ExecutionContextService>(Lifestyle.Singleton);
-        IoCContainer.Register<ITokenFactory, TokenFactory>(Lifestyle.Singleton);
+        IoCContainer.Register<IGitHubTokenService, GitHubTokenService>(Lifestyle.Singleton);
         IoCContainer.Register<IHttpClientFactory, HttpClientFactory>(Lifestyle.Singleton);
         IoCContainer.Register<IGitHubClientService, GitHubClientService>(Lifestyle.Singleton);
         IoCContainer.Register<IWorkflowService, WorkflowService>(Lifestyle.Singleton);
