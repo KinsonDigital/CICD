@@ -7,7 +7,7 @@ namespace CICDSystem.Services;
 /// <summary>
 /// Provides GIT repository related services.
 /// </summary>
-public interface IGitRepoService
+internal interface IGitRepoService
 {
     /// <summary>
     /// Gets the current commit.

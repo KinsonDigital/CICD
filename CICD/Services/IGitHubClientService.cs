@@ -9,7 +9,7 @@ namespace CICDSystem.Services;
 /// <summary>
 /// Creates a GitHub API client for communicating with the GitHub API.
 /// </summary>
-public interface IGitHubClientService
+internal interface IGitHubClientService
 {
     /// <summary>
     /// Gets the GitHub API HTTP Client.

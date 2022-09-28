@@ -10,7 +10,7 @@ namespace CICDSystem.Services;
 /// <summary>
 /// Generates workflow files for the targets in the Nuke build system.
 /// </summary>
-public interface IWorkflowService
+internal interface IWorkflowService
 {
     /// <summary>
     /// Generates workflows for all of the nuke targets at the given <paramref name="destinationDir"/>.
