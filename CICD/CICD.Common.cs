@@ -125,6 +125,7 @@ public partial class CICD // Common
         {
             Log.Information("Is Server Build: {Value}", ExecutionContext.IsServerBuild);
             Log.Information("Is Local Build: {Value}", ExecutionContext.IsLocalBuild);
+            Log.Information("Repository Owner: {Value}", RepoOwner);
             Log.Information("Status Check Invoked By: {Value}", GitHubActionsService.Actor);
             Log.Information("Is PR: {Value}", GitHubActionsService.IsPullRequest);
             Log.Information("Ref: {Value}", GitHubActionsService?.Ref);
