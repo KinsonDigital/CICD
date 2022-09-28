@@ -261,46 +261,6 @@ public partial class CICD // Requirements
         return true;
     }
 
-    private bool ThatThePRTargetBranchIsValid(BranchType branchType)
-    {
-        var targetBranch = GitHubActionsService?.BaseRef ?? string.Empty;
-        var validMsg = string.Empty;
-        var isValidBranch = false;
-
-        nameof(ThatThePRTargetBranchIsValid)
-            .LogRequirementTitle($"Checking if pull request target branch '{targetBranch}' is valid.");
-
-        var branchTypeStr = branchType.ToString().ToSpaceDelimitedSections().ToLower();
-        validMsg += $"{Environment.NewLine}{ConsoleTab}The '{branchTypeStr}' branch '{targetBranch}' valid.";
-
-        var branchSyntax = GetBranchSyntax(branchType);
-        var errorMsg = $"The {branchTypeStr} branch '{{Value}}' is invalid.";
-        errorMsg += $"{Environment.NewLine}{ConsoleTab}The syntax for the {branchTypeStr} branch is '{branchSyntax}'.";
-
-        isValidBranch = branchType switch
-        {
-            BranchType.Develop => targetBranch.IsDevelopBranch(),
-            BranchType.Master => targetBranch.IsMasterBranch(),
-            BranchType.Feature => targetBranch.IsFeatureBranch(),
-            BranchType.PreviewFeature => targetBranch.IsPreviewFeatureBranch(),
-            BranchType.Release => targetBranch.IsReleaseBranch(),
-            BranchType.Preview => targetBranch.IsPreviewBranch(),
-            BranchType.HotFix => targetBranch.IsHotFixBranch(),
-            _ => throw new ArgumentOutOfRangeException(nameof(branchType), branchType, null)
-        };
-
-        if (isValidBranch)
-        {
-            Console.WriteLine(validMsg);
-            return true;
-        }
-
-        Log.Error(errorMsg, targetBranch);
-        var runType = GitHubActionsService.IsPullRequest ? "pull request" : "manual";
-        Assert.Fail($"Invalid target branch for the {runType} run.");
-        return false;
-    }
-
     private bool ThatTheCurrentBranchIsCorrect(BranchType branchType)
     {
         var branchTypeStr = branchType.ToString().ToLower();
