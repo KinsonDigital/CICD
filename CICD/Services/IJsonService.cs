@@ -7,7 +7,7 @@ namespace CICDSystem.Services;
 /// <summary>
 /// Performs JSON services.
 /// </summary>
-public interface IJsonService
+internal interface IJsonService
 {
     /// <summary>
     /// Serializes the specified object to a JSON string.

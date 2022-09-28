@@ -4,5 +4,11 @@
         "Kinson",
         "pwsh",
         "runsettings"
+    ],
+    "grammarly.selectors": [
+        {
+            "language": "markdown",
+            "scheme": "file"
+        }
     ]
 }

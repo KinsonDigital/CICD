@@ -20,7 +20,6 @@ public partial class CICD // Release.Preview
     /// </summary>
     public Target PreviewRelease => _ => _
         .Requires(
-            () => ThatThisIsExecutedManually(BranchType.Release),
             () => ThatTheCurrentBranchIsCorrect(BranchType.Release),
             () => ThatTheProjectVersionsAreValid(ReleaseType.Preview),
             () => ThatTheCurrentBranchVersionMatchesProjectVersion(BranchType.Release),

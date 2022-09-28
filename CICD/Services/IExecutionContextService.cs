@@ -7,7 +7,7 @@ namespace CICDSystem.Services;
 /// <summary>
 /// Returns values indicating the execution context of the CICD system.
 /// </summary>
-public interface IExecutionContextService
+internal interface IExecutionContextService
 {
     /// <summary>
     /// Gets a value indicating whether or not the execution context is on the local machine.

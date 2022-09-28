@@ -19,8 +19,24 @@ public partial class CICD // StatusChecks
     /// <summary>
     /// Gets a target to perform a build status check.
     /// </summary>
-    private Target BuildStatusCheck => _ => _
+    private Target PRBuildStatusCheck => _ => _
         .Before(BuildAllProjects)
+        .Requires(
+            () => ThatPullRequestNumberIsProvided(),
+            () => ThatThePullRequestExists(),
+            () => ThatThePRBranchesAreValid(
+                PRBranchContext.Source,
+                BranchType.Feature,
+                BranchType.PreviewFeature,
+                BranchType.Release,
+                BranchType.HotFix,
+                BranchType.Preview),
+            () => ThatThePRBranchesAreValid(
+                PRBranchContext.Target,
+                BranchType.Develop,
+                BranchType.Master,
+                BranchType.Release,
+                BranchType.Preview)).Before(BuildAllProjects)
         .Triggers(BuildAllProjects)
         .Executes(async () =>
         {
@@ -28,7 +44,6 @@ public partial class CICD // StatusChecks
             Log.Information("✅Starting Status Check . . .");
 
             PrintPullRequestInfo();
-            await ValidateBranch();
 
             Log.Information("Branch Is Valid!!");
         });
@@ -36,8 +51,24 @@ public partial class CICD // StatusChecks
     /// <summary>
     /// Gets a target to perform a unit test status check.
     /// </summary>
-    private Target UnitTestStatusCheck => _ => _
+    private Target PRUnitTestStatusCheck => _ => _
         .Before(RunAllUnitTests)
+        .Requires(
+            () => ThatPullRequestNumberIsProvided(),
+            () => ThatThePullRequestExists(),
+            () => ThatThePRBranchesAreValid(
+                PRBranchContext.Source,
+                BranchType.Feature,
+                BranchType.PreviewFeature,
+                BranchType.Release,
+                BranchType.HotFix,
+                BranchType.Preview),
+            () => ThatThePRBranchesAreValid(
+                PRBranchContext.Target,
+                BranchType.Develop,
+                BranchType.Master,
+                BranchType.Release,
+                BranchType.Preview)).Before(RunAllUnitTests)
         .Triggers(RunAllUnitTests)
         .Executes(async () =>
         {
@@ -46,7 +77,6 @@ public partial class CICD // StatusChecks
             Log.Information("✅Starting Status Check . . .");
 
             PrintPullRequestInfo();
-            await ValidateBranch();
 
             Log.Information("Branch Is Valid!!");
         });
@@ -56,11 +86,12 @@ public partial class CICD // StatusChecks
     /// </summary>
     private Target FeaturePRStatusCheck => _ => _
         .Requires(
-            () => ThatThisIsExecutedFromPullRequest(BranchType.Develop),
-            () => ThatThePRSourceBranchIsValid(BranchType.Feature),
+            () => ThatPullRequestNumberIsProvided(),
+            () => ThatThePullRequestExists(),
+            () => ThatThePRBranchesAreValid(PRBranchContext.Source, BranchType.Feature),
+            () => ThatThePRBranchesAreValid(PRBranchContext.Target, BranchType.Develop),
             () => ThatFeaturePRIssueNumberExists(),
             () => ThatFeaturePRIssueHasLabel(BranchType.Feature),
-            () => ThatThePRTargetBranchIsValid(BranchType.Develop),
             () => ThatThePRHasBeenAssigned(),
             () => ThatPRHasLabels());
 
@@ -69,29 +100,32 @@ public partial class CICD // StatusChecks
     /// </summary>
     private Target PreviewFeaturePRStatusCheck => _ => _
         .Requires(
-            () => ThatThisIsExecutedFromPullRequest(BranchType.PreviewFeature),
-            () => ThatThePRSourceBranchIsValid(BranchType.PreviewFeature),
+            () => ThatPullRequestNumberIsProvided(),
+            () => ThatThePullRequestExists(),
+            () => ThatThePRBranchesAreValid(PRBranchContext.Source, BranchType.PreviewFeature),
+            () => ThatThePRBranchesAreValid(PRBranchContext.Target, BranchType.Preview),
             () => ThatPreviewFeaturePRIssueNumberExists(),
             () => ThatFeaturePRIssueHasLabel(BranchType.PreviewFeature),
-            () => ThatThePRTargetBranchIsValid(BranchType.Preview),
             () => ThatThePRHasBeenAssigned(),
             () => ThatPRHasLabels());
 
     private Target HotFixPRStatusCheck => _ => _
         .Requires(
-            () => ThatThisIsExecutedFromPullRequest(BranchType.Master),
-            () => ThatThePRSourceBranchIsValid(BranchType.HotFix),
+            () => ThatPullRequestNumberIsProvided(),
+            () => ThatThePullRequestExists(),
+            () => ThatThePRBranchesAreValid(PRBranchContext.Source, BranchType.HotFix),
+            () => ThatThePRBranchesAreValid(PRBranchContext.Target, BranchType.Master),
             () => ThatPreviewFeaturePRIssueNumberExists(),
             () => ThatFeaturePRIssueHasLabel(BranchType.HotFix),
-            () => ThatThePRTargetBranchIsValid(BranchType.Master),
             () => ThatThePRHasBeenAssigned(),
             () => ThatPRHasLabels());
 
     private Target PrevReleasePRStatusCheck => _ => _
         .Requires(
-            () => ThatThisIsExecutedFromPullRequest(BranchType.Release),
-            () => ThatThePRSourceBranchIsValid(BranchType.Preview),
-            () => ThatThePRTargetBranchIsValid(BranchType.Release),
+            () => ThatPullRequestNumberIsProvided(),
+            () => ThatThePullRequestExists(),
+            () => ThatThePRBranchesAreValid(PRBranchContext.Source, BranchType.Preview),
+            () => ThatThePRBranchesAreValid(PRBranchContext.Target, BranchType.Release),
             () => ThatThePRHasBeenAssigned(),
             () => ThatThePRHasTheLabel("🚀Preview Release"),
             () => ThatTheProjectVersionsAreValid(ReleaseType.Preview),
@@ -113,9 +147,10 @@ public partial class CICD // StatusChecks
 
     private Target ProdReleasePRStatusCheck => _ => _
         .Requires(
-            () => ThatThisIsExecutedFromPullRequest(BranchType.Master, BranchType.Develop),
-            () => ThatThePRSourceBranchIsValid(BranchType.Release),
-            () => ThatThePRTargetBranchIsValid(BranchType.Master),
+            () => ThatPullRequestNumberIsProvided(),
+            () => ThatThePullRequestExists(),
+            () => ThatThePRBranchesAreValid(PRBranchContext.Source, BranchType.Release),
+            () => ThatThePRBranchesAreValid(PRBranchContext.Target, BranchType.Master),
             () => ThatThePRHasBeenAssigned(),
             () => ThatThePRHasTheLabel("🚀Production Release"),
             () => ThatTheProjectVersionsAreValid(ReleaseType.Production),
@@ -215,64 +250,5 @@ public partial class CICD // StatusChecks
         var issueClient = GitHubClient.Issue;
 
         return await issueClient.IssueExists(RepoOwner, RepoName, issueNumber);
-    }
-
-    /// <summary>
-    /// Validates the current branch.
-    /// </summary>
-    private async Task ValidateBranch()
-    {
-        /*
-         * TODO: Refactor this to simply return a Task<bool> result. The logging and failure code inside of
-         * this method should be performed by the targets that are consuming it.
-         */
-
-        var validBranch = false;
-        var branch = string.Empty;
-
-        // This is if the workflow is execution locally or manually in GitHub using workflow_dispatch
-        bool ValidBranchForManualExecution()
-        {
-            return (this.repo.Branch?.IsMasterBranch() ?? false) ||
-                   (this.repo.Branch?.IsDevelopBranch() ?? false) ||
-                   (this.repo.Branch?.IsFeatureBranch() ?? false) ||
-                   (this.repo.Branch?.IsPreviewFeatureBranch() ?? false) ||
-                   (this.repo.Branch?.IsPreviewBranch() ?? false) ||
-                   (this.repo.Branch?.IsReleaseBranch() ?? false) ||
-                   (this.repo.Branch?.IsHotFixBranch() ?? false);
-        }
-
-        // If the build is on the server and the GitHubActions object exists
-        if (IsServerBuild && GitHubActions is not null)
-        {
-            validBranch = IsPullRequest()
-                ? GitHubActions.BaseRef.IsPreviewBranch() || GitHubActions.BaseRef.IsReleaseBranch() ||
-                  GitHubActions.BaseRef.IsDevelopBranch() || GitHubActions.BaseRef.IsMasterBranch()
-                : ValidBranchForManualExecution(); // Manual execution
-
-            branch = IsPullRequest() ? GitHubActions.BaseRef : this.repo.Branch;
-        }
-        else if (IsLocalBuild || GitHubActions is null)
-        {
-            validBranch = ValidBranchForManualExecution();
-            branch = this.repo.Branch;
-        }
-
-        if (validBranch)
-        {
-            var validIssueNumber = await ValidBranchIssueNumber(branch);
-
-            validBranch = validIssueNumber;
-
-            if (validIssueNumber is false)
-            {
-                Log.Error($"The issue number '{ParseIssueNumber(branch)}' in branch '{branch}' does not exist.");
-            }
-        }
-
-        if (validBranch is false)
-        {
-            Assert.Fail($"The branch '{branch}' is invalid.");
-        }
     }
 }

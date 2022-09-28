@@ -24,6 +24,6 @@ jobs:
     - name: Restore DotNet Tools
       run: dotnet tool restore
     - name: Run Unit Test Status Check
-      run: dotnet cicd UnitTestStatusCheck
+      run: dotnet cicd PRUnitTestStatusCheck
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -25,7 +25,7 @@ using static Nuke.Common.NukeBuild;
 /// <summary>
 /// Provides helper methods throughout the project.
 /// </summary>
-public static class ExtensionMethods
+internal static class ExtensionMethods
 {
     private static readonly char[] Digits = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', };
 
@@ -424,18 +424,6 @@ public static class ExtensionMethods
         return foundTag is not null;
     }
 
-    public static async Task<bool> LabelExists(
-        this IPullRequestsClient client,
-        string repoOwner,
-        string repoName,
-        int prNumber,
-        string labelName)
-    {
-        var pr = await client.Get(repoOwner, repoName, prNumber);
-
-        return pr.Labels.Any(l => l.Name == labelName);
-    }
-
     public static async Task<bool> IssueExists(
         this IIssuesClient client,
         string owner,
@@ -510,6 +498,29 @@ public static class ExtensionMethods
                 i.Milestone.Title == mileStoneName).ToArray();
 
         return pullRequests;
+    }
+
+    public static async Task<bool> Exists(
+        this IPullRequestsClient client,
+        string repoOwner,
+        string repoName,
+        int prNumber)
+    {
+        var pr = await client.Get(repoOwner, repoName, prNumber);
+
+        return pr is not null;
+    }
+
+    public static async Task<bool> LabelExists(
+        this IPullRequestsClient client,
+        string repoOwner,
+        string repoName,
+        int prNumber,
+        string labelName)
+    {
+        var pr = await client.Get(repoOwner, repoName, prNumber);
+
+        return pr.Labels.Any(l => l.Name == labelName);
     }
 
     public static async Task<bool> HasAssignees(

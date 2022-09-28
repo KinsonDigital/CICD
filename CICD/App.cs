@@ -2,15 +2,18 @@
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
-using CICDSystem.Factories;
-
 // ReSharper disable InconsistentNaming
-namespace CICDSystem;
-
-using System.IO.Abstractions;
-using Services;
 using System.Diagnostics.CodeAnalysis;
+using System.IO.Abstractions;
+using System.Runtime.CompilerServices;
+using CICDSystem.Factories;
+using CICDSystem.Services;
 using SimpleInjector;
+
+[assembly: InternalsVisibleTo(assemblyName: "CICDTests", AllInternalsVisible = true)] // Make this libraries internals visible to the unit test project
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2", AllInternalsVisible = true)]
+
+namespace CICDSystem;
 
 /// <summary>
 /// Provides dependency injection for the application.
@@ -46,8 +49,9 @@ internal static class App
         IoCContainer.Register(() => FileSystem.File, Lifestyle.Singleton);
         IoCContainer.Register(() => FileSystem.Directory, Lifestyle.Singleton);
         IoCContainer.Register(() => FileSystem.Path, Lifestyle.Singleton);
+        IoCContainer.Register<IGitRepoService, GitRepoService>(Lifestyle.Singleton);
         IoCContainer.Register<IExecutionContextService, ExecutionContextService>(Lifestyle.Singleton);
-        IoCContainer.Register<ITokenFactory, TokenFactory>(Lifestyle.Singleton);
+        IoCContainer.Register<IGitHubTokenService, GitHubTokenService>(Lifestyle.Singleton);
         IoCContainer.Register<IHttpClientFactory, HttpClientFactory>(Lifestyle.Singleton);
         IoCContainer.Register<IGitHubClientService, GitHubClientService>(Lifestyle.Singleton);
         IoCContainer.Register<IWorkflowService, WorkflowService>(Lifestyle.Singleton);

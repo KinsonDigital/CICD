@@ -11,28 +11,28 @@ using Octokit;
 namespace CICDSystem.Services;
 
 /// <inheritdoc/>
-public class GitHubClientService : IGitHubClientService
+internal sealed class GitHubClientService : IGitHubClientService
 {
-    private readonly ITokenFactory tokenFactory;
     private readonly IHttpClientFactory clientFactory;
+    private readonly IGitHubTokenService tokenService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GitHubClientService"/> class.
     /// </summary>
-    /// <param name="tokenFactory">Loads the GitHub API token.</param>
     /// <param name="clientFactory">Creates HTTP clients.</param>
+    /// <param name="tokenService">Gets the GitHub API token.</param>
     /// <exception cref="ArgumentNullException">
     ///     Thrown if the any of the parameters are null.
     /// </exception>
     public GitHubClientService(
-        ITokenFactory tokenFactory,
-        IHttpClientFactory clientFactory)
+        IHttpClientFactory clientFactory,
+        IGitHubTokenService tokenService)
     {
-        EnsureThat.ParamIsNotNull(tokenFactory, nameof(tokenFactory));
         EnsureThat.ParamIsNotNull(clientFactory, nameof(clientFactory));
+        EnsureThat.ParamIsNotNull(tokenService, nameof(tokenService));
 
-        this.tokenFactory = tokenFactory;
         this.clientFactory = clientFactory;
+        this.tokenService = tokenService;
     }
 
     /// <inheritdoc/>
@@ -44,15 +44,15 @@ public class GitHubClientService : IGitHubClientService
     {
         EnsureThat.StringParamIsNotNullOrEmpty(productName, nameof(productName));
 
-        var token = this.tokenFactory.GetToken();
+        var token = this.tokenService.GetToken();
 
         if (!string.IsNullOrEmpty(token))
         {
             return this.clientFactory.CreateGitHubClient(productName, token);
         }
 
-        var exMsg = "The token could be loaded.  If running locally, check that a 'local-secrets.json' file exists in ";
-        exMsg += "the '.github' folder with the correct 'GitHubApiToken' key value pair.";
+        var exMsg = "The token could not be loaded.  If running locally, check that a 'local-secrets.json' file exists in ";
+        exMsg += "the '.github' folder with the correct 'GitHubApiToken' key and value.";
         exMsg += $"{Environment.NewLine}If running on the server, verify that the workflow is setting up and environment variable named ";
         exMsg += $"{Environment.NewLine}'GITHUB_TOKEN' with the token value.";
 

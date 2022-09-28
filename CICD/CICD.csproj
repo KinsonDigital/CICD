@@ -11,10 +11,10 @@
     <NukeTelemetryVersion>1</NukeTelemetryVersion>
 
     <!--Update this for production and preview releases-->
-    <Version>1.0.0-preview.4</Version>
+    <Version>1.0.0-preview.5</Version>
 
     <!--Update this for production and preview releases-->
-    <FileVersion>1.0.0-preview.4</FileVersion>
+    <FileVersion>1.0.0-preview.5</FileVersion>
 
     <!--
         DO NOT UPDATE THIS FOR PREVIEW RELEASES!!
@@ -26,6 +26,7 @@
     <!--TODO: Set an application icon-->
     <ApplicationIcon></ApplicationIcon>
     <PackageId>KinsonDigital.CICD</PackageId>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <Authors>Calvin Wilkinson</Authors>
     <Company>Kinson Digital</Company>
     <Product>CICD</Product>
@@ -55,6 +56,10 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="System.IO.Abstractions" Version="17.2.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+      <None Include="../LICENSE" Pack="true" PackagePath=""/>
   </ItemGroup>
 
   <ItemGroup>

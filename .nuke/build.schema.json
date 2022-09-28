@@ -9,13 +9,6 @@
         "BuildSettingsDirPath": {
           "type": "string"
         },
-        "Configuration": {
-          "type": "string",
-          "enum": [
-            "Debug",
-            "Release"
-          ]
-        },
         "Continue": {
           "type": "boolean",
           "description": "Indicates to continue a previously failed build attempt"
@@ -77,6 +70,9 @@
         "ProjectName": {
           "type": "string"
         },
+        "PullRequestNumber": {
+          "type": "integer"
+        },
         "ReleaseNotesBaseDirPath": {
           "type": "string"
         },
@@ -98,19 +94,19 @@
             "enum": [
               "BuildAllProjects",
               "BuildAllTestProjects",
-              "BuildStatusCheck",
               "DebugTask",
               "FeaturePRStatusCheck",
               "GenerateWorkflows",
               "HotFixPRStatusCheck",
+              "PRBuildStatusCheck",
               "PreviewFeaturePRStatusCheck",
               "PreviewRelease",
               "PrevReleasePRStatusCheck",
               "ProdReleasePRStatusCheck",
               "ProductionRelease",
+              "PRUnitTestStatusCheck",
               "RestoreSolution",
-              "RunAllUnitTests",
-              "UnitTestStatusCheck"
+              "RunAllUnitTests"
             ]
           }
         },
@@ -129,19 +125,19 @@
             "enum": [
               "BuildAllProjects",
               "BuildAllTestProjects",
-              "BuildStatusCheck",
               "DebugTask",
               "FeaturePRStatusCheck",
               "GenerateWorkflows",
               "HotFixPRStatusCheck",
+              "PRBuildStatusCheck",
               "PreviewFeaturePRStatusCheck",
               "PreviewRelease",
               "PrevReleasePRStatusCheck",
               "ProdReleasePRStatusCheck",
               "ProductionRelease",
+              "PRUnitTestStatusCheck",
               "RestoreSolution",
-              "RunAllUnitTests",
-              "UnitTestStatusCheck"
+              "RunAllUnitTests"
             ]
           }
         },

@@ -20,7 +20,6 @@ public partial class CICD // Release.Production
     /// </summary>
     public Target ProductionRelease => _ => _
         .Requires(
-            () => ThatThisIsExecutedManually(BranchType.Master),
             () => ThatTheCurrentBranchIsCorrect(BranchType.Master),
             () => ThatTheProjectVersionsAreValid(ReleaseType.Production),
             () => ThatTheReleaseTagDoesNotAlreadyExist(ReleaseType.Production),
