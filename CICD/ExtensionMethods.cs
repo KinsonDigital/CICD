@@ -424,18 +424,6 @@ public static class ExtensionMethods
         return foundTag is not null;
     }
 
-    public static async Task<bool> LabelExists(
-        this IPullRequestsClient client,
-        string repoOwner,
-        string repoName,
-        int prNumber,
-        string labelName)
-    {
-        var pr = await client.Get(repoOwner, repoName, prNumber);
-
-        return pr.Labels.Any(l => l.Name == labelName);
-    }
-
     public static async Task<bool> IssueExists(
         this IIssuesClient client,
         string owner,
@@ -510,6 +498,18 @@ public static class ExtensionMethods
                 i.Milestone.Title == mileStoneName).ToArray();
 
         return pullRequests;
+    }
+
+    public static async Task<bool> LabelExists(
+        this IPullRequestsClient client,
+        string repoOwner,
+        string repoName,
+        int prNumber,
+        string labelName)
+    {
+        var pr = await client.Get(repoOwner, repoName, prNumber);
+
+        return pr.Labels.Any(l => l.Name == labelName);
     }
 
     public static async Task<bool> HasAssignees(
