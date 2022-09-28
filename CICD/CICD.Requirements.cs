@@ -335,32 +335,56 @@ public partial class CICD // Requirements
         return true;
     }
 
-    private bool ThatThePRSourceBranchIsValid(BranchType branchType)
+    private bool ThatThePRBranchesAreValid(PRBranchContext branchContext, params BranchType[] branchTypes)
     {
-        var sourceBranch = GitHubActionsService?.HeadRef ?? string.Empty;
-        var validMsg = string.Empty;
-        var isValidBranch = false;
-
-        nameof(ThatThePRSourceBranchIsValid)
-            .LogRequirementTitle("Validating Pull Request Source Branch:");
-
-        validMsg += $"{ConsoleTab}The '{branchType}' branch '{sourceBranch}' is valid.";
-        var branchTypeStr = branchType.ToString().ToSpaceDelimitedSections().ToLower();
-        var branchSyntax = GetBranchSyntax(branchType);
-        var errorMsg = $"The {branchTypeStr} branch '{{Value}}' is invalid.";
-        errorMsg += $"{Environment.NewLine}{ConsoleTab}The syntax for the develop branch is '{branchSyntax}'.";
-
-        isValidBranch = branchType switch
+        var branch = branchContext switch
         {
-            BranchType.Develop => sourceBranch.IsDevelopBranch(),
-            BranchType.Master => sourceBranch.IsMasterBranch(),
-            BranchType.Feature => sourceBranch.IsFeatureBranch(),
-            BranchType.PreviewFeature => sourceBranch.IsPreviewFeatureBranch(),
-            BranchType.Release => sourceBranch.IsReleaseBranch(),
-            BranchType.Preview => sourceBranch.IsPreviewBranch(),
-            BranchType.HotFix => sourceBranch.IsHotFixBranch(),
-            _ => throw new ArgumentOutOfRangeException(nameof(branchType), branchType, null)
+            PRBranchContext.Source => GitHubActionsService?.HeadRef ?? string.Empty,
+            PRBranchContext.Target => GitHubActionsService?.BaseRef ?? string.Empty,
+            _ => throw new ArgumentOutOfRangeException(nameof(branchContext), branchContext, null)
         };
+
+        var branchContextStr = Enum.GetName(branchContext).ToLower();
+
+        nameof(ThatThePRBranchesAreValid)
+            .LogRequirementTitle($"Validating the pull request {branchContextStr} branch '{branch}'.");
+
+        var foundBranchType = branchTypes.FirstOrDefault(t => t switch
+        {
+            BranchType.Develop => branch.IsDevelopBranch(),
+            BranchType.Master => branch.IsMasterBranch(),
+            BranchType.Feature => branch.IsFeatureBranch(),
+            BranchType.PreviewFeature => branch.IsPreviewFeatureBranch(),
+            BranchType.Release => branch.IsReleaseBranch(),
+            BranchType.Preview => branch.IsPreviewBranch(),
+            BranchType.HotFix => branch.IsHotFixBranch(),
+            BranchType.Other => false,
+            _ => throw new ArgumentOutOfRangeException(nameof(branchTypes), branchTypes, null)
+        });
+
+        var branchTypeStr = Enum.GetName(foundBranchType)?.ToSpaceDelimitedSections().ToLower() ?? string.Empty;
+
+        var validMsg = $"{ConsoleTab}The {branchTypeStr} branch '{branch}' is valid.";
+
+        var branchSyntax = GetBranchSyntax(foundBranchType);
+        var errorMsg = $"The {branchTypeStr} branch '{{Value}}' is invalid.";
+        errorMsg += $"{Environment.NewLine}{ConsoleTab}The syntax for the '{branchTypeStr}' branch is '{branchSyntax}'.";
+
+        var isValidBranch = branchTypes.Any(t =>
+        {
+            return t switch
+            {
+                BranchType.Develop => branch.IsDevelopBranch(),
+                BranchType.Master => branch.IsMasterBranch(),
+                BranchType.Feature => branch.IsFeatureBranch(),
+                BranchType.PreviewFeature => branch.IsPreviewFeatureBranch(),
+                BranchType.Release => branch.IsReleaseBranch(),
+                BranchType.Preview => branch.IsPreviewBranch(),
+                BranchType.HotFix => branch.IsHotFixBranch(),
+                BranchType.Other => false,
+                _ => throw new ArgumentOutOfRangeException(nameof(branchTypes), branchTypes, null)
+            };
+        });
 
         if (isValidBranch)
         {
@@ -368,7 +392,7 @@ public partial class CICD // Requirements
             return true;
         }
 
-        Log.Error(errorMsg, sourceBranch);
+        Log.Error(errorMsg, branch);
         Assert.Fail("Invalid pull request source branch.");
         return false;
     }

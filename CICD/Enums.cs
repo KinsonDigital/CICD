@@ -26,6 +26,22 @@ public enum ReleaseType
 }
 
 /// <summary>
+/// Represents if the context of a pull request branch is the source or target branch.
+/// </summary>
+public enum PRBranchContext
+{
+    /// <summary>
+    /// The pull request <c>source</c> branch that is merging <c>into</c> a <c>target</c> branch.
+    /// </summary>
+    Source,
+
+    /// <summary>
+    /// The pull request <c>destination</c> branch that a <c>source</c> branch is merging into.
+    /// </summary>
+    Target,
+}
+
+/// <summary>
 /// The different types of branches used in a branch model.
 /// </summary>
 public enum BranchType
