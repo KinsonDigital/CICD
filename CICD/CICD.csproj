@@ -26,6 +26,7 @@
     <!--TODO: Set an application icon-->
     <ApplicationIcon></ApplicationIcon>
     <PackageId>KinsonDigital.CICD</PackageId>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <Authors>Calvin Wilkinson</Authors>
     <Company>Kinson Digital</Company>
     <Product>CICD</Product>
@@ -55,6 +56,10 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="System.IO.Abstractions" Version="17.2.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+      <None Include="../LICENSE" Pack="true" PackagePath=""/>
   </ItemGroup>
 
   <ItemGroup>
