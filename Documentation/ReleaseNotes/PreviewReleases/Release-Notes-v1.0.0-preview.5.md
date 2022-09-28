@@ -13,9 +13,9 @@ As with all software, there is always a chance for issues and bugs, especially f
 
 <h2 style="font-weight:bold" align="center">New Features ✨</h2>
 
-1. [#22](https://github.com/KinsonDigital/CICD/issues/22) - Added the new services below to help abstract various types and concepts [NUKE](https://nuke.build/) for the purpose of increased testability as well as running local builds.
-   - `GitHubActionsService` - Wraps and enhances GitHub action related services for local and server runs.
-   - `GitHubClientService` - Wraps and enhances GitHub HTTP client related services for local and server runs.
+1. [#22](https://github.com/KinsonDigital/CICD/issues/22) - Added the new services below to help abstract various types and concepts [NUKE](https://nuke.build/) for increased testability as well as running local builds.
+   - `GitHubActionsService` - Wraps and enhances services related to GitHub Actions for local and server runs.
+   - `GitHubClientService` - Wraps and enhances services related to GitHub HTTP Client API requests for local and server runs.
    - `GitHubTokenService` - Gets the GitHub token for GitHub API auth requests depending on local or server runs.
    - `GitRepoService` - Wraps and enhances GIT repository services for local and server runs.
 2. [#22](https://github.com/KinsonDigital/CICD/issues/22) - Fixed various console log grammar and spelling issues.
@@ -32,15 +32,15 @@ As with all software, there is always a chance for issues and bugs, especially f
 
 <h2 style="font-weight:bold" align="center">Breaking Changes 🧨</h2>
 
-1. [#26](https://github.com/KinsonDigital/CICD/issues/26) - Refactor all classes, interfaces, and enums to `internal`.  Also set all of the classes to `sealed`.
+1. [#26](https://github.com/KinsonDigital/CICD/issues/26) - Refactor all classes, interfaces, and enums to `internal`.  Also, set all of the classes to `sealed`.
    - This library is meant to only be used for CICD purposes for the [KinsonDigital](https://github.com/KinsonDigital) organization.  
-   If for some reason somebody has been using this library in it's so far short life, this would be a breaking change.
+   If for some reason somebody has been using this library in its so far short life, this would be a breaking change.
 2. [#22](https://github.com/KinsonDigital/CICD/issues/22) - Renamed the status checks below.  Workflow changes for your project will be required to invoke the correct target.
-   - Target `BuildStatusCheck` renamed to `PRBuildStatusCheck`
-   - Target `UnitTestStatusCheck` renamed to `PRUnitTestStatusCheck`
+   - Target `BuildStatusCheck` renamed to `PRBuildStatusCheck`.
+   - Target `UnitTestStatusCheck` renamed to `PRUnitTestStatusCheck`.
 3. [#22](https://github.com/KinsonDigital/CICD/issues/22) - Refactored the names of the types listed below.
-   - Renamed the `ITokenFactory` interface to `IGitHubTokenService`
-   - Renamed the `TokenFactory` class to `GitHubTokenService`
+   - Renamed the `ITokenFactory` interface to `IGitHubTokenService`.
+   - Renamed the `TokenFactory` class to `GitHubTokenService`.
 
 ---
 
