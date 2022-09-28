@@ -11,7 +11,7 @@ namespace CICDSystem.Factories;
 /// <summary>
 /// Creates various services.
 /// </summary>
-public static class ServiceFactory
+internal static class ServiceFactory
 {
     private static IGitHubActionsService? actionsService;
 

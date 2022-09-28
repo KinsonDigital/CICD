@@ -10,7 +10,7 @@ using System.IO.Abstractions;
 using System.Reflection;
 
 /// <inheritdoc/>
-public class WorkflowService : IWorkflowService
+internal class WorkflowService : IWorkflowService
 {
     private readonly IFile file;
     private readonly IDirectory directory;

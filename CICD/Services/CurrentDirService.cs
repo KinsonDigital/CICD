@@ -10,7 +10,7 @@ namespace CICDSystem.Services;
 
 /// <inheritdoc/>
 [ExcludeFromCodeCoverage]
-public class CurrentDirService : ICurrentDirService
+internal class CurrentDirService : ICurrentDirService
 {
     private readonly IPath path;
 

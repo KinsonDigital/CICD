@@ -10,7 +10,7 @@ using System;
 /// Performs analysis on particular values to ensure that a value meets a criteria,
 /// then invokes behavior based on the result.
 /// </summary>
-public static class EnsureThat
+internal static class EnsureThat
 {
     /// <summary>
     /// Throws an <see cref="ArgumentNullException"/> if the given <paramref name="value"/> is null.

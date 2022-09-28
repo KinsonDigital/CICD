@@ -12,7 +12,7 @@ using Octokit;
 namespace CICDSystem.Services;
 
 /// <inheritdoc/>
-public class GitHubActionsService : IGitHubActionsService
+internal class GitHubActionsService : IGitHubActionsService
 {
     private const string TokenKey = "GitHubApiToken";
     private readonly ISecretService secretService;

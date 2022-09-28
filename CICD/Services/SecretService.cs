@@ -12,7 +12,7 @@ using CICDSystem.Guards;
 namespace CICDSystem.Services;
 
 /// <inheritdoc/>
-public class SecretService : ISecretService
+internal class SecretService : ISecretService
 {
     private const string SecretFileName = "local-secrets.json";
     private readonly string executionPath;
