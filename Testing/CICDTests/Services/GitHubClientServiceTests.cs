@@ -130,6 +130,6 @@ public class GitHubClientServiceTests
     /// </summary>
     /// <returns>The instance to test.</returns>
     private GitHubClientService CreateService()
-        => new(this.mockHttpClientFactory.Object,
+        => new (this.mockHttpClientFactory.Object,
             this.mockGithubTokenService.Object);
 }

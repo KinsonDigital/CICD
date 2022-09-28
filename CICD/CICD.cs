@@ -98,8 +98,6 @@ public partial class CICD : NukeBuild
 
     private Configuration GetBuildConfig()
     {
-        var repo = GitRepository.FromLocalDirectory(RootDirectory);
-
         if (ExecutionContext.IsLocalBuild)
         {
             return (repo.Branch ?? string.Empty).IsMasterBranch()
