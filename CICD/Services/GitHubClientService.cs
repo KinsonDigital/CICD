@@ -1,4 +1,4 @@
-// <copyright file="GitHubClientService.cs" company="KinsonDigital">
+﻿// <copyright file="GitHubClientService.cs" company="KinsonDigital">
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
@@ -51,8 +51,8 @@ public class GitHubClientService : IGitHubClientService
             return this.clientFactory.CreateGitHubClient(productName, token);
         }
 
-        var exMsg = "The token could be loaded.  If running locally, check that a 'local-secrets.json' file exists in ";
-        exMsg += "the '.github' folder with the correct 'GitHubApiToken' key value pair.";
+        var exMsg = "The token could not be loaded.  If running locally, check that a 'local-secrets.json' file exists in ";
+        exMsg += "the '.github' folder with the correct 'GitHubApiToken' key and value.";
         exMsg += $"{Environment.NewLine}If running on the server, verify that the workflow is setting up and environment variable named ";
         exMsg += $"{Environment.NewLine}'GITHUB_TOKEN' with the token value.";
 
