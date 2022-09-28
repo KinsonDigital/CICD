@@ -9,13 +9,6 @@
         "BuildSettingsDirPath": {
           "type": "string"
         },
-        "Configuration": {
-          "type": "string",
-          "enum": [
-            "Debug",
-            "Release"
-          ]
-        },
         "Continue": {
           "type": "boolean",
           "description": "Indicates to continue a previously failed build attempt"
@@ -76,6 +69,9 @@
         },
         "ProjectName": {
           "type": "string"
+        },
+        "PullRequestNumber": {
+          "type": "integer"
         },
         "ReleaseNotesBaseDirPath": {
           "type": "string"
