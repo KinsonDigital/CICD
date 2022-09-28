@@ -3,11 +3,10 @@
 // </copyright>
 
 // ReSharper disable InconsistentNaming
-using System;
+
 using CICDSystem.Factories;
 using CICDSystem.Services;
 using Nuke.Common;
-using Nuke.Common.CI.GitHubActions;
 using Nuke.Common.Git;
 using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
@@ -111,21 +110,5 @@ public partial class CICD : NukeBuild
         return (GitHubActionsService.BaseRef ?? string.Empty).IsMasterBranch()
             ? Configuration.Release
             : Configuration.Debug;
-    }
-
-    static void LogWarning(string warning)
-    {
-        var color = Console.ForegroundColor;
-        Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.WriteLine($"⚠️{warning}");
-        Console.ForegroundColor = color;
-    }
-
-    private static void LogError(string error)
-    {
-        var color = Console.ForegroundColor;
-        Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine(error);
-        Console.ForegroundColor = color;
     }
 }

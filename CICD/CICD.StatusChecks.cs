@@ -222,11 +222,6 @@ public partial class CICD // StatusChecks
     /// </summary>
     private async Task ValidateBranch()
     {
-        /*
-         * TODO: Refactor this to simply return a Task<bool> result. The logging and failure code inside of
-         * this method should be performed by the targets that are consuming it.
-         */
-
         var validBranch = false;
         var branch = string.Empty;
 
