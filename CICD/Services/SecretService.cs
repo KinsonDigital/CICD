@@ -14,11 +14,13 @@ namespace CICDSystem.Services;
 /// <inheritdoc/>
 internal sealed class SecretService : ISecretService
 {
+    private const string GitHubDirName = ".github";
     private const string SecretFileName = "local-secrets.json";
     private readonly string executionPath;
     private readonly string rootRepoDirPath;
     private readonly IDirectory directory;
     private readonly IFile file;
+    private readonly IPath path;
     private readonly IJsonService jsonService;
 
     /// <summary>
@@ -28,7 +30,6 @@ internal sealed class SecretService : ISecretService
     /// <param name="file">Manages files.</param>
     /// <param name="path">Manages paths.</param>
     /// <param name="jsonService">Serializes and deserializes JSON data.</param>
-    /// <param name="currentDirService">Gets the current execution directory.</param>
     /// <exception cref="ArgumentNullException">
     /// Occurs when the following parameters are null:
     /// <list type="bullet">
@@ -36,36 +37,34 @@ internal sealed class SecretService : ISecretService
     ///     <item><paramref name="file"/></item>
     ///     <item><paramref name="path"/></item>
     ///     <item><paramref name="jsonService"/></item>
-    ///     <item><paramref name="currentDirService"/></item>
     /// </list>
     /// </exception>
     public SecretService(
         IDirectory directory,
         IFile file,
         IPath path,
-        IJsonService jsonService,
-        ICurrentDirService currentDirService)
+        IJsonService jsonService)
     {
         EnsureThat.ParamIsNotNull(directory, nameof(directory));
         EnsureThat.ParamIsNotNull(file, nameof(file));
         EnsureThat.ParamIsNotNull(path, nameof(path));
         EnsureThat.ParamIsNotNull(jsonService, nameof(jsonService));
-        EnsureThat.ParamIsNotNull(currentDirService, nameof(currentDirService));
 
         this.directory = directory;
         this.file = file;
+        this.path = path;
         this.jsonService = jsonService;
 
-        this.executionPath = @$"{path.GetDirectoryName(currentDirService.GetCurrentDirectory())}";
-        this.executionPath = this.executionPath.Replace('\\', '/').TrimEnd('/');
-        this.rootRepoDirPath = GetRepoRootDirPath().TrimEnd('/');
+        var startPath = directory.GetCurrentDirectory().Replace('\\', '/').TrimEnd('/');
+
+        this.rootRepoDirPath = FindDescendentDir(startPath, GitHubDirName);
 
         if (string.IsNullOrEmpty(this.rootRepoDirPath))
         {
             throw new Exception("The root repository directory path could not be found.  Could not load local secrets.");
         }
 
-        var secretFilePath = $"{this.rootRepoDirPath}/.github/{SecretFileName}".Replace('\\', '/');
+        var secretFilePath = $"{this.rootRepoDirPath}/{SecretFileName}";
 
         if (this.file.Exists(secretFilePath))
         {
@@ -83,7 +82,7 @@ internal sealed class SecretService : ISecretService
     {
         EnsureThat.StringParamIsNotNullOrEmpty(secretName, nameof(secretName));
 
-        var secretFilePath = $"{this.rootRepoDirPath}/.github/{SecretFileName}";
+        var secretFilePath = $"{this.rootRepoDirPath}/{SecretFileName}";
 
         if (this.file.Exists(secretFilePath) is false)
         {
@@ -101,37 +100,44 @@ internal sealed class SecretService : ISecretService
         return foundSecret ?? string.Empty;
     }
 
-    /// <summary>
-    /// Gets the directory path of the root of the repository.
-    /// </summary>
-    /// <returns>The directory path to the .github directory.</returns>
-    private string GetRepoRootDirPath()
+    private string FindDescendentDir(string? startPath, string dirNameToFind)
     {
-        var pathSections = this.executionPath.Split('/').ToList();
-
-        bool IsRoot(string[] pathSections)
+        if (string.IsNullOrEmpty(startPath))
         {
-            var pathToCheck = string.Join('/', pathSections);
-
-            var directories = this.directory.GetDirectories(pathToCheck);
-
-            var containsGitHubDir = directories.Any(d => d.EndsWith(".git"));
-
-            return containsGitHubDir;
+            return string.Empty;
         }
 
-        for (var i = pathSections.Count - 1; i > 0; i--)
-        {
-            var isRoot = IsRoot(pathSections.ToArray());
+        var dirsToSearch = new List<string>();
+        var siblingDirs = this.directory.GetDirectories(startPath);
 
-            if (isRoot)
+        dirsToSearch.AddRange(siblingDirs);
+
+        var foundPath = string.Empty;
+
+        while (string.IsNullOrEmpty(foundPath))
+        {
+            foundPath = dirsToSearch.FirstOrDefault(d => d.EndsWith(dirNameToFind));
+
+            if (string.IsNullOrEmpty(foundPath) is false)
             {
-                return string.Join('/', pathSections);
+                break;
             }
 
-            pathSections.RemoveAt(i);
+            // Remove the directory from the end
+            startPath = this.path.GetDirectoryName(startPath);
+
+            // If the string is null or empty, every descendant has been checked.
+            if (string.IsNullOrEmpty(startPath))
+            {
+                break;
+            }
+
+            var moreDirs = this.directory.GetDirectories(startPath);
+
+            dirsToSearch.Clear();
+            dirsToSearch.AddRange(moreDirs);
         }
 
-        return string.Empty;
+        return foundPath is null ? string.Empty : foundPath.Replace('\\', '/');
     }
 }

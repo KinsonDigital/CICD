@@ -353,3 +353,6 @@ MigrationBackup/
 .idea
 
 local-secrets.json
+
+/.config/dotnet-tools.json
+Testing/DotNetToolTesting/.config/dotnet-tools.json

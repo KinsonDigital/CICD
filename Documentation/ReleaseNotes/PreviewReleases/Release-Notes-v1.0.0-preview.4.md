@@ -13,41 +13,41 @@ As with all software, there is always a chance for issues and bugs, especially f
 
 <h2 style="font-weight:bold" align="center">New Features ✨</h2>
 
-1. [#19](https://github.com/KinsonDigital/CICD/issues/19) - Created the list of services below to help abstract way local vs server builds.
+1. [#19](https://github.com/KinsonDigital/CICD/issues/19) - Created the list of services below to help abstract the way local vs server builds.
    - `CurrentDirService` - Gets the current directory of where the application is executing.  This increases testability.
    - `ExecutionContextService` - Determines if the build is running locally or on the server.  This increases testability.
    - `GitHubClientService` - Creates a GitHubClient singleton with authorized requests.  This makes it much easier to be able to deal with the `GitHubClient` locally and on the server.
-   - `JsonService` - Serializes and deserializes JSON data using an abstraction to increase testability
+   - `JsonService` - Serializes and deserializes JSON data using abstraction to increase testability.
    - `SecretService` - Loads secrets locally or on the server depending on where the build is running.
 2. [#19](https://github.com/KinsonDigital/CICD/issues/19) - Created factories to help generate HTTP clients and tokens.
-   - `HttpClientFactory` - Abstracts away the process of creating an HTTP clients.  Increases testability.
+   - `HttpClientFactory` - Abstracts away the process of creating HTTP clients.  Increases testability.
    - `TokenFactory` - Abstracts the retrieval of a token depending on if the build is running locally or on the server.
-3. [#19](https://github.com/KinsonDigital/CICD/issues/19) - Created powershell script to quickly create a nuget package dotnet tool for testing purposes.
+3. [#19](https://github.com/KinsonDigital/CICD/issues/19) - Created PowerShell script to quickly create a NuGet package dotnet tool for testing purposes.
 4. [#17](https://github.com/KinsonDigital/CICD/issues/17) - Created a new build parameter named `PreviewReleaseNotesDirName`.
-   - This can be used in the `.nuke/parameters.json` file or in the CLI using `--preview-release-notes-dir-name` to set the name of the preview release notes directory.
-   - This build parameters is optional.
+   - This can be used in the `.nuke/parameters.json` file or the CLI using `--preview-release-notes-dir-name` to set the name of the preview release notes directory.
+   - The build parameters are optional.
 5. [#17](https://github.com/KinsonDigital/CICD/issues/17) - Created a new build parameter named `ProductionReleaseNotesDirName`.
-   - This can be used in the `.nuke/parameters.json` file or in the CLI using `--production-release-notes-dir-name` to set the name of the production release notes directory.
-   - This build parameters is optional.
+   - This can be used in the `.nuke/parameters.json` file or the CLI using `--production-release-notes-dir-name` to set the name of the production release notes directory.
+   - The build parameter is optional.
 6. [#17](https://github.com/KinsonDigital/CICD/issues/17) - Created a new build parameter named `ReleaseNotesBaseDirPath`.
-   - This can be used in the `.nuke/parameters.json` file or in the CLI using --release-notes-base-dir-path` to set the base directory of where preview and production release notes are located.
-   - This build parameters is optional.
+   - This can be used in the `.nuke/parameters.json` file or the CLI using --release-notes-base-dir-path` to set the base directory where preview and production release notes are located.
+   - The build parameter is optional.
 7. [#15](https://github.com/KinsonDigital/CICD/issues/15) - Created a new build parameter named `ProjectName`.
-   - This can be used in the `.nuke/parameters.json` file or in the CLI using `--project-name` to set the name of the C# project.
-   - This build parameters is mandatory.
+   - This can be used in the `.nuke/parameters.json` file or the CLI using `--project-name` to set the name of the C# project.
+   - The build parameter is mandatory.
 8. [#15](https://github.com/KinsonDigital/CICD/issues/15) - Created a new build parameter named `RepoName`.
-   - This can be used in the `.nuke/parameters.json` file or in the CLI using `--repo-name` to set the name of the repository for the project.
-   - This build parameters is mandatory.
+   - This can be used in the `.nuke/parameters.json` file or the CLI using `--repo-name` to set the name of the repository for the project.
+   - The build parameter is mandatory.
 9. [#15](https://github.com/KinsonDigital/CICD/issues/15) - Created a new build parameter named `RepoOwner`.
-   - This can be used in the `.nuke/parameters.json` file or in the CLI using `--repo-owner` to set the name of the repository for the project.
-   - This build parameters is mandatory.
+   - This can be used in the `.nuke/parameters.json` file or the CLI using `--repo-owner` to set the name of the repository for the project.
+   - The build parameter is mandatory.
 
 ---
 
 <h2 style="font-weight:bold" align="center">Bug Fixes 🐛</h2>
 
 1. [#14](https://github.com/KinsonDigital/CICD/issues/14) - Fix bugs in all of the workflow templates.
-   - This fixed an issue where the NUKE target execution was being executed with standard powershell instead of in the context of a dotnet tool.
+   - This fixed an issue where the NUKE target execution was being executed with standard PowerShell instead of in the context of a dotnet tool.
 
 ---
 
@@ -56,7 +56,7 @@ As with all software, there is always a chance for issues and bugs, especially f
 
 1. [#19](https://github.com/KinsonDigital/CICD/issues/19) - Implemented dependency injection.
 2. [#19](https://github.com/KinsonDigital/CICD/issues/19) - Created unit tests for various services.
-3. [#19](https://github.com/KinsonDigital/CICD/issues/19) - Created guard for checking null or empty parameters.
+3. [#19](https://github.com/KinsonDigital/CICD/issues/19) - Created a guard for checking null or empty parameters.
 
 ---
 
@@ -65,4 +65,4 @@ As with all software, there is always a chance for issues and bugs, especially f
 
 1. [#19](https://github.com/KinsonDigital/CICD/issues/19) - Cleanup of many areas of the code base.
     - This includes removing dead code as well as refactoring code to make it more readable and to follow project code styling policies.
-2. [#13](https://github.com/KinsonDigital/CICD/issues/13) - Added default shell to all workflow templates to be powershell core.
+2. [#13](https://github.com/KinsonDigital/CICD/issues/13) - Added default shell to all workflow templates to be PowerShell core.

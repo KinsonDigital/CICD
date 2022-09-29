@@ -13,4 +13,4 @@ As with all software, there is always a chance for issues and bugs, especially f
 
 <h2 style="font-weight:bold" align="center">Bug Fixes 🐛</h2>
 
-1. [#3](https://github.com/KinsonDigital/CICD/issues/3) - Fixed an issue where the project was not setup as a dotnet tool.  This means it could not be installed and used as a dotnet tool in other projects.
+1. [#3](https://github.com/KinsonDigital/CICD/issues/3) - Fixed an issue where the project was not set up as a dotnet tool.  This means it could not be installed and used as a dotnet tool in other projects.

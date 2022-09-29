@@ -1,3 +1,12 @@
+<div align="center">
+
+   ![Logo](./CICD/Documentation/Images/../../../Documentation/Images/cicd-logo-light-mode.png#gh-light-mode-only)
+
+   ![Logo](./CICD/Documentation/Images/../../../Documentation/Images/cicd-logo-dark-mode.png#gh-dark-mode-only)
+
+   <br/>
+</div>
+
 <h1 style="border:0;font-weight:bold" align="center">CICD</h1>
 
 <div align="center">
