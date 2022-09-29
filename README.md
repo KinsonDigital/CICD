@@ -1,3 +1,9 @@
+<div align="center">
+    <a href="#"><img align="center" src="./Documentation/Images/cicd-logo.png" height="96"></a>
+    <br />
+  
+</div>
+
 <h1 style="border:0;font-weight:bold" align="center">CICD</h1>
 
 <div align="center">
