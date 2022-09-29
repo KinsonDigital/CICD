@@ -298,17 +298,15 @@ public partial class CICD // Common
 
         var projectVersion = project?.GetVersion() ?? string.Empty;
 
-        // TODO: This package name might be the owner.reponame.  It could be something different entirely
-        var packageName = RepoName;
         var nugetService = new NugetDataService();
 
-        var packageVersions = nugetService.GetNugetVersions(packageName).Result;
+        var packageVersions = nugetService.GetNugetVersions(RepoName).Result;
 
         var nugetPackageExists = packageVersions.Any(i => i == projectVersion);
 
         if (nugetPackageExists)
         {
-            errors.Add($"The nuget package '{packageName}' version 'v{projectVersion}' already exists.");
+            errors.Add($"The nuget package '{RepoName}' version 'v{projectVersion}' already exists.");
         }
 
         if (errors.Count <= 0)
