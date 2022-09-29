@@ -23,8 +23,7 @@
     -->
     <AssemblyVersion>1.0.0</AssemblyVersion>
 
-    <!--TODO: Set an application icon-->
-    <ApplicationIcon></ApplicationIcon>
+    <ApplicationIcon>cicd-logo.ico</ApplicationIcon>
     <PackageId>KinsonDigital.CICD</PackageId>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <Authors>Calvin Wilkinson</Authors>
