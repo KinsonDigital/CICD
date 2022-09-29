@@ -15,14 +15,17 @@ namespace CICDSystemTests.Services;
 /// </summary>
 public class SecretServiceTests
 {
-    private const string ExecutionDir = @"C:/MyProject/bin/debug";
-    private const string RootRepoDir = @"C:/MyProject";
+    private const string ProjectName = "MyProject";
+    private const string SolutionDir = $@"C:/{ProjectName}";
+    private const string DebugDir = $@"C:/{ProjectName}/{ProjectName}/bin/debug";
+    private const string BinDir = $@"C:/{ProjectName}/{ProjectName}/bin";
+    private const string ProjectDir = $@"C:/{ProjectName}/{ProjectName}";
+    private const string RootRepoDir = $@"C:/{ProjectName}";
     private const string SecretFileName = "local-secrets.json";
     private readonly Mock<IDirectory> mockDirectory;
     private readonly Mock<IFile> mockFile;
     private readonly Mock<IPath> mockPath;
     private readonly Mock<IJsonService> mockJsonService;
-    private readonly Mock<ICurrentDirService> mockCurrentDirService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SecretServiceTests"/> class.
@@ -30,25 +33,61 @@ public class SecretServiceTests
     public SecretServiceTests()
     {
         this.mockDirectory = new Mock<IDirectory>();
-        this.mockDirectory.Setup(m => m.GetDirectories(RootRepoDir))
+        this.mockDirectory.Setup(m => m.GetCurrentDirectory()).Returns(DebugDir);
+
+        // Starting at the execution dir
+        this.mockDirectory.Setup(m => m.GetDirectories(DebugDir))
             .Returns(new[]
             {
-                $"{RootRepoDir}/.git",
-                $"{RootRepoDir}/MyProject",
-                $"{RootRepoDir}/MyProject/Services",
+                $"{DebugDir}/debug-child-1",
+                $"{DebugDir}/debug-child-2",
             });
+
+        // If at the bin directory
+        this.mockDirectory.Setup(m => m.GetDirectories(BinDir))
+            .Returns(new[]
+            {
+                DebugDir,
+                $"{BinDir}/bin-child-1",
+            });
+
+        // If at the project directory
+        this.mockDirectory.Setup(m => m.GetDirectories(ProjectDir))
+            .Returns(new[]
+            {
+                BinDir,
+                $"{ProjectDir}/proj-child-1",
+                $"{ProjectDir}/proj-child-2",
+            });
+
+        // If at the solution directory
+        this.mockDirectory.Setup(m => m.GetDirectories(SolutionDir))
+            .Returns(new[]
+            {
+                ProjectDir,
+                $"{SolutionDir}/.github",
+                $"{SolutionDir}/solution-child-1",
+                $"{SolutionDir}/solution-child-2",
+            });
+
+        this.mockPath = new Mock<IPath>();
+
+        // If getting the dir name of the debug dir
+        this.mockPath.Setup(m => m.GetDirectoryName(DebugDir))
+            .Returns(BinDir);
+
+        // If getting the dir name of the bin dir
+        this.mockPath.Setup(m => m.GetDirectoryName(BinDir))
+            .Returns(ProjectDir);
+
+        // If getting the dir name of the project dir
+        this.mockPath.Setup(m => m.GetDirectoryName(ProjectDir))
+            .Returns(SolutionDir);
 
         this.mockFile = new Mock<IFile>();
         this.mockFile.Setup(m => m.Exists($"{RootRepoDir}/.github/{SecretFileName}")).Returns(true);
 
-        this.mockPath = new Mock<IPath>();
-        this.mockPath.Setup(m => m.GetDirectoryName(It.IsAny<string>()))
-            .Returns(ExecutionDir);
-
         this.mockJsonService = new Mock<IJsonService>();
-
-        this.mockCurrentDirService = new Mock<ICurrentDirService>();
-        this.mockCurrentDirService.Setup(m => m.GetCurrentDirectory()).Returns(ExecutionDir);
     }
 
     #region Constructor Tests
@@ -62,8 +101,7 @@ public class SecretServiceTests
                 null,
                 this.mockFile.Object,
                 this.mockPath.Object,
-                this.mockJsonService.Object,
-                this.mockCurrentDirService.Object);
+                this.mockJsonService.Object);
         };
 
         // Assert
@@ -82,8 +120,7 @@ public class SecretServiceTests
                 this.mockDirectory.Object,
                 null,
                 this.mockPath.Object,
-                this.mockJsonService.Object,
-                this.mockCurrentDirService.Object);
+                this.mockJsonService.Object);
         };
 
         // Assert
@@ -102,8 +139,7 @@ public class SecretServiceTests
                 this.mockDirectory.Object,
                 this.mockFile.Object,
                 null,
-                this.mockJsonService.Object,
-                this.mockCurrentDirService.Object);
+                this.mockJsonService.Object);
         };
 
         // Assert
@@ -122,34 +158,13 @@ public class SecretServiceTests
                 this.mockDirectory.Object,
                 this.mockFile.Object,
                 this.mockPath.Object,
-                null,
-                this.mockCurrentDirService.Object);
-        };
-
-        // Assert
-        act.Should()
-            .Throw<ArgumentNullException>()
-            .WithMessage("The parameter must not be null. (Parameter 'jsonService')");
-    }
-
-    [Fact]
-    public void Ctor_WithNullCurrentDirServiceParam_ThrowsException()
-    {
-        // Arrange & Act
-        var act = () =>
-        {
-            _ = new SecretService(
-                this.mockDirectory.Object,
-                this.mockFile.Object,
-                this.mockPath.Object,
-                this.mockJsonService.Object,
                 null);
         };
 
         // Assert
         act.Should()
             .Throw<ArgumentNullException>()
-            .WithMessage("The parameter must not be null. (Parameter 'currentDirService')");
+            .WithMessage("The parameter must not be null. (Parameter 'jsonService')");
     }
 
     [Fact]
@@ -168,6 +183,18 @@ public class SecretServiceTests
     }
 
     [Fact]
+    public void Ctor_WithNullStartPath_ThrowsException()
+    {
+        // Arrange & Act
+        this.mockDirectory.Setup(m => m.GetCurrentDirectory()).Returns(string.Empty);
+        var act = () => _ = CreateService();
+
+        // Assert
+        act.Should().Throw<Exception>()
+            .WithMessage("The root repository directory path could not be found.  Could not load local secrets.");
+    }
+
+    [Fact]
     public void Ctor_WhenSecretFileExists_DoesNotThrowException()
     {
         // Arrange & Act
@@ -175,24 +202,32 @@ public class SecretServiceTests
 
         // Assert
         act.Should().NotThrow();
-        this.mockFile.Verify(m => m.Exists($"{RootRepoDir}/.github/{SecretFileName}"));
     }
 
-    [Fact]
-    public void Ctor_WhenSecretsFileDoesNotExist_CreatesNewFile()
+    [Theory]
+    [InlineData($@"C:/{ProjectName}/{ProjectName}/bin/debug")]
+    [InlineData($@"C:/{ProjectName}/{ProjectName}/bin/debug/")]
+    [InlineData($@"C:\{ProjectName}\{ProjectName}\bin\debug")]
+    [InlineData($@"C:\{ProjectName}\{ProjectName}\bin\debug/")]
+    public void Ctor_WhenSecretsFileDoesNotExist_CreatesNewFile(string debugDir)
     {
         // Arrange
-        var expectedSerializeType = new KeyValuePair<string, string>[] { new (string.Empty, string.Empty) };
-        var expectedSecretFilePath = $"{RootRepoDir}/.github/{SecretFileName}";
+        const string expectedSecretFilePath = $"{RootRepoDir}/.github/{SecretFileName}";
+
+        this.mockDirectory.Setup(m => m.GetCurrentDirectory()).Returns(debugDir);
+
         this.mockFile.Setup(m => m.Exists(It.IsAny<string>())).Returns(false);
-        this.mockJsonService.Setup(m => m.Serialize(expectedSerializeType)).Returns(string.Empty);
+        this.mockJsonService.Setup(m =>
+                m.Serialize(It.IsAny<KeyValuePair<string, string>[]>()))
+                .Returns(string.Empty);
 
         // Act
         _ = CreateService();
 
         // Assert
-        this.mockJsonService.Verify(m => m.Serialize(expectedSerializeType));
-        this.mockFile.Verify(m => m.WriteAllText(expectedSecretFilePath, string.Empty));
+        this.mockJsonService.Verify(m =>
+            m.Serialize(new KeyValuePair<string, string>[] { new (string.Empty, string.Empty) }), Times.Once);
+        this.mockFile.Verify(m => m.WriteAllText(expectedSecretFilePath, string.Empty), Times.Once);
     }
     #endregion
 
@@ -265,6 +300,5 @@ public class SecretServiceTests
         => new (this.mockDirectory.Object,
             this.mockFile.Object,
             this.mockPath.Object,
-            this.mockJsonService.Object,
-            this.mockCurrentDirService.Object);
+            this.mockJsonService.Object);
 }
