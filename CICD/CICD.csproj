@@ -32,10 +32,7 @@
     <Description>CICD application for running builds, tests, and status checks for the KinsonDigital organization projects.</Description>
     <Copyright>Copyright ©2022 Kinson Digital</Copyright>
     <Configurations>Debug;Release</Configurations>
-
-    <!--TODO: Set a package icon-->
-    <PackageIcon></PackageIcon>
-
+    <PackageIcon>cicd-logo.png</PackageIcon>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>cicd</ToolCommandName>
   </PropertyGroup>
@@ -59,6 +56,7 @@
 
   <ItemGroup>
       <None Include="../LICENSE" Pack="true" PackagePath="" />
+      <None Include="../Documentation/Images/cicd-logo.png" Pack="true" PackagePath="" />
   </ItemGroup>
 
   <ItemGroup>
