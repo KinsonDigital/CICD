@@ -3,7 +3,8 @@
         "CICD",
         "Kinson",
         "pwsh",
-        "runsettings"
+        "runsettings",
+        "SDLC"
     ],
     "grammarly.selectors": [
         {

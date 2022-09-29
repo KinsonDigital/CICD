@@ -13,14 +13,14 @@ As with all software, there is always a chance for issues and bugs, especially f
 
 <h2 style="font-weight:bold" align="center">New Features ✨</h2>
 
-1. [#8](https://github.com/KinsonDigital/CICD/issues/8) - Made various changes to project to be setup as a dotnet tool.
+1. [#8](https://github.com/KinsonDigital/CICD/issues/8) - Made various changes to the project to be set up as a dotnet tool.
    - This enables the project to be reused as a tool by all C# based projects in the KinsonDigital organization.
 
 ---
 
 <h2 style="font-weight:bold" align="center">Bug Fixes 🐛</h2>
 
-1. [#8](https://github.com/KinsonDigital/CICD/issues/8) - Fixed various small issues throughout code base.
+1. [#8](https://github.com/KinsonDigital/CICD/issues/8) - Fixed various small issues throughout the code base.
 
 ---
 
