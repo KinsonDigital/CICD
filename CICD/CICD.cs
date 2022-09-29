@@ -40,7 +40,7 @@ public partial class CICD : NukeBuild
     private IGitRepoService repo => App.Container.GetInstance<IGitRepoService>();
 
     [NukeParameter]
-    private static string? BuildSettingsDirPath { get; set; }
+    private string? WorkflowTemplateOutput { get; set; }
 
     [NukeParameter]
     private static bool SkipTwitterAnnouncement { get; set; }

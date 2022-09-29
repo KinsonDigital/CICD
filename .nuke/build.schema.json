@@ -6,9 +6,6 @@
     "build": {
       "type": "object",
       "properties": {
-        "BuildSettingsDirPath": {
-          "type": "string"
-        },
         "Continue": {
           "type": "boolean",
           "description": "Indicates to continue a previously failed build attempt"
@@ -166,6 +163,10 @@
             "Quiet",
             "Verbose"
           ]
+        },
+        "WorkflowTemplateOutput": {
+          "type": "string",
+          "description": "The output directory of where the template workflows should be generated"
         }
       }
     }

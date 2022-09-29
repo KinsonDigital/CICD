@@ -27,11 +27,11 @@ public partial class CICD // Common
         });
 
     private Target GenerateWorkflows => _ => _
-        .Requires(() => ThatTheBuildSettingsDirPathIsValid())
+        .Requires(() => ThatWorkflowOutputDirPathIsValid())
         .Executes(() =>
         {
             var workflowService = App.Container.GetInstance<IWorkflowService>();
-            workflowService.GenerateWorkflows(BuildSettingsDirPath ?? string.Empty);
+            workflowService.GenerateWorkflows(WorkflowTemplateOutput ?? string.Empty);
         });
 
     private void CreateNugetPackage()

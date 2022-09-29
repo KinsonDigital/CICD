@@ -1374,17 +1374,18 @@ public partial class CICD // Requirements
         return false;
     }
 
-    private bool ThatTheBuildSettingsDirPathIsValid()
+    private bool ThatWorkflowOutputDirPathIsValid()
     {
-        var switchStr = $"--{nameof(BuildSettingsDirPath).ToKebabCase()}";
+        var switchStr = $"--{nameof(WorkflowTemplateOutput).ToKebabCase()}";
         var example = $"Example: {switchStr} \"C:/my-destination-dir-path\"";
-        if (BuildSettingsDirPath == null)
+
+        if (WorkflowTemplateOutput == null)
         {
             var errorMsg = $"The switch '{switchStr}' must be used and contain a value.";
             errorMsg += $"{Environment.NewLine}{ConsoleTab}{example}";
             Log.Error(errorMsg);
         }
-        else if (BuildSettingsDirPath == string.Empty)
+        else if (WorkflowTemplateOutput == string.Empty)
         {
             var errorMsg = $"The switch '{switchStr}' must contain a value.  Example:";
             errorMsg += $"{Environment.NewLine}{ConsoleTab}{example}";
