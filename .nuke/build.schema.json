@@ -6,9 +6,6 @@
     "build": {
       "type": "object",
       "properties": {
-        "BuildSettingsDirPath": {
-          "type": "string"
-        },
         "Continue": {
           "type": "boolean",
           "description": "Indicates to continue a previously failed build attempt"
@@ -44,6 +41,7 @@
         },
         "NugetOrgApiKey": {
           "type": "string",
+          "description": "The API key for releasing NuGet packages to nuget.org",
           "default": "Secrets must be entered via 'nuke :secrets [profile]'"
         },
         "Partition": {
@@ -55,10 +53,12 @@
           "description": "Shows the execution plan (HTML)"
         },
         "PreviewReleaseNotesDirName": {
-          "type": "string"
+          "type": "string",
+          "description": "The name of the preview release notes directory name.  This will be located in the 'ReleaseNotesBaseDirPath'"
         },
         "ProductionReleaseNotesDirName": {
-          "type": "string"
+          "type": "string",
+          "description": "The name of the production release notes directory name.  This will be located in the 'ReleaseNotesBaseDirPath'"
         },
         "Profile": {
           "type": "array",
@@ -68,19 +68,24 @@
           }
         },
         "ProjectName": {
-          "type": "string"
+          "type": "string",
+          "description": "The name of the C# project"
         },
         "PullRequestNumber": {
-          "type": "integer"
+          "type": "integer",
+          "description": "The unique number/id of the GItHub pull request.  Used for pull request status checks when running locally"
         },
         "ReleaseNotesBaseDirPath": {
-          "type": "string"
+          "type": "string",
+          "description": "The directory path of the location of the preview and production release notes"
         },
         "RepoName": {
-          "type": "string"
+          "type": "string",
+          "description": "The name of the GitHub repository"
         },
         "RepoOwner": {
-          "type": "string"
+          "type": "string",
+          "description": "The owner of the GitHub repo.  This can also be the GitHub organization that owns the repository"
         },
         "Root": {
           "type": "string",
@@ -111,7 +116,8 @@
           }
         },
         "SkipTwitterAnnouncement": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "If true, will skip the twitter announcement of a release"
         },
         "solution": {
           "type": "string",
@@ -143,18 +149,22 @@
         },
         "TwitterAccessToken": {
           "type": "string",
+          "description": "The Twitter access token",
           "default": "Secrets must be entered via 'nuke :secrets [profile]'"
         },
         "TwitterAccessTokenSecret": {
           "type": "string",
+          "description": "The Twitter access token secret",
           "default": "Secrets must be entered via 'nuke :secrets [profile]'"
         },
         "TwitterConsumerApiKey": {
           "type": "string",
+          "description": "The Twitter consumer API key.  Essentially the Twitter username",
           "default": "Secrets must be entered via 'nuke :secrets [profile]'"
         },
         "TwitterConsumerApiSecret": {
           "type": "string",
+          "description": "The Twitter consumer API secret.  Essentially the Twitter password",
           "default": "Secrets must be entered via 'nuke :secrets [profile]'"
         },
         "Verbosity": {
@@ -166,6 +176,10 @@
             "Quiet",
             "Verbose"
           ]
+        },
+        "WorkflowTemplateOutput": {
+          "type": "string",
+          "description": "The output directory of where the template workflows should be generated"
         }
       }
     }
