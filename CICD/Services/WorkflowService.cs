@@ -2,12 +2,13 @@
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
-namespace CICDSystem.Services;
-
+// ReSharper disable InconsistentNaming
 using System;
 using System.IO;
 using System.IO.Abstractions;
 using System.Reflection;
+
+namespace CICDSystem.Services;
 
 /// <inheritdoc/>
 internal sealed class WorkflowService : IWorkflowService

@@ -16,14 +16,14 @@ internal sealed class Configuration : Enumeration
 #pragma warning disable SA1401
 #pragma warning disable CA2211
     /// <summary>
-    /// Debug build configuration.
+    /// Gets the debug build configuration.
     /// </summary>
-    public static Configuration Debug = new () { Value = nameof(Debug) };
+    public static Configuration Debug => new () { Value = nameof(Debug) };
 
     /// <summary>
-    /// Release build configuration.
+    /// Gets the release build configuration.
     /// </summary>
-    public static Configuration Release = new () { Value = nameof(Release) };
+    public static Configuration Release => new () { Value = nameof(Release) };
 #pragma warning restore SA1401
 #pragma warning restore CA2211
 
