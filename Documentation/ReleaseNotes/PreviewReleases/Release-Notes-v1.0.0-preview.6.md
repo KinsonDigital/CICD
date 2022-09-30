@@ -13,14 +13,14 @@ As with all software, there is always a chance for issues and bugs, especially f
 
 <h2 style="font-weight:bold" align="center">New Features ✨</h2>
 
-1. [#33](https://github.com/KinsonDigital/CICD/issues/33) - Add descriptions to all of the build parameters.
+1. [#33](https://github.com/KinsonDigital/CICD/issues/33) - Added descriptions to all of the build parameters.
    - To view the build parameters and the associated descriptions, use the CLI command `dotnet cicd --help`.
 
 ---
 
 <h2 style="font-weight:bold" align="center">Bug Fixes 🐛</h2>
 
-1. [#33](https://github.com/KinsonDigital/CICD/issues/33) - Fixed bug where the `SecretService` was incorrectly building the path to the local secrets file resulting in never finding the file and failing running targets.
+1. [#33](https://github.com/KinsonDigital/CICD/issues/33) - Fixed bug where the `SecretService` was incorrectly building the path to the local secrets file resulting in not finding the file and failing running targets.
    - This was only occurring on local runs.
 
 ---
@@ -28,7 +28,7 @@ As with all software, there is always a chance for issues and bugs, especially f
 <h2 style="font-weight:bold" align="center">Breaking Changes 🧨</h2>
 
 1. [#33](https://github.com/KinsonDigital/CICD/issues/33) - Renamed the build parameter `BuildSettingsDirPath` to `WorkFlowTemplateOutput`. The CLI switch equivalent is `workflow-template-output`.
-   - This build parameter functions the same and is still used to determine the directory output path for generating workflows.  The name of the parameter simply was not renamed in previous releases when it was repurposed.
+   - This build parameter functions the same and is still used to determine the directory output path for generating workflows.  The name of the parameter was not renamed in previous releases when it was repurposed.
 
 ---
 
@@ -40,13 +40,15 @@ As with all software, there is always a chance for issues and bugs, especially f
    - `ICurrentDirService` interface
    - `CurrentDirService` class
 3. [#33](https://github.com/KinsonDigital/CICD/issues/33) - Created the PowerShell scripts below to help assist with testing the CICD project in a dotnet tool context.
+   - CreateToolPackage.ps1
+   - InstallDotNetTool.ps1
 
 ---
 
 <h2 style="font-weight:bold" align="center">Other 🪧</h2>
 <h5 align="center">(Includes anything that does not fit into the categories above)</h5>
 
-1. [#36](https://github.com/KinsonDigital/CICD/issues/36) - Application logo created in _png_ and _icon_ format.
+1. [#36](https://github.com/KinsonDigital/CICD/issues/36) - Created application logo in _png_ and _icon_ format.
    - Set the application icon to use the new logo.
    - Set up the NuGet package to pack and use the logo.
    - Updated the _**README.md**_ file to use the logo.  This has GitHub light and dark mode version setup.

@@ -13,15 +13,15 @@ As with all software, there is always a chance for issues and bugs, especially f
 
 <h2 style="font-weight:bold" align="center">New Features ✨</h2>
 
-1. [#19](https://github.com/KinsonDigital/CICD/issues/19) - Created the list of services below to help abstract the way local vs server builds.
-   - `CurrentDirService` - Gets the current directory of where the application is executing.  This increases testability.
-   - `ExecutionContextService` - Determines if the build is running locally or on the server.  This increases testability.
+1. [#19](https://github.com/KinsonDigital/CICD/issues/19) - Created the list of services below to help abstract away local and server builds.
+   - `CurrentDirService` - Gets the current directory of where the application is executing which increases testability.
+   - `ExecutionContextService` - Determines whether or not the build is running locally or on the server which increases testability.
    - `GitHubClientService` - Creates a GitHubClient singleton with authorized requests.  This makes it much easier to be able to deal with the `GitHubClient` locally and on the server.
    - `JsonService` - Serializes and deserializes JSON data using abstraction to increase testability.
-   - `SecretService` - Loads secrets locally or on the server depending on where the build is running.
+   - `SecretService` - Loads secrets locally or on the server depending where the build is running.
 2. [#19](https://github.com/KinsonDigital/CICD/issues/19) - Created factories to help generate HTTP clients and tokens.
-   - `HttpClientFactory` - Abstracts away the process of creating HTTP clients.  Increases testability.
-   - `TokenFactory` - Abstracts the retrieval of a token depending on if the build is running locally or on the server.
+   - `HttpClientFactory` - Abstracts away the process of creating HTTP clients which ncreases testability.
+   - `TokenFactory` - Abstracts the retrieval of a token depending whether or not the build is running locally or on the server.
 3. [#19](https://github.com/KinsonDigital/CICD/issues/19) - Created PowerShell script to quickly create a NuGet package dotnet tool for testing purposes.
 4. [#17](https://github.com/KinsonDigital/CICD/issues/17) - Created a new build parameter named `PreviewReleaseNotesDirName`.
    - This can be used in the `.nuke/parameters.json` file or the CLI using `--preview-release-notes-dir-name` to set the name of the preview release notes directory.
@@ -46,8 +46,8 @@ As with all software, there is always a chance for issues and bugs, especially f
 
 <h2 style="font-weight:bold" align="center">Bug Fixes 🐛</h2>
 
-1. [#14](https://github.com/KinsonDigital/CICD/issues/14) - Fix bugs in all of the workflow templates.
-   - This fixed an issue where the NUKE target execution was being executed with standard PowerShell instead of in the context of a dotnet tool.
+1. [#14](https://github.com/KinsonDigital/CICD/issues/14) - Fixed bugs in all of the workflow templates.
+   - This fixed an issue where the NUKE target execution was being executed under the PowerShell context instead of the dotnet tool context.
 
 ---
 
@@ -64,5 +64,5 @@ As with all software, there is always a chance for issues and bugs, especially f
 <h5 align="center">(Includes anything that does not fit into the categories above)</h5>
 
 1. [#19](https://github.com/KinsonDigital/CICD/issues/19) - Cleanup of many areas of the code base.
-    - This includes removing dead code as well as refactoring code to make it more readable and to follow project code styling policies.
+    - This included removing dead code, refactoring code to make it more readable, and to follow project code styling policies.
 2. [#13](https://github.com/KinsonDigital/CICD/issues/13) - Added default shell to all workflow templates to be PowerShell core.
