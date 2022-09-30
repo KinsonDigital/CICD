@@ -92,7 +92,7 @@ internal class GitHubActionsService : IGitHubActionsService
     /// Local Build: <c>refs/heads/my-branch</c>.
     /// </example>
     [ExcludeFromCodeCoverage]
-    public string? Ref => this.executionContextService.IsServerBuild
+    public string Ref => this.executionContextService.IsServerBuild
         ? GitHubActions.Instance.Ref
         : $"refs/heads/{this.repoService.Branch}";
 

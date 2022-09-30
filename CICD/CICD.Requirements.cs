@@ -16,6 +16,8 @@ namespace CICDSystem;
 /// </summary>
 public partial class CICD // Requirements
 {
+    private const string BranchNotDetermined = "The branch could not be determined.";
+
     private bool ThatPullRequestNumberIsProvided()
     {
         nameof(ThatPullRequestNumberIsProvided)
@@ -54,7 +56,7 @@ public partial class CICD // Requirements
         nameof(ThatThePRHasBeenAssigned)
             .LogRequirementTitle("Checking if the pull request as been assigned to someone.");
 
-        var prNumber = GitHubActionsService?.PullRequestNumber ?? -1;
+        var prNumber = GitHubActionsService.PullRequestNumber ?? -1;
 
         if (prClient.HasAssignees(RepoOwner, RepoName, prNumber).Result)
         {
@@ -74,7 +76,7 @@ public partial class CICD // Requirements
 
     private bool ThatFeaturePRIssueNumberExists()
     {
-        var sourceBranch = GitHubActionsService?.HeadRef ?? string.Empty;
+        var sourceBranch = GitHubActionsService.HeadRef ?? BranchNotDetermined;
 
         nameof(ThatFeaturePRIssueNumberExists)
             .LogRequirementTitle($"Checking that the issue number in the feature branch exists.");
@@ -99,7 +101,7 @@ public partial class CICD // Requirements
 
     private bool ThatPreviewFeaturePRIssueNumberExists()
     {
-        var sourceBranch = GitHubActionsService?.HeadRef ?? string.Empty;
+        var sourceBranch = GitHubActionsService.HeadRef ?? BranchNotDetermined;
 
         nameof(ThatPreviewFeaturePRIssueNumberExists)
             .LogRequirementTitle("Checking that the issue number in the preview feature branch exists.");
@@ -143,7 +145,7 @@ public partial class CICD // Requirements
         }
         else
         {
-            var sourceBranch = GitHubActionsService?.HeadRef ?? string.Empty;
+            var sourceBranch = GitHubActionsService.HeadRef ?? BranchNotDetermined;
             var branchIssueNumber = ExtractIssueNumber(branchType, sourceBranch);
             var issueExists = GitHubClient.Issue.IssueExists(RepoOwner, RepoName, branchIssueNumber).Result;
 
@@ -186,9 +188,7 @@ public partial class CICD // Requirements
         nameof(ThatPRHasLabels)
             .LogRequirementTitle($"Checking if the pull request has labels.");
 
-        var prNumber = GitHubActionsService is null || GitHubActionsService.PullRequestNumber is null
-            ? -1
-            : (int)GitHubActionsService.PullRequestNumber;
+        var prNumber = GitHubActionsService.PullRequestNumber ?? -1;
 
         if (prClient.HasLabels(RepoOwner, RepoName, prNumber).Result)
         {
@@ -208,7 +208,7 @@ public partial class CICD // Requirements
 
     private bool ThatThePRHasTheLabel(string labelName)
     {
-        var prNumber = GitHubActionsService?.PullRequestNumber ?? -1;
+        var prNumber = GitHubActionsService.PullRequestNumber ?? -1;
 
         nameof(ThatThePRHasTheLabel)
             .LogRequirementTitle($"Checking if the pull request has a preview release label.");
@@ -276,8 +276,8 @@ public partial class CICD // Requirements
     {
         var branch = branchContext switch
         {
-            PRBranchContext.Source => GitHubActionsService?.HeadRef ?? string.Empty,
-            PRBranchContext.Target => GitHubActionsService?.BaseRef ?? string.Empty,
+            PRBranchContext.Source => GitHubActionsService.HeadRef ?? BranchNotDetermined,
+            PRBranchContext.Target => GitHubActionsService.BaseRef ?? "Not a pull request.",
             _ => throw new ArgumentOutOfRangeException(nameof(branchContext), branchContext, null)
         };
 
@@ -336,8 +336,8 @@ public partial class CICD // Requirements
 
     private bool ThatThePreviewPRBranchVersionsMatch(ReleaseType releaseType)
     {
-        var sourceBranch = GitHubActionsService?.HeadRef ?? string.Empty;
-        var targetBranch = GitHubActionsService?.BaseRef ?? string.Empty;
+        var sourceBranch = GitHubActionsService.HeadRef ?? BranchNotDetermined;
+        var targetBranch = GitHubActionsService.BaseRef ?? "Not a pull request.";
         var errors = new List<string>();
         var releaseTypeStr = releaseType.ToString().ToLower();
 
@@ -591,7 +591,7 @@ public partial class CICD // Requirements
 
     private bool ThatThePRSourceBranchVersionSectionMatchesProjectVersion(ReleaseType releaseType)
     {
-        var sourceBranch = GitHubActionsService?.HeadRef ?? string.Empty;
+        var sourceBranch = GitHubActionsService.HeadRef ?? BranchNotDetermined;
         var errors = new List<string>();
 
         var introMsg = "Checking that the project version matches the version section";

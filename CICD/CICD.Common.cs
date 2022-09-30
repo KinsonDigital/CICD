@@ -123,16 +123,19 @@ public partial class CICD // Common
         // If the build is on the server and the GitHubActions object exists
         if (IsServerBuild)
         {
+            const string notPR = "Not a pull request";
             Log.Information("Is Server Build: {Value}", ExecutionContext.IsServerBuild);
             Log.Information("Is Local Build: {Value}", ExecutionContext.IsLocalBuild);
             Log.Information("Repository Owner: {Value}", RepoOwner);
             Log.Information("Status Check Invoked By: {Value}", GitHubActionsService.Actor);
             Log.Information("Is PR: {Value}", GitHubActionsService.IsPullRequest);
-            Log.Information("Ref: {Value}", GitHubActionsService?.Ref);
-            Log.Information("Ref: {Value}", GitHubActionsService?.Ref);
-            Log.Information("Destination Branch: {Value}", GitHubActionsService?.BaseRef);
-            Log.Information("Source Branch: {Value}", GitHubActionsService?.HeadRef);
-            Log.Information("Destination Branch: {Value}", GitHubActionsService?.BaseRef);
+            Log.Information("Ref: {Value}", GitHubActionsService.Ref);
+            Log.Information(
+                "Destination Branch: {Value}",
+                GitHubActionsService.BaseRef ?? notPR);
+            Log.Information(
+                "Source Branch: {Value}",
+                GitHubActionsService.HeadRef ?? "The branch could not be determined.");
         }
         else
         {
