@@ -10,7 +10,7 @@ namespace CICDSystem.Services;
 internal interface IGitHubActionsService
 {
     /// <summary>
-    /// Gets a value indicating whether or not the GitHub actions functionality is available.
+    /// Gets a value indicating whether or not the GitHub Actions functionality is available.
     /// </summary>
     bool NotAvailable { get; }
 

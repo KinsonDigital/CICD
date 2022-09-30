@@ -902,7 +902,7 @@ internal static class ExtensionMethods
     /// <summary>
     /// Returns the name of the repository.
     /// </summary>
-    /// <param name="actions">GitHub actions related functionality.</param>
+    /// <param name="actions">GitHub Actions related functionality.</param>
     /// <returns>The name of the repository.</returns>
     public static string RepositoryName(this GitHubActions actions)
     {
