@@ -30,8 +30,13 @@ public partial class CICD // Common
         .Requires(() => ThatWorkflowOutputDirPathIsValid())
         .Executes(() =>
         {
+            // If a file name exists at the end of the path, remove it.  Also replace back slashes with forwards slashes.
+            var outputDirPath = Path.HasExtension(WorkflowTemplateOutput)
+                ? Path.GetDirectoryName(WorkflowTemplateOutput)?.Replace('\\', '/') ?? string.Empty
+                : WorkflowTemplateOutput?.Replace('\\', '/') ?? string.Empty;
+
             var workflowService = App.Container.GetInstance<IWorkflowService>();
-            workflowService.GenerateWorkflows(WorkflowTemplateOutput ?? string.Empty);
+            workflowService.GenerateWorkflows(outputDirPath);
         });
 
     private void CreateNugetPackage()
