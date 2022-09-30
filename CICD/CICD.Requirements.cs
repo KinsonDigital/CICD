@@ -34,15 +34,19 @@ public partial class CICD // Requirements
         nameof(ThatThePullRequestExists)
             .LogRequirementTitle("Checking if the pull request number exists.");
 
-        var result = PullRequestNumber != 0 && GitHubClient.PullRequest.Exists(RepoOwner, RepoName, PullRequestNumber).Result;
+        var prNumber = ExecutionContext.IsServerBuild
+            ? GitHubActionsService.PullRequestNumber ?? -1
+            : PullRequestNumber;
+
+        var result = GitHubClient.PullRequest.Exists(RepoOwner, RepoName, prNumber).Result;
 
         if (result)
         {
-            Console.WriteLine($"{Environment.NewLine}{ConsoleTab}The pull request number '{PullRequestNumber}' exists.");
+            Console.WriteLine($"{ConsoleTab}The pull request number '{prNumber}' exists.");
             return true;
         }
 
-        Log.Error($"The pull request number '{PullRequestNumber}' does not exist.");
+        Log.Error($"The pull request number '{prNumber}' does not exist.");
         Assert.Fail("Pull request failure.");
         return false;
     }
