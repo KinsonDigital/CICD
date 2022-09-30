@@ -16,7 +16,6 @@ internal sealed class SecretService : ISecretService
 {
     private const string GitHubDirName = ".github";
     private const string SecretFileName = "local-secrets.json";
-    private readonly string executionPath;
     private readonly string rootRepoDirPath;
     private readonly IDirectory directory;
     private readonly IFile file;

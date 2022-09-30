@@ -2,6 +2,7 @@
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
+// ReSharper disable InconsistentNaming
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;

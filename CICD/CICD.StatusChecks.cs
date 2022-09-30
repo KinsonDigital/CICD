@@ -3,7 +3,6 @@
 // </copyright>
 
 using System;
-using System.Threading.Tasks;
 using Nuke.Common;
 using Serilog;
 
@@ -38,7 +37,7 @@ public partial class CICD // StatusChecks
                 BranchType.Release,
                 BranchType.Preview)).Before(BuildAllProjects)
         .Triggers(BuildAllProjects)
-        .Executes(async () =>
+        .Executes(() =>
         {
             Log.Information("💡Purpose: Verifies that all projects build for the solution.");
             Log.Information("✅Starting Status Check . . .");
@@ -70,7 +69,7 @@ public partial class CICD // StatusChecks
                 BranchType.Release,
                 BranchType.Preview)).Before(RunAllUnitTests)
         .Triggers(RunAllUnitTests)
-        .Executes(async () =>
+        .Executes(() =>
         {
             Log.Information("💡Purpose: Verifies that all unit tests for all of the solution projects pass.");
             Console.WriteLine();
@@ -179,76 +178,4 @@ public partial class CICD // StatusChecks
         });
 
     // ReSharper restore UnusedMember.Local
-
-    /// <summary>
-    /// Parses the issue number out of the given <paramref name="branch"/> name.
-    /// </summary>
-    /// <param name="branch">The branch that might contain the issue number.</param>
-    /// <returns>The issue number that might of been contained in the branch.</returns>
-    /// <remarks>
-    ///     If the branch does not contain an issue number, the value of '0' will be returned.
-    /// </remarks>
-    private static int ParseIssueNumber(string branch)
-    {
-        if (string.IsNullOrEmpty(branch))
-        {
-            return 0;
-        }
-
-        if (branch.IsFeatureBranch())
-        {
-            // feature/123-my-branch
-            var mainSections = branch.Split("/");
-            var number = mainSections[1].Split('-')[0];
-            return int.Parse(number);
-        }
-
-        if (branch.IsPreviewFeatureBranch())
-        {
-            // preview/feature/123-my-preview-branch
-            var mainSections = branch.Split("/");
-            var number = mainSections[2].Split('-')[0];
-            return int.Parse(number);
-        }
-
-        if (branch.IsHotFixBranch())
-        {
-            // hotfix/123-my-hotfix
-            var mainSections = branch.Split("/");
-            var number = mainSections[1].Split('-')[0];
-            return int.Parse(number);
-        }
-
-        return 0;
-    }
-
-    /// <summary>
-    /// Returns a value indicating if the issue number in the given <paramref name="branch"/> is a valid issue number.
-    /// </summary>
-    /// <param name="branch">The branch to validate.</param>
-    /// <returns>
-    /// True if the issue number is an issue number that exists.
-    ///
-    /// <para>The branches that contain issue numbers are:
-    ///     <list type="bullet">
-    ///         <item><see cref="BranchType.Feature"/></item>
-    ///         <item><see cref="BranchType.PreviewFeature"/></item>
-    ///         <item><see cref="BranchType.HotFix"/></item>
-    ///     </list>
-    /// </para>
-    /// </returns>
-    private async Task<bool> ValidBranchIssueNumber(string branch)
-    {
-        // If the branch is not a branch with an issue number, return as valid
-        if (!branch.IsFeatureBranch() && !branch.IsPreviewFeatureBranch() && !branch.IsHotFixBranch())
-        {
-            return true;
-        }
-
-        var issueNumber = ParseIssueNumber(branch);
-
-        var issueClient = GitHubClient.Issue;
-
-        return await issueClient.IssueExists(RepoOwner, RepoName, issueNumber);
-    }
 }
