@@ -2,14 +2,13 @@
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
-namespace CICDSystem;
-
-using Services;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using CICDSystem.Services;
 using GlobExpressions;
 using Nuke.Common;
 using Nuke.Common.Tools.DotNet;
@@ -17,6 +16,11 @@ using Nuke.Common.Tools.Twitter;
 using Octokit;
 using Serilog;
 
+namespace CICDSystem;
+
+/// <summary>
+/// Contains all of the common functionality.
+/// </summary>
 public partial class CICD // Common
 {
     private Target RestoreSolution => _ => _
@@ -26,19 +30,29 @@ public partial class CICD // Common
             DotNetTasks.DotNetRestore(s => s.SetProjectFile<DotNetRestoreSettings>(this.solution));
         });
 
+    /// <summary>
+    /// Gets a target that generates workflow templates at the location determined by the <see cref="WorkflowTemplateOutput"/> build parameter.
+    /// </summary>
+    /// <returns>This is a directory path only.</returns>
+    [SuppressMessage("ReSharper", "UnusedMember.Local", Justification = "Used in the CLI as a build parameter.")]
     private Target GenerateWorkflows => _ => _
         .Requires(() => ThatWorkflowOutputDirPathIsValid())
         .Executes(() =>
         {
+            // If a file name exists at the end of the path, remove it.  Also replace back slashes with forwards slashes.
+            var outputDirPath = Path.HasExtension(WorkflowTemplateOutput)
+                ? Path.GetDirectoryName(WorkflowTemplateOutput)?.Replace('\\', '/') ?? string.Empty
+                : WorkflowTemplateOutput?.Replace('\\', '/') ?? string.Empty;
+
             var workflowService = App.Container.GetInstance<IWorkflowService>();
-            workflowService.GenerateWorkflows(WorkflowTemplateOutput ?? string.Empty);
+            workflowService.GenerateWorkflows(outputDirPath);
         });
 
     private void CreateNugetPackage()
     {
         DeleteAllNugetPackages();
 
-        var project = this.solution.GetProjects(ProjectName).FirstOrDefault();
+        var project = this.solution?.GetProjects(ProjectName).FirstOrDefault();
 
         if (project is null)
         {
@@ -123,16 +137,19 @@ public partial class CICD // Common
         // If the build is on the server and the GitHubActions object exists
         if (IsServerBuild)
         {
+            const string notPR = "Not a pull request";
             Log.Information("Is Server Build: {Value}", ExecutionContext.IsServerBuild);
             Log.Information("Is Local Build: {Value}", ExecutionContext.IsLocalBuild);
             Log.Information("Repository Owner: {Value}", RepoOwner);
             Log.Information("Status Check Invoked By: {Value}", GitHubActionsService.Actor);
             Log.Information("Is PR: {Value}", GitHubActionsService.IsPullRequest);
-            Log.Information("Ref: {Value}", GitHubActionsService?.Ref);
-            Log.Information("Ref: {Value}", GitHubActionsService?.Ref);
-            Log.Information("Destination Branch: {Value}", GitHubActionsService?.BaseRef);
-            Log.Information("Source Branch: {Value}", GitHubActionsService?.HeadRef);
-            Log.Information("Destination Branch: {Value}", GitHubActionsService?.BaseRef);
+            Log.Information("Ref: {Value}", GitHubActionsService.Ref);
+            Log.Information(
+                "Destination Branch: {Value}",
+                GitHubActionsService.BaseRef ?? notPR);
+            Log.Information(
+                "Source Branch: {Value}",
+                GitHubActionsService.HeadRef ?? "The branch could not be determined.");
         }
         else
         {
@@ -240,7 +257,7 @@ public partial class CICD // Common
             Body = releaseNotes,
             Prerelease = releaseType == ReleaseType.Preview,
             Draft = false,
-            TargetCommitish = repo.Commit,
+            TargetCommitish = Repo.Commit,
         };
 
         var releaseClient = GitHubClient.Repository.Release;
@@ -285,18 +302,20 @@ public partial class CICD // Common
 
     private bool NugetPackageDoesNotExist()
     {
-        var project = this.solution.GetProject(RepoName);
-        var errors = new List<string>();
-
         nameof(NugetPackageDoesNotExist)
             .LogRequirementTitle($"Checking that the nuget package does not already exist.");
 
+        var project = this.solution?.GetProject(RepoName);
+        var errors = new List<string>();
+
         if (project is null)
         {
-            errors.Add($"Could not find the project '{RepoName}'");
+            var exMsg = $"The project named '{ProjectName}' could not be found.";
+            exMsg += $"{Environment.NewLine}Check that the 'ProjectName' param in the parameters.json is set correctly.";
+            throw new Exception(exMsg);
         }
 
-        var projectVersion = project?.GetVersion() ?? string.Empty;
+        var projectVersion = project.GetVersion();
 
         var nugetService = new NugetDataService();
 

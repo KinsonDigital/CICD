@@ -16,6 +16,8 @@ namespace CICDSystem;
 /// </summary>
 public partial class CICD // Requirements
 {
+    private const string BranchNotDetermined = "The branch could not be determined.";
+
     private bool ThatPullRequestNumberIsProvided()
     {
         nameof(ThatPullRequestNumberIsProvided)
@@ -34,15 +36,19 @@ public partial class CICD // Requirements
         nameof(ThatThePullRequestExists)
             .LogRequirementTitle("Checking if the pull request number exists.");
 
-        var result = PullRequestNumber != 0 && GitHubClient.PullRequest.Exists(RepoOwner, RepoName, PullRequestNumber).Result;
+        var prNumber = ExecutionContext.IsServerBuild
+            ? GitHubActionsService.PullRequestNumber ?? -1
+            : PullRequestNumber;
+
+        var result = GitHubClient.PullRequest.Exists(RepoOwner, RepoName, prNumber).Result;
 
         if (result)
         {
-            Console.WriteLine($"{Environment.NewLine}{ConsoleTab}The pull request number '{PullRequestNumber}' exists.");
+            Console.WriteLine($"{ConsoleTab}The pull request number '{prNumber}' exists.");
             return true;
         }
 
-        Log.Error($"The pull request number '{PullRequestNumber}' does not exist.");
+        Log.Error($"The pull request number '{prNumber}' does not exist.");
         Assert.Fail("Pull request failure.");
         return false;
     }
@@ -54,7 +60,7 @@ public partial class CICD // Requirements
         nameof(ThatThePRHasBeenAssigned)
             .LogRequirementTitle("Checking if the pull request as been assigned to someone.");
 
-        var prNumber = GitHubActionsService?.PullRequestNumber ?? -1;
+        var prNumber = GitHubActionsService.PullRequestNumber ?? -1;
 
         if (prClient.HasAssignees(RepoOwner, RepoName, prNumber).Result)
         {
@@ -74,7 +80,7 @@ public partial class CICD // Requirements
 
     private bool ThatFeaturePRIssueNumberExists()
     {
-        var sourceBranch = GitHubActionsService?.HeadRef ?? string.Empty;
+        var sourceBranch = GitHubActionsService.HeadRef ?? BranchNotDetermined;
 
         nameof(ThatFeaturePRIssueNumberExists)
             .LogRequirementTitle($"Checking that the issue number in the feature branch exists.");
@@ -99,7 +105,7 @@ public partial class CICD // Requirements
 
     private bool ThatPreviewFeaturePRIssueNumberExists()
     {
-        var sourceBranch = GitHubActionsService?.HeadRef ?? string.Empty;
+        var sourceBranch = GitHubActionsService.HeadRef ?? BranchNotDetermined;
 
         nameof(ThatPreviewFeaturePRIssueNumberExists)
             .LogRequirementTitle("Checking that the issue number in the preview feature branch exists.");
@@ -143,7 +149,7 @@ public partial class CICD // Requirements
         }
         else
         {
-            var sourceBranch = GitHubActionsService?.HeadRef ?? string.Empty;
+            var sourceBranch = GitHubActionsService.HeadRef ?? BranchNotDetermined;
             var branchIssueNumber = ExtractIssueNumber(branchType, sourceBranch);
             var issueExists = GitHubClient.Issue.IssueExists(RepoOwner, RepoName, branchIssueNumber).Result;
 
@@ -186,9 +192,7 @@ public partial class CICD // Requirements
         nameof(ThatPRHasLabels)
             .LogRequirementTitle($"Checking if the pull request has labels.");
 
-        var prNumber = GitHubActionsService is null || GitHubActionsService.PullRequestNumber is null
-            ? -1
-            : (int)GitHubActionsService.PullRequestNumber;
+        var prNumber = GitHubActionsService.PullRequestNumber ?? -1;
 
         if (prClient.HasLabels(RepoOwner, RepoName, prNumber).Result)
         {
@@ -208,7 +212,7 @@ public partial class CICD // Requirements
 
     private bool ThatThePRHasTheLabel(string labelName)
     {
-        var prNumber = GitHubActionsService?.PullRequestNumber ?? -1;
+        var prNumber = GitHubActionsService.PullRequestNumber ?? -1;
 
         nameof(ThatThePRHasTheLabel)
             .LogRequirementTitle($"Checking if the pull request has a preview release label.");
@@ -245,27 +249,27 @@ public partial class CICD // Requirements
         nameof(ThatTheCurrentBranchIsCorrect)
             .LogRequirementTitle($"Checking that the current branch is a {branchTypeStr} branch.");
 
-        if (string.IsNullOrEmpty(repo.Branch))
+        if (string.IsNullOrEmpty(Repo.Branch))
         {
             return false;
         }
 
         var isCorrectBranch = branchType switch
         {
-            BranchType.Master => repo.Branch.IsMasterBranch(),
-            BranchType.Develop => repo.Branch.IsDevelopBranch(),
-            BranchType.Feature => repo.Branch.IsFeatureBranch(),
-            BranchType.PreviewFeature => repo.Branch.IsPreviewFeatureBranch(),
-            BranchType.Release => repo.Branch.IsReleaseBranch(),
-            BranchType.Preview => repo.Branch.IsPreviewBranch(),
-            BranchType.HotFix => repo.Branch.IsHotFixBranch(),
+            BranchType.Master => Repo.Branch.IsMasterBranch(),
+            BranchType.Develop => Repo.Branch.IsDevelopBranch(),
+            BranchType.Feature => Repo.Branch.IsFeatureBranch(),
+            BranchType.PreviewFeature => Repo.Branch.IsPreviewFeatureBranch(),
+            BranchType.Release => Repo.Branch.IsReleaseBranch(),
+            BranchType.Preview => Repo.Branch.IsPreviewBranch(),
+            BranchType.HotFix => Repo.Branch.IsHotFixBranch(),
             BranchType.Other => true,
             _ => throw new ArgumentOutOfRangeException(nameof(branchType), branchType, null)
         };
 
         if (isCorrectBranch is false)
         {
-            Log.Error($"The current branch {repo.Branch} is not a '{branchTypeStr}' branch.");
+            Log.Error($"The current branch {Repo.Branch} is not a '{branchTypeStr}' branch.");
             Assert.Fail("The current branch is incorrect.");
         }
 
@@ -276,12 +280,12 @@ public partial class CICD // Requirements
     {
         var branch = branchContext switch
         {
-            PRBranchContext.Source => GitHubActionsService?.HeadRef ?? string.Empty,
-            PRBranchContext.Target => GitHubActionsService?.BaseRef ?? string.Empty,
+            PRBranchContext.Source => GitHubActionsService.HeadRef ?? BranchNotDetermined,
+            PRBranchContext.Target => GitHubActionsService.BaseRef ?? "Not a pull request.",
             _ => throw new ArgumentOutOfRangeException(nameof(branchContext), branchContext, null)
         };
 
-        var branchContextStr = Enum.GetName(branchContext).ToLower();
+        var branchContextStr = Enum.GetName(branchContext)?.ToLower() ?? string.Empty;
 
         nameof(ThatThePRBranchesAreValid)
             .LogRequirementTitle($"Validating the pull request {branchContextStr} branch '{branch}'.");
@@ -336,8 +340,8 @@ public partial class CICD // Requirements
 
     private bool ThatThePreviewPRBranchVersionsMatch(ReleaseType releaseType)
     {
-        var sourceBranch = GitHubActionsService?.HeadRef ?? string.Empty;
-        var targetBranch = GitHubActionsService?.BaseRef ?? string.Empty;
+        var sourceBranch = GitHubActionsService.HeadRef ?? BranchNotDetermined;
+        var targetBranch = GitHubActionsService.BaseRef ?? "Not a pull request.";
         var errors = new List<string>();
         var releaseTypeStr = releaseType.ToString().ToLower();
 
@@ -419,22 +423,16 @@ public partial class CICD // Requirements
 
     private bool ThatTheCurrentBranchVersionMatchesProjectVersion(BranchType branchType)
     {
-        var targetBranch = repo.Branch ?? string.Empty;
-        var project = this.solution.GetProject(RepoName);
+        var targetBranch = Repo.Branch ?? string.Empty;
+        var project = this.solution?.GetProject(RepoName);
 
         var errors = new List<string>();
         var branchTypeStr = branchType.ToString().ToSpaceDelimitedSections().ToLower();
 
-        if (branchType is BranchType.Preview or BranchType.Release)
-        {
-            nameof(ThatTheCurrentBranchVersionMatchesProjectVersion)
-                .LogRequirementTitle($"Checking that the version section of the {branchTypeStr} branch matches the project version.");
-        }
-        else
-        {
-            nameof(ThatTheCurrentBranchVersionMatchesProjectVersion)
-                .LogRequirementTitle("No check required.  The target branch is not a branch that contains a version.");
-        }
+        nameof(ThatTheCurrentBranchVersionMatchesProjectVersion)
+            .LogRequirementTitle(branchType is BranchType.Preview or BranchType.Release
+                ? $"Checking that the version section of the {branchTypeStr} branch matches the project version."
+                : "No check required.  The target branch is not a branch that contains a version.");
 
         if (string.IsNullOrEmpty(targetBranch))
         {
@@ -446,7 +444,7 @@ public partial class CICD // Requirements
             errors.Add($"Could not find the project '{RepoName}'");
         }
 
-        var branchVersion = repo.Branch?.ExtractBranchVersion().version.TrimStart('v');
+        var branchVersion = Repo.Branch?.ExtractBranchVersion().version.TrimStart('v');
         var projectVersion = string.IsNullOrEmpty(branchVersion)
             ? string.Empty
             : project?.GetVersion() ?? string.Empty;
@@ -475,7 +473,7 @@ public partial class CICD // Requirements
 
     private bool ThatTheProjectVersionsAreValid(ReleaseType releaseType)
     {
-        var project = this.solution.GetProject(RepoName);
+        var project = this.solution?.GetProject(RepoName);
         var errors = new List<string>();
 
         nameof(ThatTheProjectVersionsAreValid)
@@ -591,7 +589,7 @@ public partial class CICD // Requirements
 
     private bool ThatThePRSourceBranchVersionSectionMatchesProjectVersion(ReleaseType releaseType)
     {
-        var sourceBranch = GitHubActionsService?.HeadRef ?? string.Empty;
+        var sourceBranch = GitHubActionsService.HeadRef ?? BranchNotDetermined;
         var errors = new List<string>();
 
         var introMsg = "Checking that the project version matches the version section";
@@ -610,7 +608,8 @@ public partial class CICD // Requirements
 
         if (branchType is BranchType.Preview or BranchType.Release)
         {
-            var project = this.solution.GetProject(RepoName);
+            var project = this.solution?.GetProject(RepoName);
+
             if (project is null)
             {
                 errors.Add($"Could not find the project '{RepoName}'");
@@ -639,7 +638,7 @@ public partial class CICD // Requirements
 
     private bool ThatTheReleaseMilestoneExists()
     {
-        var project = this.solution.GetProject(RepoName);
+        var project = this.solution?.GetProject(RepoName);
         var errors = new List<string>();
 
         nameof(ThatTheReleaseMilestoneExists)
@@ -675,7 +674,7 @@ public partial class CICD // Requirements
 
     private bool ThatTheReleaseMilestoneContainsIssues()
     {
-        var project = this.solution.GetProject(RepoName);
+        var project = this.solution?.GetProject(RepoName);
         var errors = new List<string>();
 
         nameof(ThatTheReleaseMilestoneContainsIssues)
@@ -721,7 +720,7 @@ public partial class CICD // Requirements
     private bool ThatTheReleaseMilestoneOnlyContainsSingle(ReleaseType releaseType, ItemType itemType)
     {
         const int totalSpaces = 15;
-        var project = this.solution.GetProject(RepoName);
+        var project = this.solution?.GetProject(RepoName);
         var errors = new List<string>();
         var releaseTypeStr = releaseType.ToString().ToLower();
 
@@ -822,7 +821,7 @@ public partial class CICD // Requirements
 
     private bool ThatAllOfTheReleaseMilestoneIssuesAreClosed(ReleaseType releaseType, bool skipReleaseToDoIssues)
     {
-        var project = this.solution.GetProject(RepoName);
+        var project = this.solution?.GetProject(RepoName);
         var errors = new List<string>();
 
         nameof(ThatAllOfTheReleaseMilestoneIssuesAreClosed)
@@ -864,7 +863,7 @@ public partial class CICD // Requirements
 
     private bool ThatAllOfTheReleaseMilestonePullRequestsAreClosed(ReleaseType releaseType, bool skipReleaseToDoPullRequests)
     {
-        var project = this.solution.GetProject(RepoName);
+        var project = this.solution?.GetProject(RepoName);
         var errors = new List<string>();
 
         nameof(ThatAllOfTheReleaseMilestonePullRequestsAreClosed)
@@ -903,7 +902,7 @@ public partial class CICD // Requirements
 
     private bool ThatAllMilestoneIssuesHaveLabels()
     {
-        var project = this.solution.GetProject(RepoName);
+        var project = this.solution?.GetProject(RepoName);
         var errors = new List<string>();
 
         nameof(ThatAllMilestoneIssuesHaveLabels)
@@ -946,7 +945,7 @@ public partial class CICD // Requirements
 
     private bool ThatAllMilestonePullRequestsHaveLabels()
     {
-        var project = this.solution.GetProject(RepoName);
+        var project = this.solution?.GetProject(RepoName);
         var errors = new List<string>();
 
         nameof(ThatAllMilestonePullRequestsHaveLabels)
@@ -988,7 +987,7 @@ public partial class CICD // Requirements
 
     private bool ThatTheReleaseTagDoesNotAlreadyExist(ReleaseType releaseType)
     {
-        var project = this.solution.GetProject(RepoName);
+        var project = this.solution?.GetProject(RepoName);
         var errors = new List<string>();
 
         var releaseTypeStr = releaseType.ToString().ToLower();
@@ -1026,7 +1025,7 @@ public partial class CICD // Requirements
 
     private bool ThatTheReleaseNotesExist(ReleaseType releaseType)
     {
-        var project = this.solution.GetProject(RepoName);
+        var project = this.solution?.GetProject(RepoName);
         var errors = new List<string>();
 
         var releaseTypeStr = releaseType.ToString().ToLower();
@@ -1065,7 +1064,7 @@ public partial class CICD // Requirements
 
     private bool ThatTheReleaseNotesTitleIsCorrect(ReleaseType releaseType)
     {
-        var project = this.solution.GetProject(RepoName);
+        var project = this.solution?.GetProject(RepoName);
         var errors = new List<string>();
 
         var releaseTypeStr = releaseType.ToString().ToLower();
@@ -1122,7 +1121,7 @@ public partial class CICD // Requirements
         const int totalIndexSpaces = 15;
         var indent = totalIndexSpaces.CreateDuplicateCharacters(' ');
         const string baseUrl = "https://github.com";
-        var project = this.solution.GetProject(RepoName);
+        var project = this.solution?.GetProject(RepoName);
         var errors = new List<string>();
 
         var releaseTypeStr = releaseType.ToString().ToLower();
@@ -1173,7 +1172,7 @@ public partial class CICD // Requirements
 
     private bool ThatTheProdReleaseNotesContainsPreviewReleaseSection()
     {
-        var project = this.solution.GetProject(RepoName);
+        var project = this.solution?.GetProject(RepoName);
         var errors = new List<string>();
 
         nameof(ThatTheProdReleaseNotesContainsPreviewReleaseSection)
@@ -1239,7 +1238,7 @@ public partial class CICD // Requirements
 
     private bool ThatTheProdReleaseNotesContainsPreviewReleaseItems()
     {
-        var project = this.solution.GetProject(RepoName);
+        var project = this.solution?.GetProject(RepoName);
         var errors = new List<string>();
 
         nameof(ThatTheProdReleaseNotesContainsPreviewReleaseSection)
@@ -1277,8 +1276,7 @@ public partial class CICD // Requirements
             }
             else
             {
-                var milestoneRequest = new MilestoneRequest();
-                milestoneRequest.State = ItemStateFilter.All;
+                var milestoneRequest = new MilestoneRequest { State = ItemStateFilter.All };
 
                 var prevReleaseItems =
                     (from m in GitHubClient.Issue.Milestone.GetAllForRepository(RepoOwner, RepoName, milestoneRequest).Result
@@ -1320,7 +1318,7 @@ public partial class CICD // Requirements
 
     private bool ThatGitHubReleaseDoesNotExist(ReleaseType releaseType)
     {
-        var project = this.solution.GetProject(RepoName);
+        var project = this.solution?.GetProject(RepoName);
         var errors = new List<string>();
 
         var releaseTypeStr = releaseType.ToString().ToLower();
