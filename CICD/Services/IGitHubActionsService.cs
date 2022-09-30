@@ -28,7 +28,7 @@ internal interface IGitHubActionsService
     /// Gets the the name of the person or app that initiated the workflow.
     /// </summary>
     /// <remarks>
-    /// If a local build, the user name currently on the machine that initiated the build.
+    /// If it's a local build, the current user name on the machine that initiated the build.
     /// </remarks>
     string Actor { get; }
 
