@@ -26,7 +26,7 @@ internal class GitHubActionsService : IGitHubActionsService
     /// <summary>
     /// Initializes a new instance of the <see cref="GitHubActionsService"/> class.
     /// </summary>
-    /// <param name="pullRequestNumber">The pull request number that might be used.</param>
+    /// <param name="pullRequestNumber">The pull request number that will be used.</param>
     /// <param name="repoOwner">The owner of the repository/project.</param>
     /// <param name="repoName">The name of the repository.</param>
     /// <param name="secretService">Manages local secrets for local builds.</param>
@@ -42,7 +42,7 @@ internal class GitHubActionsService : IGitHubActionsService
         IGitRepoService repoService,
         IGitHubClient githubClient)
     {
-        // TODO: Unit test this
+        // TODO: Unit test this - Do you still need this? - KW 9/30/22
         EnsureThat.StringParamIsNotNullOrEmpty(repoOwner, nameof(repoOwner));
         EnsureThat.StringParamIsNotNullOrEmpty(repoName, nameof(repoName));
         EnsureThat.ParamIsNotNull(secretService, nameof(secretService));
@@ -72,7 +72,7 @@ internal class GitHubActionsService : IGitHubActionsService
 
     /// <inheritdoc/>
     /// <remarks>
-    /// if a local build, this comes from a local secrets file.
+    /// If it's a local build, this comes from a local secrets file.
     /// </remarks>
     [ExcludeFromCodeCoverage]
     public string Token => this.executionContextService.IsServerBuild
@@ -85,7 +85,7 @@ internal class GitHubActionsService : IGitHubActionsService
 
     /// <inheritdoc/>
     /// <remarks>
-    /// If a local build, this is the current branch checked out during the run.
+    /// If it's a local build, this is the current branch checked out during the run.
     /// This would be in the form of <c>refs/heads/&lt;branch-name&gt;</c>.
     /// </remarks>
     /// <example>
@@ -98,7 +98,7 @@ internal class GitHubActionsService : IGitHubActionsService
 
     /// <inheritdoc/>
     /// <remarks>
-    /// This is also the destination branch that the pull request source branch is merging into.
+    /// This is also the destination branch that merges into the pull request source branch.
     /// </remarks>
     [ExcludeFromCodeCoverage]
     public string? BaseRef
@@ -126,7 +126,7 @@ internal class GitHubActionsService : IGitHubActionsService
 
     /// <inheritdoc/>
     /// <remarks>
-    /// If a local build, this is the currently checked out branch that the build is running against.
+    /// If it's a local build, this is the currently checked out branch that the build is running against.
     /// </remarks>
     [ExcludeFromCodeCoverage]
     public string? HeadRef
