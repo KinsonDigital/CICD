@@ -150,7 +150,7 @@ internal class GitHubActionsService : IGitHubActionsService
         {
             if (this.executionContextService.IsServerBuild)
             {
-                return GitHubActions.Instance.PullRequestNumber;
+                return GitHubActions.Instance.IsPullRequest ? GitHubActions.Instance.PullRequestNumber : null;
             }
 
             return this.pullRequestNumber <= 0 ? null : this.pullRequestNumber;
