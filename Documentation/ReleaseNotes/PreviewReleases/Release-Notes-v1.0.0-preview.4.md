@@ -20,7 +20,7 @@ As with all software, there is always a chance for issues and bugs, especially f
    - `JsonService` - Serializes and deserializes JSON data using abstraction to increase testability.
    - `SecretService` - Loads secrets locally or on the server depending where the build is running.
 2. [#19](https://github.com/KinsonDigital/CICD/issues/19) - Created factories to help generate HTTP clients and tokens.
-   - `HttpClientFactory` - Abstracts away the process of creating HTTP clients which ncreases testability.
+   - `HttpClientFactory` - Abstracts away the process of creating HTTP clients which increases testability.
    - `TokenFactory` - Abstracts the retrieval of a token depending whether or not the build is running locally or on the server.
 3. [#19](https://github.com/KinsonDigital/CICD/issues/19) - Created PowerShell script to quickly create a NuGet package dotnet tool for testing purposes.
 4. [#17](https://github.com/KinsonDigital/CICD/issues/17) - Created a new build parameter named `PreviewReleaseNotesDirName`.
