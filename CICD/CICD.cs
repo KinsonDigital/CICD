@@ -29,6 +29,7 @@ public partial class CICD : NukeBuild
     public static int Main() =>
         Execute<CICD>(x => x.BuildAllProjects, x => x.RunAllUnitTests);
 
+#pragma warning disable SA1201 - A property should not follow a method
     private IGitHubActionsService GitHubActionsService =>
         ServiceFactory.CreateGitHubActionsService(PullRequestNumber, RepoOwner, RepoName);
 
@@ -36,7 +37,7 @@ public partial class CICD : NukeBuild
 
     private Configuration Configuration => GetBuildConfig();
 
-    private IGitRepoService repo => App.Container.GetInstance<IGitRepoService>();
+    private IGitRepoService Repo => App.Container.GetInstance<IGitRepoService>();
 
     [Parameter("The output directory of where the template workflows should be generated.")]
     private string? WorkflowTemplateOutput { get; set; }
@@ -87,17 +88,18 @@ public partial class CICD : NukeBuild
 
     private IGitHubClient GitHubClient => App.Container.GetInstance<IGitHubClientService>().GetClient(RepoName);
 
-    private static AbsolutePath NugetOutputPath => RootDirectory / "Artifacts";
+    private AbsolutePath NugetOutputPath => RootDirectory / "Artifacts";
 
     private AbsolutePath PreviewReleaseNotesDirPath => ReleaseNotesBaseDirPath / PreviewReleaseNotesDirName;
 
     private AbsolutePath ProductionReleaseNotesDirPath => ReleaseNotesBaseDirPath / ProductionReleaseNotesDirName;
+#pragma warning restore SA1201 - A property should not follow a method
 
     private Configuration GetBuildConfig()
     {
         if (ExecutionContext.IsLocalBuild)
         {
-            return (repo.Branch ?? string.Empty).IsMasterBranch()
+            return (Repo.Branch ?? string.Empty).IsMasterBranch()
                 ? Configuration.Release
                 : Configuration.Debug;
         }

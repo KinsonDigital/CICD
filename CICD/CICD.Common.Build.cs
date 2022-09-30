@@ -32,7 +32,12 @@ public partial class CICD // Common.Build
 
     private void BuildProjects(ProjectTypes projectTypes)
     {
-        var projects = this.solution.AllProjects;
+        var projects = this.solution?.AllProjects;
+
+        if (projects is null || projects.Count <= 0)
+        {
+            throw new Exception("No projects could be found.");
+        }
 
         foreach (var project in projects)
         {
