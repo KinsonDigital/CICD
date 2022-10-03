@@ -18,7 +18,7 @@ internal static class ServiceFactory
     /// <summary>
     /// Creates an <see cref="IGitHubActionsService"/> instance.
     /// </summary>
-    /// <param name="pullRequestNumber">The pull request number that might be used.</param>
+    /// <param name="pullRequestNumber">The pull request number that will be used.</param>
     /// <param name="repoOwner">The owner of the repository/project.</param>
     /// <param name="repoName">The name of the repository.</param>
     /// <returns>The service.</returns>

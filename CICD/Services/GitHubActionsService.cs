@@ -18,7 +18,7 @@ internal class GitHubActionsService : IGitHubActionsService
     private readonly ISecretService secretService;
     private readonly IExecutionContextService executionContextService;
     private readonly IGitRepoService repoService;
-    private readonly IGitHubClient githubClient;
+    private readonly IGitHubClient gitHubClient;
     private readonly int pullRequestNumber;
     private readonly string repoOwner;
     private readonly string repoName;
@@ -26,13 +26,13 @@ internal class GitHubActionsService : IGitHubActionsService
     /// <summary>
     /// Initializes a new instance of the <see cref="GitHubActionsService"/> class.
     /// </summary>
-    /// <param name="pullRequestNumber">The pull request number that might be used.</param>
+    /// <param name="pullRequestNumber">The pull request number that will be used.</param>
     /// <param name="repoOwner">The owner of the repository/project.</param>
     /// <param name="repoName">The name of the repository.</param>
     /// <param name="secretService">Manages local secrets for local builds.</param>
     /// <param name="executionContextService">Provides information about the current build execution.</param>
     /// <param name="repoService">Provides repository related services.</param>
-    /// <param name="githubClient">Provides GitHub API communication.</param>
+    /// <param name="gitHubClient">Provides GitHub API communication.</param>
     public GitHubActionsService(
         int pullRequestNumber,
         string repoOwner,
@@ -40,15 +40,14 @@ internal class GitHubActionsService : IGitHubActionsService
         ISecretService secretService,
         IExecutionContextService executionContextService,
         IGitRepoService repoService,
-        IGitHubClient githubClient)
+        IGitHubClient gitHubClient)
     {
-        // TODO: Unit test this
         EnsureThat.StringParamIsNotNullOrEmpty(repoOwner, nameof(repoOwner));
         EnsureThat.StringParamIsNotNullOrEmpty(repoName, nameof(repoName));
         EnsureThat.ParamIsNotNull(secretService, nameof(secretService));
         EnsureThat.ParamIsNotNull(executionContextService, nameof(executionContextService));
         EnsureThat.ParamIsNotNull(repoService, nameof(repoService));
-        EnsureThat.ParamIsNotNull(githubClient, nameof(githubClient));
+        EnsureThat.ParamIsNotNull(gitHubClient, nameof(gitHubClient));
 
         this.repoOwner = repoOwner;
         this.repoName = repoName;
@@ -56,7 +55,7 @@ internal class GitHubActionsService : IGitHubActionsService
         this.secretService = secretService;
         this.executionContextService = executionContextService;
         this.repoService = repoService;
-        this.githubClient = githubClient;
+        this.gitHubClient = gitHubClient;
     }
 
     /// <inheritdoc/>
@@ -72,7 +71,7 @@ internal class GitHubActionsService : IGitHubActionsService
 
     /// <inheritdoc/>
     /// <remarks>
-    /// if a local build, this comes from a local secrets file.
+    /// If it's a local build, this comes from a local secrets file.
     /// </remarks>
     [ExcludeFromCodeCoverage]
     public string Token => this.executionContextService.IsServerBuild
@@ -85,7 +84,7 @@ internal class GitHubActionsService : IGitHubActionsService
 
     /// <inheritdoc/>
     /// <remarks>
-    /// If a local build, this is the current branch checked out during the run.
+    /// If it's a local build, this is the current branch checked out during the run.
     /// This would be in the form of <c>refs/heads/&lt;branch-name&gt;</c>.
     /// </remarks>
     /// <example>
@@ -98,7 +97,7 @@ internal class GitHubActionsService : IGitHubActionsService
 
     /// <inheritdoc/>
     /// <remarks>
-    /// This is also the destination branch that the pull request source branch is merging into.
+    /// This is also the destination branch that merges into the pull request source branch.
     /// </remarks>
     [ExcludeFromCodeCoverage]
     public string? BaseRef
@@ -116,7 +115,7 @@ internal class GitHubActionsService : IGitHubActionsService
             }
 
             // If this is a local build and the pull request number has been set
-            var pullRequest = this.githubClient.PullRequest.Get(this.repoOwner, this.repoName, this.pullRequestNumber).Result;
+            var pullRequest = this.gitHubClient.PullRequest.Get(this.repoOwner, this.repoName, this.pullRequestNumber).Result;
 
             var targetBranch = pullRequest.Base.Ref;
 
@@ -126,7 +125,7 @@ internal class GitHubActionsService : IGitHubActionsService
 
     /// <inheritdoc/>
     /// <remarks>
-    /// If a local build, this is the currently checked out branch that the build is running against.
+    /// If it's a local build, this is the currently checked out branch that the build is running against.
     /// </remarks>
     [ExcludeFromCodeCoverage]
     public string? HeadRef

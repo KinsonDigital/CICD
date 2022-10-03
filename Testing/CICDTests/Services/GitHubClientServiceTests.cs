@@ -17,7 +17,7 @@ namespace CICDSystemTests.Services;
 public class GitHubClientServiceTests
 {
     private readonly Mock<IHttpClientFactory> mockHttpClientFactory;
-    private readonly Mock<IGitHubTokenService> mockGithubTokenService;
+    private readonly Mock<IGitHubTokenService> mockGitHubTokenService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GitHubClientServiceTests"/> class.
@@ -25,7 +25,7 @@ public class GitHubClientServiceTests
     public GitHubClientServiceTests()
     {
         this.mockHttpClientFactory = new Mock<IHttpClientFactory>();
-        this.mockGithubTokenService = new Mock<IGitHubTokenService>();
+        this.mockGitHubTokenService = new Mock<IGitHubTokenService>();
     }
 
     #region Constructor Tests
@@ -37,7 +37,7 @@ public class GitHubClientServiceTests
         {
             _ = new GitHubClientService(
                 null,
-                this.mockGithubTokenService.Object);
+                this.mockGitHubTokenService.Object);
         };
 
         // Assert
@@ -90,7 +90,7 @@ public class GitHubClientServiceTests
         expectedMsg += $"{Environment.NewLine}If running on the server, verify that the workflow is setting up and environment variable named ";
         expectedMsg += $"{Environment.NewLine}'GITHUB_TOKEN' with the token value.";
 
-        this.mockGithubTokenService.Setup(m => m.GetToken()).Returns(string.Empty);
+        this.mockGitHubTokenService.Setup(m => m.GetToken()).Returns(string.Empty);
         var service = CreateService();
 
         // Act
@@ -106,7 +106,7 @@ public class GitHubClientServiceTests
     {
         // Arrange
         var mockGitHubClient = new Mock<IGitHubClient>();
-        this.mockGithubTokenService.Setup(m => m.GetToken()).Returns("test-token");
+        this.mockGitHubTokenService.Setup(m => m.GetToken()).Returns("test-token");
         this.mockHttpClientFactory.Setup(m => m.CreateGitHubClient(It.IsAny<string>(), It.IsAny<string>()))
             .Returns(mockGitHubClient.Object);
 
@@ -117,7 +117,7 @@ public class GitHubClientServiceTests
         var actualB = service.GetClient("test-product");
 
         // Assert
-        this.mockGithubTokenService.Verify(m => m.GetToken(), Times.AtLeastOnce);
+        this.mockGitHubTokenService.Verify(m => m.GetToken(), Times.AtLeastOnce);
         this.mockHttpClientFactory.Verify(m =>
             m.CreateGitHubClient("test-product", "test-token"), Times.AtLeastOnce);
         actualA.Should().BeSameAs(mockGitHubClient.Object);
@@ -131,5 +131,5 @@ public class GitHubClientServiceTests
     /// <returns>The instance to test.</returns>
     private GitHubClientService CreateService()
         => new (this.mockHttpClientFactory.Object,
-            this.mockGithubTokenService.Object);
+            this.mockGitHubTokenService.Object);
 }

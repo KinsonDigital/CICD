@@ -5,7 +5,7 @@
 namespace CICDSystem.Services;
 
 /// <summary>
-/// Creates tokens depending on if the execution context is local or on the server.
+/// Creates tokens depending whether or not the execution context is local or on the server.
 /// </summary>
 internal interface IGitHubTokenService
 {
