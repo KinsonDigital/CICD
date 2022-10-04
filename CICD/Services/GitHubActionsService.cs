@@ -1,4 +1,4 @@
-// <copyright file="GitHubActionsService.cs" company="KinsonDigital">
+﻿// <copyright file="GitHubActionsService.cs" company="KinsonDigital">
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
@@ -10,7 +10,6 @@ using CICDSystem.Guards;
 using CICDSystem.Reactables.Core;
 using CICDSystem.Reactables.ReactableData;
 using Nuke.Common.CI.GitHubActions;
-using Octokit;
 
 namespace CICDSystem.Services;
 
@@ -31,12 +30,11 @@ internal class GitHubActionsService : IGitHubActionsService
     /// Initializes a new instance of the <see cref="GitHubActionsService"/> class.
     /// </summary>
     /// <param name="pullRequestNumber">The pull request number that might be used.</param>
-    /// <param name="repoOwner">The owner of the repository/project.</param>
-    /// <param name="repoName">The name of the repository.</param>
     /// <param name="secretService">Manages local secrets for local builds.</param>
     /// <param name="executionContextService">Provides information about the current build execution.</param>
     /// <param name="repoService">Provides repository related services.</param>
     /// <param name="clientFactory">Provides GitHub API communication.</param>
+    /// <param name="buildInfoReactable">Provides push notifications of build information.</param>
     public GitHubActionsService(
         int pullRequestNumber,
         ISecretService secretService,

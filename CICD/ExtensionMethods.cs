@@ -2,8 +2,6 @@
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
-namespace CICDSystem;
-
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -19,8 +17,11 @@ using Nuke.Common.Utilities;
 using Nuke.Common.Utilities.Collections;
 using Octokit;
 using Serilog;
-using Project = Nuke.Common.ProjectModel.Project;
+using SimpleInjector;
 using static Nuke.Common.NukeBuild;
+using Project = Nuke.Common.ProjectModel.Project;
+
+namespace CICDSystem;
 
 /// <summary>
 /// Provides helper methods throughout the project.

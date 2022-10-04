@@ -1,4 +1,4 @@
-// <copyright file="ServiceFactory.cs" company="KinsonDigital">
+﻿// <copyright file="ServiceFactory.cs" company="KinsonDigital">
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
@@ -20,8 +20,6 @@ internal static class ServiceFactory
     /// Creates an <see cref="IGitHubActionsService"/> instance.
     /// </summary>
     /// <param name="pullRequestNumber">The pull request number that might be used.</param>
-    /// <param name="repoOwner">The owner of the repository/project.</param>
-    /// <param name="repoName">The name of the repository.</param>
     /// <returns>The service.</returns>
     /// <remarks>
     ///     The object returned is a singleton and the same reference is returned every time.
