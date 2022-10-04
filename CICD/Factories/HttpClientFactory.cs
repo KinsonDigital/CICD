@@ -2,8 +2,12 @@
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
+using System;
 using System.Diagnostics.CodeAnalysis;
 using CICDSystem.Guards;
+using CICDSystem.Reactables.Core;
+using CICDSystem.Reactables.ReactableData;
+using CICDSystem.Services;
 using Octokit;
 using Octokit.Internal;
 
@@ -12,27 +16,68 @@ namespace CICDSystem.Factories;
 
 /// <inheritdoc/>
 [ExcludeFromCodeCoverage]
-public sealed class HttpClientFactory : IHttpClientFactory
+internal sealed class HttpClientFactory : IHttpClientFactory
 {
-    private static IGitHubClient? client;
-    private bool isDisposed;
+    private readonly IDisposable unsubscriber;
+    private readonly IGitHubTokenService tokenService;
+    private IGitHubClient? client;
+    private string productName = string.Empty;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="HttpClientFactory"/> class.
+    /// </summary>
+    /// <param name="buildInfoReactable">Provides push notifications of build information.</param>
+    /// <param name="tokenService">Provides access to tokens.</param>
+    /// <exception cref="ArgumentNullException">
+    ///     Occurs if any of the arguments are <c>null</c>.
+    /// </exception>
+    public HttpClientFactory(IReactable<BuildInfoData> buildInfoReactable, IGitHubTokenService tokenService)
+    {
+        EnsureThat.ParamIsNotNull(buildInfoReactable, nameof(buildInfoReactable));
+        EnsureThat.ParamIsNotNull(tokenService, nameof(tokenService));
+
+        this.tokenService = tokenService;
+
+        this.unsubscriber = buildInfoReactable.Subscribe(new Reactor<BuildInfoData>(
+            onNext: data =>
+            {
+                this.productName = data.ProjectName;
+            },
+            onCompleted: () => this.unsubscriber?.Dispose()));
+    }
 
     /// <inheritdoc/>
-    public IGitHubClient CreateGitHubClient(string productName, string token)
+    /// <exception cref="InvalidOperationException">
+    /// Thrown for the following reasons:
+    ///     <list type="bullet">
+    ///         <item>The internal product name is null or empty.</item>
+    ///         <item>The token is null or empty.</item>
+    ///     </list>
+    /// </exception>
+    public IGitHubClient CreateGitHubClient()
     {
-        if (client is not null)
+        if (this.client is not null)
         {
-            return client;
+            return this.client;
         }
 
-        EnsureThat.StringParamIsNotNullOrEmpty(productName, nameof(productName));
-        EnsureThat.StringParamIsNotNullOrEmpty(token, nameof(token));
+        if (string.IsNullOrEmpty(this.productName))
+        {
+            throw new InvalidOperationException("The internal product name cannot be null or empty.");
+        }
 
-        var productHeaderValue = new ProductHeaderValue(productName);
+        var token = this.tokenService.GetToken();
+
+        if (string.IsNullOrEmpty(token))
+        {
+            throw new InvalidOperationException("The token must not be null or empty.");
+        }
+
+        var productHeaderValue = new ProductHeaderValue(this.productName);
         var credStore = new InMemoryCredentialStore(new Credentials(token));
 
-        client = new GitHubClient(productHeaderValue, credStore);
+        this.client = new GitHubClient(productHeaderValue, credStore);
 
-        return client;
+        return this.client;
     }
 }
