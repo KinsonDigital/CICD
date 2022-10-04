@@ -1,4 +1,4 @@
-﻿// <copyright file="ServiceFactory.cs" company="KinsonDigital">
+// <copyright file="ServiceFactory.cs" company="KinsonDigital">
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
@@ -41,7 +41,7 @@ internal static class ServiceFactory
         var secretService = App.Container.GetInstance<ISecretService>();
         var executionContextService = App.Container.GetInstance<IExecutionContextService>();
         var gitRepoService = App.Container.GetInstance<IGitRepoService>();
-        var gitHubClientService = App.Container.GetInstance<IGitHubClientService>();
+        var clientFactory = App.Container.GetInstance<IHttpClientFactory>();
 
         actionsService = new GitHubActionsService(
             pullRequestNumber,
@@ -50,7 +50,7 @@ internal static class ServiceFactory
             secretService,
             executionContextService,
             gitRepoService,
-            gitHubClientService.GetClient(repoName));
+            clientFactory,
 
         return actionsService;
     }

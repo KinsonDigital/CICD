@@ -1,4 +1,4 @@
-﻿// <copyright file="App.cs" company="KinsonDigital">
+// <copyright file="App.cs" company="KinsonDigital">
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
@@ -53,7 +53,6 @@ internal static class App
         IoCContainer.Register<IExecutionContextService, ExecutionContextService>(Lifestyle.Singleton);
         IoCContainer.Register<IGitHubTokenService, GitHubTokenService>(Lifestyle.Singleton);
         IoCContainer.Register<IHttpClientFactory, HttpClientFactory>(Lifestyle.Singleton);
-        IoCContainer.Register<IGitHubClientService, GitHubClientService>(Lifestyle.Singleton);
         IoCContainer.Register<IWorkflowService, WorkflowService>(Lifestyle.Singleton);
         IoCContainer.Register<ISecretService, SecretService>(Lifestyle.Singleton);
         IoCContainer.Register<IJsonService, JsonService>(Lifestyle.Singleton);

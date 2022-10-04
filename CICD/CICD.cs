@@ -86,7 +86,7 @@ public partial class CICD : NukeBuild
     [Secret]
     private string TwitterAccessTokenSecret { get; set; } = string.Empty;
 
-    private IGitHubClient GitHubClient => App.Container.GetInstance<IGitHubClientService>().GetClient(RepoName);
+    private IGitHubClient GitHubClient => App.Container.GetInstance<IHttpClientFactory>().CreateGitHubClient();
 
     private AbsolutePath NugetOutputPath => RootDirectory / "Artifacts";
 
