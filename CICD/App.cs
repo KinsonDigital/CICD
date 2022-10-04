@@ -1,4 +1,4 @@
-// <copyright file="App.cs" company="KinsonDigital">
+﻿// <copyright file="App.cs" company="KinsonDigital">
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
@@ -7,6 +7,9 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO.Abstractions;
 using System.Runtime.CompilerServices;
 using CICDSystem.Factories;
+using CICDSystem.Reactables;
+using CICDSystem.Reactables.Core;
+using CICDSystem.Reactables.ReactableData;
 using CICDSystem.Services;
 using SimpleInjector;
 
@@ -49,6 +52,7 @@ internal static class App
         IoCContainer.Register(() => FileSystem.File, Lifestyle.Singleton);
         IoCContainer.Register(() => FileSystem.Directory, Lifestyle.Singleton);
         IoCContainer.Register(() => FileSystem.Path, Lifestyle.Singleton);
+        IoCContainer.Register<IReactable<BuildInfoData>, BuildInfoReactable>(Lifestyle.Singleton);
         IoCContainer.Register<IGitRepoService, GitRepoService>(Lifestyle.Singleton);
         IoCContainer.Register<IExecutionContextService, ExecutionContextService>(Lifestyle.Singleton);
         IoCContainer.Register<IGitHubTokenService, GitHubTokenService>(Lifestyle.Singleton);
@@ -56,6 +60,7 @@ internal static class App
         IoCContainer.Register<IWorkflowService, WorkflowService>(Lifestyle.Singleton);
         IoCContainer.Register<ISecretService, SecretService>(Lifestyle.Singleton);
         IoCContainer.Register<IJsonService, JsonService>(Lifestyle.Singleton);
+        IoCContainer.Register<IBranchValidatorService, BranchValidatorService>(Lifestyle.Singleton);
 
         isInitialized = true;
     }
