@@ -4,6 +4,8 @@
 
 // ReSharper disable InconsistentNaming
 using CICDSystem.Factories;
+using CICDSystem.Reactables.Core;
+using CICDSystem.Reactables.ReactableData;
 using CICDSystem.Services;
 using Nuke.Common;
 using Nuke.Common.IO;
@@ -19,6 +21,9 @@ public partial class CICD : NukeBuild
 {
     private const string NugetOrgSource = "https://api.nuget.org/v3/index.json";
     private const string ConsoleTab = "\t       ";
+    private string repoOwner = string.Empty;
+    private string repoName = string.Empty;
+    private string projectName = string.Empty;
     [Solution]
     private readonly Solution? solution;
 
@@ -45,13 +50,38 @@ public partial class CICD : NukeBuild
     private bool SkipTwitterAnnouncement { get; set; }
 
     [Parameter("The owner of the GitHub repo.  This can also be the GitHub organization that owns the repository.")]
-    private string RepoOwner { get; set; } = string.Empty;
+    private string RepoOwner
+    {
+        get => this.repoOwner;
+        set
+        {
+            this.repoOwner = value;
+
+            PushBuildInfoNotification();
+        }
+    }
 
     [Parameter("The name of the GitHub repository.")]
-    private string RepoName { get; set; } = string.Empty;
+    private string RepoName
+    {
+        get => this.repoName;
+        set
+        {
+            this.repoName = value;
+            PushBuildInfoNotification();
+        }
+    }
 
     [Parameter("The name of the C# project.")]
-    private string ProjectName { get; set; } = string.Empty;
+    private string ProjectName
+    {
+        get => this.projectName;
+        set
+        {
+            this.projectName = value;
+            PushBuildInfoNotification();
+        }
+    }
 
     [Parameter("The unique number/id of the GItHub pull request.  Used for pull request status checks when running locally.")]
     private int PullRequestNumber { get; set; }
@@ -106,5 +136,35 @@ public partial class CICD : NukeBuild
         return (GitHubActionsService.BaseRef ?? string.Empty).IsMasterBranch()
             ? Configuration.Release
             : Configuration.Debug;
+    }
+
+    /// <summary>
+    /// Pushes a build notification of the build info if the data is ready.
+    /// </summary>
+    private void PushBuildInfoNotification()
+    {
+        var buildInfoReactable = App.Container.GetInstance<IReactable<BuildInfoData>>();
+
+        if (buildInfoReactable.NotificationsEnded)
+        {
+            return;
+        }
+
+        var tokenService = App.Container.GetInstance<IGitHubTokenService>();
+        var token = tokenService.GetToken();
+        var dataNotReady = string.IsNullOrEmpty(this.repoName) ||
+                           string.IsNullOrEmpty(this.repoOwner) ||
+                           string.IsNullOrEmpty(this.projectName) ||
+                           string.IsNullOrEmpty(token);
+
+        if (dataNotReady)
+        {
+            return;
+        }
+
+        var data = new BuildInfoData(this.repoOwner, this.repoName, this.projectName, token);
+
+        buildInfoReactable.PushNotification(data);
+        buildInfoReactable.EndNotifications();
     }
 }
