@@ -270,7 +270,8 @@ internal interface IBranchValidatorService
     /// <summary>
     /// Resets the internal state of the objects logic.
     /// </summary>
-    void Reset();
+    /// <returns>The current object to continue the <c>Fluent API</c> chain.</returns>
+    IBranchValidatorService Reset();
 
     /// <summary>
     /// Returns the result of the <c>Fluent API</c> calls.

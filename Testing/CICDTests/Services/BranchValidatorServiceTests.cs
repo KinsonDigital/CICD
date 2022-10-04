@@ -1473,10 +1473,11 @@ public class BranchValidatorServiceTests
             .IsDevelopBranch("develop");
 
         // Act
-        service.Reset();
-        var actual = service.GetValue();
+        var objResult = service.Reset();
+        var actual = objResult.GetValue();
 
         // Assert
+        objResult.Should().BeSameAs(service);
         actual.Should().BeFalse();
     }
 

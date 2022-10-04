@@ -87,7 +87,7 @@ public partial class CICD // StatusChecks
         .Requires(
             () => ThatPullRequestNumberIsProvided(),
             () => ThatThePullRequestExists(),
-            () => ThatThePRBranchesAreValid(PRBranchContext.Source, BranchType.Feature),
+            () => ThatThePRSourceBranchIsValid(BranchType.Feature),
             () => ThatThePRBranchesAreValid(PRBranchContext.Target, BranchType.Develop),
             () => ThatFeaturePRIssueNumberExists(),
             () => ThatFeaturePRIssueHasLabel(BranchType.Feature),
@@ -101,7 +101,7 @@ public partial class CICD // StatusChecks
         .Requires(
             () => ThatPullRequestNumberIsProvided(),
             () => ThatThePullRequestExists(),
-            () => ThatThePRBranchesAreValid(PRBranchContext.Source, BranchType.PreviewFeature),
+            () => ThatThePRSourceBranchIsValid(BranchType.Master),
             () => ThatThePRBranchesAreValid(PRBranchContext.Target, BranchType.Preview),
             () => ThatPreviewFeaturePRIssueNumberExists(),
             () => ThatFeaturePRIssueHasLabel(BranchType.PreviewFeature),
@@ -112,7 +112,7 @@ public partial class CICD // StatusChecks
         .Requires(
             () => ThatPullRequestNumberIsProvided(),
             () => ThatThePullRequestExists(),
-            () => ThatThePRBranchesAreValid(PRBranchContext.Source, BranchType.HotFix),
+            () => ThatThePRSourceBranchIsValid(BranchType.HotFix),
             () => ThatThePRBranchesAreValid(PRBranchContext.Target, BranchType.Master),
             () => ThatPreviewFeaturePRIssueNumberExists(),
             () => ThatFeaturePRIssueHasLabel(BranchType.HotFix),
@@ -123,7 +123,7 @@ public partial class CICD // StatusChecks
         .Requires(
             () => ThatPullRequestNumberIsProvided(),
             () => ThatThePullRequestExists(),
-            () => ThatThePRBranchesAreValid(PRBranchContext.Source, BranchType.Preview),
+            () => ThatThePRSourceBranchIsValid(BranchType.Preview),
             () => ThatThePRBranchesAreValid(PRBranchContext.Target, BranchType.Release),
             () => ThatThePRHasBeenAssigned(),
             () => ThatThePRHasTheLabel("🚀Preview Release"),
@@ -148,7 +148,7 @@ public partial class CICD // StatusChecks
         .Requires(
             () => ThatPullRequestNumberIsProvided(),
             () => ThatThePullRequestExists(),
-            () => ThatThePRBranchesAreValid(PRBranchContext.Source, BranchType.Release),
+            () => ThatThePRSourceBranchIsValid(BranchType.Release),
             () => ThatThePRBranchesAreValid(PRBranchContext.Target, BranchType.Master),
             () => ThatThePRHasBeenAssigned(),
             () => ThatThePRHasTheLabel("🚀Production Release"),

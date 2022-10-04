@@ -643,10 +643,12 @@ internal sealed class BranchValidatorService : IBranchValidatorService
     }
 
     /// <inheritdoc/>
-    public void Reset()
+    public IBranchValidatorService Reset()
     {
         this.andValues.Clear();
         this.orValues.Clear();
+
+        return this;
     }
 
     /// <inheritdoc/>

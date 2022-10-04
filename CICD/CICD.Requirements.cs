@@ -276,6 +276,40 @@ public partial class CICD // Requirements
         return true;
     }
 
+    private bool ThatThePRSourceBranchIsValid(BranchType branchType)
+    {
+        var branchTypeStr = Enum.GetName(branchType)?.ToSpaceDelimitedSections().ToLower();
+        nameof(ThatThePRSourceBranchIsValid)
+            .LogRequirementTitle($"Validating the pull request source branch is a '{branchTypeStr}' branch.");
+
+        var branch = GitHubActionsService.HeadRef ?? string.Empty;
+
+        var isValid = branchType switch
+        {
+            BranchType.Master => BranchValidator.Reset().IsMasterBranch(branch).GetValue(),
+            BranchType.Develop => BranchValidator.Reset().IsDevelopBranch(branch).GetValue(),
+            BranchType.Feature => BranchValidator.Reset().IsFeatureBranch(branch).GetValue(),
+            BranchType.PreviewFeature => BranchValidator.Reset().IsPreviewFeatureBranch(branch).GetValue(),
+            BranchType.Release => BranchValidator.Reset().IsReleaseBranch(branch).GetValue(),
+            BranchType.Preview => BranchValidator.Reset().IsPreviewBranch(branch).GetValue(),
+            BranchType.HotFix => BranchValidator.Reset().IsHotFixBranch(branch).GetValue(),
+            BranchType.Other => false,
+            _ => throw new ArgumentOutOfRangeException(nameof(branchType), branchType, null)
+        };
+
+        if (isValid)
+        {
+            Console.WriteLine($"{Environment.NewLine}{ConsoleTab}The branch '{branch}' is valid.");
+        }
+        else
+        {
+            Log.Error($"The pull request source branch '{branch}' is not a valid '{branchTypeStr}' branch.");
+            Assert.Fail("Pull request branch is not valid.");
+        }
+
+        return isValid;
+    }
+
     private bool ThatThePRBranchesAreValid(PRBranchContext branchContext, params BranchType[] branchTypes)
     {
         var branch = branchContext switch
