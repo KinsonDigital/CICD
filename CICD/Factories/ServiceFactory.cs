@@ -3,7 +3,8 @@
 // </copyright>
 
 // ReSharper disable InconsistentNaming
-using CICDSystem.Guards;
+using CICDSystem.Reactables.Core;
+using CICDSystem.Reactables.ReactableData;
 using CICDSystem.Services;
 
 namespace CICDSystem.Factories;
@@ -25,32 +26,26 @@ internal static class ServiceFactory
     /// <remarks>
     ///     The object returned is a singleton and the same reference is returned every time.
     /// </remarks>
-    public static IGitHubActionsService CreateGitHubActionsService(
-        int pullRequestNumber,
-        string repoOwner,
-        string repoName)
+    public static IGitHubActionsService CreateGitHubActionsService(int pullRequestNumber)
     {
         if (actionsService is not null)
         {
             return actionsService;
         }
 
-        EnsureThat.StringParamIsNotNullOrEmpty(repoOwner, nameof(repoOwner));
-        EnsureThat.StringParamIsNotNullOrEmpty(repoName, nameof(repoName));
-
         var secretService = App.Container.GetInstance<ISecretService>();
         var executionContextService = App.Container.GetInstance<IExecutionContextService>();
         var gitRepoService = App.Container.GetInstance<IGitRepoService>();
         var clientFactory = App.Container.GetInstance<IHttpClientFactory>();
+        var buildInfoReactable = App.Container.GetInstance<IReactable<BuildInfoData>>();
 
         actionsService = new GitHubActionsService(
             pullRequestNumber,
-            repoOwner,
-            repoName,
             secretService,
             executionContextService,
             gitRepoService,
             clientFactory,
+            buildInfoReactable);
 
         return actionsService;
     }

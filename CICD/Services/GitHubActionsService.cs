@@ -1,11 +1,14 @@
-﻿// <copyright file="GitHubActionsService.cs" company="KinsonDigital">
+// <copyright file="GitHubActionsService.cs" company="KinsonDigital">
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
 // ReSharper disable InconsistentNaming
 using System;
 using System.Diagnostics.CodeAnalysis;
+using CICDSystem.Factories;
 using CICDSystem.Guards;
+using CICDSystem.Reactables.Core;
+using CICDSystem.Reactables.ReactableData;
 using Nuke.Common.CI.GitHubActions;
 using Octokit;
 
@@ -18,10 +21,11 @@ internal class GitHubActionsService : IGitHubActionsService
     private readonly ISecretService secretService;
     private readonly IExecutionContextService executionContextService;
     private readonly IGitRepoService repoService;
-    private readonly IGitHubClient githubClient;
+    private readonly IHttpClientFactory clientFactory;
     private readonly int pullRequestNumber;
-    private readonly string repoOwner;
-    private readonly string repoName;
+    private readonly IDisposable reactableUnsubscriber;
+    private string repoOwner = string.Empty;
+    private string repoName = string.Empty;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GitHubActionsService"/> class.
@@ -32,31 +36,33 @@ internal class GitHubActionsService : IGitHubActionsService
     /// <param name="secretService">Manages local secrets for local builds.</param>
     /// <param name="executionContextService">Provides information about the current build execution.</param>
     /// <param name="repoService">Provides repository related services.</param>
-    /// <param name="githubClient">Provides GitHub API communication.</param>
+    /// <param name="clientFactory">Provides GitHub API communication.</param>
     public GitHubActionsService(
         int pullRequestNumber,
-        string repoOwner,
-        string repoName,
         ISecretService secretService,
         IExecutionContextService executionContextService,
         IGitRepoService repoService,
-        IGitHubClient githubClient)
+        IHttpClientFactory clientFactory,
+        IReactable<BuildInfoData> buildInfoReactable)
     {
-        // TODO: Unit test this
-        EnsureThat.StringParamIsNotNullOrEmpty(repoOwner, nameof(repoOwner));
-        EnsureThat.StringParamIsNotNullOrEmpty(repoName, nameof(repoName));
         EnsureThat.ParamIsNotNull(secretService, nameof(secretService));
         EnsureThat.ParamIsNotNull(executionContextService, nameof(executionContextService));
         EnsureThat.ParamIsNotNull(repoService, nameof(repoService));
-        EnsureThat.ParamIsNotNull(githubClient, nameof(githubClient));
+        EnsureThat.ParamIsNotNull(clientFactory, nameof(clientFactory));
 
-        this.repoOwner = repoOwner;
-        this.repoName = repoName;
         this.pullRequestNumber = pullRequestNumber;
         this.secretService = secretService;
         this.executionContextService = executionContextService;
         this.repoService = repoService;
-        this.githubClient = githubClient;
+        this.clientFactory = clientFactory;
+
+        this.reactableUnsubscriber = buildInfoReactable.Subscribe(new Reactor<BuildInfoData>(
+            onNext: data =>
+            {
+                this.repoOwner = data.RepoOwner;
+                this.repoName = data.RepoName;
+            },
+            onCompleted: () => this.reactableUnsubscriber?.Dispose()));
     }
 
     /// <inheritdoc/>
@@ -116,7 +122,8 @@ internal class GitHubActionsService : IGitHubActionsService
             }
 
             // If this is a local build and the pull request number has been set
-            var pullRequest = this.githubClient.PullRequest.Get(this.repoOwner, this.repoName, this.pullRequestNumber).Result;
+            var prClient = this.clientFactory.CreateGitHubClient().PullRequest;
+            var pullRequest = prClient.Get(this.repoOwner, this.repoName, this.pullRequestNumber).Result;
 
             var targetBranch = pullRequest.Base.Ref;
 

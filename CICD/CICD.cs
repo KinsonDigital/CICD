@@ -30,8 +30,7 @@ public partial class CICD : NukeBuild
         Execute<CICD>(x => x.BuildAllProjects, x => x.RunAllUnitTests);
 
 #pragma warning disable SA1201 - A property should not follow a method
-    private IGitHubActionsService GitHubActionsService =>
-        ServiceFactory.CreateGitHubActionsService(PullRequestNumber, RepoOwner, RepoName);
+    private IGitHubActionsService GitHubActionsService => ServiceFactory.CreateGitHubActionsService(PullRequestNumber);
 
     private IExecutionContextService ExecutionContext => App.Container.GetInstance<IExecutionContextService>();
 
