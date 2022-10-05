@@ -3,11 +3,12 @@
 // </copyright>
 
 // ReSharper disable InconsistentNaming
+using System;
 using CICDSystem.Factories;
 using CICDSystem.Reactables.Core;
-using CICDSystem.Reactables.ReactableData;
 using CICDSystem.Services;
 using Nuke.Common;
+using Nuke.Common.CI.GitHubActions;
 using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
 using Octokit;
@@ -21,11 +22,12 @@ public partial class CICD : NukeBuild
 {
     private const string NugetOrgSource = "https://api.nuget.org/v3/index.json";
     private const string ConsoleTab = "\t       ";
+    [Solution]
+    private readonly Solution? solution;
     private string repoOwner = string.Empty;
     private string repoName = string.Empty;
     private string projectName = string.Empty;
-    [Solution]
-    private readonly Solution? solution;
+    private int pullRequestNumber;
 
     /// <summary>
     /// The main entry point of the build system.
@@ -59,7 +61,15 @@ public partial class CICD : NukeBuild
         {
             this.repoOwner = value;
 
-            PushBuildInfoNotification();
+            var repoInfoReactable = App.Container.GetInstance<IReactable<(string repoOwner, string repoName)>>();
+
+            if (repoInfoReactable.NotificationsEnded)
+            {
+                return;
+            }
+
+            repoInfoReactable.PushNotification((this.repoOwner, this.repoName));
+            repoInfoReactable.EndNotifications();
         }
     }
 
@@ -70,7 +80,16 @@ public partial class CICD : NukeBuild
         set
         {
             this.repoName = value;
-            PushBuildInfoNotification();
+
+            var repoInfoReactable = App.Container.GetInstance<IReactable<(string repoOwner, string repoName)>>();
+
+            if (repoInfoReactable.NotificationsEnded)
+            {
+                return;
+            }
+
+            repoInfoReactable.PushNotification((this.repoOwner, this.repoName));
+            repoInfoReactable.EndNotifications();
         }
     }
 
@@ -81,12 +100,52 @@ public partial class CICD : NukeBuild
         set
         {
             this.projectName = value;
-            PushBuildInfoNotification();
+
+            var productInfoReactable = App.Container.GetInstance<IReactable<string>>();
+
+            if (productInfoReactable.NotificationsEnded)
+            {
+                return;
+            }
+
+            productInfoReactable.PushNotification(this.projectName);
+            productInfoReactable.EndNotifications();
         }
     }
 
     [Parameter("The unique number/id of the GItHub pull request.  Used for pull request status checks when running locally.")]
-    private int PullRequestNumber { get; set; }
+    private int PullRequestNumber
+    {
+        get => this.pullRequestNumber;
+        set
+        {
+            // TODO: Refactor the current use of the Reactable<BuildInfoData> into separate reactables of tuple types instead.
+            // One will be for the repo owner and name will be a (string, string) tuple for the BranchValidatorService
+            // The other will be for the projectName will be a string type for the HttpClientFactory
+
+            /* TODO:
+             * `build-status-check.yml` changes:
+             *      file renamed to `build-pr-status-check.yml`
+             *      build status check workflow manual execution removed
+             *      extra step created to get pr number
+             *
+             * `unit-test-status-check.yml` changes:
+             *      file renamed to `unit-test-pr-status-check.yml`
+             *      unit test status check workflow manual execution removed
+             *      extra step created to get pr number
+             */
+
+            // TODO: Create a pull request service.  This service will have an observable that gets a push
+            // notification from here to a new Reactable with a generic as an long. Long because this will make sure that long term we don't
+            // run out of number space
+            this.pullRequestNumber = value;
+
+            Console.WriteLine("--------DEBUG--------");
+            Console.WriteLine($"Instance Is Null: {GitHubActions.Instance is null}");
+            Console.WriteLine($"Pull Request Number: {GitHubActions.Instance?.PullRequestNumber ?? -1}");
+            Console.WriteLine("---------------------");
+        }
+    }
 
     [Parameter($"The name of the preview release notes directory name.  This will be located in the '{nameof(ReleaseNotesBaseDirPath)}'.")]
     private string PreviewReleaseNotesDirName { get; set; } = "PreviewReleases";
@@ -138,35 +197,5 @@ public partial class CICD : NukeBuild
         return (GitHubActionsService.BaseRef ?? string.Empty).IsMasterBranch()
             ? Configuration.Release
             : Configuration.Debug;
-    }
-
-    /// <summary>
-    /// Pushes a build notification of the build info if the data is ready.
-    /// </summary>
-    private void PushBuildInfoNotification()
-    {
-        var buildInfoReactable = App.Container.GetInstance<IReactable<BuildInfoData>>();
-
-        if (buildInfoReactable.NotificationsEnded)
-        {
-            return;
-        }
-
-        var tokenService = App.Container.GetInstance<IGitHubTokenService>();
-        var token = tokenService.GetToken();
-        var dataNotReady = string.IsNullOrEmpty(this.repoName) ||
-                           string.IsNullOrEmpty(this.repoOwner) ||
-                           string.IsNullOrEmpty(this.projectName) ||
-                           string.IsNullOrEmpty(token);
-
-        if (dataNotReady)
-        {
-            return;
-        }
-
-        var data = new BuildInfoData(this.repoOwner, this.repoName, this.projectName, token);
-
-        buildInfoReactable.PushNotification(data);
-        buildInfoReactable.EndNotifications();
     }
 }

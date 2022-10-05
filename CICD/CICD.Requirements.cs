@@ -276,53 +276,16 @@ public partial class CICD // Requirements
         return true;
     }
 
-    private bool ThatThePRSourceBranchIsValid(BranchType branchType)
+    private bool ThatThePRBranchIsValid(PRBranchContext branchContext, params BranchType[] branchTypes)
     {
-        var branchTypeStr = Enum.GetName(branchType)?.ToSpaceDelimitedSections().ToLower();
-        nameof(ThatThePRSourceBranchIsValid)
-            .LogRequirementTitle($"Validating the pull request source branch is a '{branchTypeStr}' branch.");
+        var branchContextStr = Enum.GetName(branchContext)?.ToLower() ?? string.Empty;
 
-        var branch = GitHubActionsService.HeadRef ?? string.Empty;
-
-        var isValid = branchType switch
-        {
-            BranchType.Master => BranchValidator.Reset().IsMasterBranch(branch).GetValue(),
-            BranchType.Develop => BranchValidator.Reset().IsDevelopBranch(branch).GetValue(),
-            BranchType.Feature => BranchValidator.Reset().IsFeatureBranch(branch).GetValue(),
-            BranchType.PreviewFeature => BranchValidator.Reset().IsPreviewFeatureBranch(branch).GetValue(),
-            BranchType.Release => BranchValidator.Reset().IsReleaseBranch(branch).GetValue(),
-            BranchType.Preview => BranchValidator.Reset().IsPreviewBranch(branch).GetValue(),
-            BranchType.HotFix => BranchValidator.Reset().IsHotFixBranch(branch).GetValue(),
-            BranchType.Other => false,
-            _ => throw new ArgumentOutOfRangeException(nameof(branchType), branchType, null)
-        };
-
-        if (isValid)
-        {
-            Console.WriteLine($"{Environment.NewLine}{ConsoleTab}The branch '{branch}' is valid.");
-        }
-        else
-        {
-            Log.Error($"The pull request source branch '{branch}' is not a valid '{branchTypeStr}' branch.");
-            Assert.Fail("Pull request branch is not valid.");
-        }
-
-        return isValid;
-    }
-
-    private bool ThatThePRBranchesAreValid(PRBranchContext branchContext, params BranchType[] branchTypes)
-    {
         var branch = branchContext switch
         {
             PRBranchContext.Source => GitHubActionsService.HeadRef ?? BranchNotDetermined,
             PRBranchContext.Target => GitHubActionsService.BaseRef ?? "Not a pull request.",
             _ => throw new ArgumentOutOfRangeException(nameof(branchContext), branchContext, null)
         };
-
-        var branchContextStr = Enum.GetName(branchContext)?.ToLower() ?? string.Empty;
-
-        nameof(ThatThePRBranchesAreValid)
-            .LogRequirementTitle($"Validating the pull request {branchContextStr} branch '{branch}'.");
 
         var foundBranchType = branchTypes.FirstOrDefault(t => t switch
         {
@@ -339,37 +302,36 @@ public partial class CICD // Requirements
 
         var branchTypeStr = Enum.GetName(foundBranchType)?.ToSpaceDelimitedSections().ToLower() ?? string.Empty;
 
-        var validMsg = $"{ConsoleTab}The {branchTypeStr} branch '{branch}' is valid.";
+        nameof(ThatThePRBranchIsValid)
+            .LogRequirementTitle($"Validating the pull request '{branchContextStr}' branch is a '{branchTypeStr}' branch.");
 
-        var branchSyntax = GetBranchSyntax(foundBranchType);
-        var errorMsg = $"The {branchTypeStr} branch '{{Value}}' is invalid.";
-        errorMsg += $"{Environment.NewLine}{ConsoleTab}The syntax for the '{branchTypeStr}' branch is '{branchSyntax}'.";
-
-        var isValidBranch = branchTypes.Any(t =>
+        var isValid = branchTypes.Any(t =>
         {
             return t switch
             {
-                BranchType.Develop => branch.IsDevelopBranch(),
-                BranchType.Master => branch.IsMasterBranch(),
-                BranchType.Feature => branch.IsFeatureBranch(),
-                BranchType.PreviewFeature => branch.IsPreviewFeatureBranch(),
-                BranchType.Release => branch.IsReleaseBranch(),
-                BranchType.Preview => branch.IsPreviewBranch(),
-                BranchType.HotFix => branch.IsHotFixBranch(),
+                BranchType.Master => BranchValidator.Reset().IsMasterBranch(branch).GetValue(),
+                BranchType.Develop => BranchValidator.Reset().IsDevelopBranch(branch).GetValue(),
+                BranchType.Feature => BranchValidator.Reset().IsFeatureBranch(branch).GetValue(),
+                BranchType.PreviewFeature => BranchValidator.Reset().IsPreviewFeatureBranch(branch).GetValue(),
+                BranchType.Release => BranchValidator.Reset().IsReleaseBranch(branch).GetValue(),
+                BranchType.Preview => BranchValidator.Reset().IsPreviewBranch(branch).GetValue(),
+                BranchType.HotFix => BranchValidator.Reset().IsHotFixBranch(branch).GetValue(),
                 BranchType.Other => false,
                 _ => throw new ArgumentOutOfRangeException(nameof(branchTypes), branchTypes, null)
             };
         });
 
-        if (isValidBranch)
+        if (isValid)
         {
-            Console.WriteLine(validMsg);
-            return true;
+            Console.WriteLine($"{Environment.NewLine}{ConsoleTab}The '{branchContextStr}' branch '{branch}' is valid.");
+        }
+        else
+        {
+            Log.Error($"The pull request '{branchContextStr}' branch '{branch}' is not a valid '{branchTypeStr}' branch.");
+            Assert.Fail($"Pull request '{branchContextStr}' branch is not valid.");
         }
 
-        Log.Error(errorMsg, branch);
-        Assert.Fail("Invalid pull request source branch.");
-        return false;
+        return isValid;
     }
 
     private bool ThatThePreviewPRBranchVersionsMatch(ReleaseType releaseType)

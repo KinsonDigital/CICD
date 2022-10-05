@@ -4,9 +4,7 @@
 
 using CICDSystem.Factories;
 using CICDSystem.Reactables.Core;
-using CICDSystem.Reactables.ReactableData;
 using CICDSystem.Services;
-using CICDSystemTests.Reactables.ReactableData;
 using FluentAssertions;
 using Moq;
 using Xunit;
@@ -18,7 +16,7 @@ namespace CICDSystemTests.Factories;
 /// </summary>
 public class HttpClientFactoryTests
 {
-    private readonly Mock<IReactable<BuildInfoData>> mockBuildInfoReactable;
+    private readonly Mock<IReactable<string>> mockProductNameReactable;
     private readonly Mock<IGitHubTokenService> mockTokenService;
 
     /// <summary>
@@ -26,13 +24,13 @@ public class HttpClientFactoryTests
     /// </summary>
     public HttpClientFactoryTests()
     {
-        this.mockBuildInfoReactable = new Mock<IReactable<BuildInfoData>>();
+        this.mockProductNameReactable = new Mock<IReactable<string>>();
         this.mockTokenService = new Mock<IGitHubTokenService>();
     }
 
     #region Constructor Tests
     [Fact]
-    public void Ctor_WithNullBuildInfoReactableParam_ThrowsException()
+    public void Ctor_WithNullRepoInfoReactableParam_ThrowsException()
     {
         // Arrange & Act
         var act = () =>
@@ -45,7 +43,7 @@ public class HttpClientFactoryTests
         // Assert
         act.Should()
             .Throw<ArgumentNullException>()
-            .WithMessage("The parameter must not be null. (Parameter 'buildInfoReactable')");
+            .WithMessage("The parameter must not be null. (Parameter 'productNamReactable')");
     }
 
     [Fact]
@@ -55,7 +53,7 @@ public class HttpClientFactoryTests
         var act = () =>
         {
             _ = new HttpClientFactory(
-                this.mockBuildInfoReactable.Object,
+                this.mockProductNameReactable.Object,
                 null);
         };
 
@@ -64,8 +62,6 @@ public class HttpClientFactoryTests
             .Throw<ArgumentNullException>()
             .WithMessage("The parameter must not be null. (Parameter 'tokenService')");
     }
-
-
     #endregion
 
     #region Method Tests
@@ -75,7 +71,15 @@ public class HttpClientFactoryTests
     public void CreateGitHubClient_WithNullOrEmptyProductName_ThrowsException(string productName)
     {
         // Arrange
+        IReactor<string>? reactor = null;
+        this.mockProductNameReactable.Setup(m => m.Subscribe(It.IsAny<IReactor<string>>()))
+            .Callback<IReactor<string>>(reactorObj => reactor = reactorObj);
+
+        this.mockProductNameReactable.Setup(m => m.PushNotification(It.IsAny<string>()))
+            .Callback<string>(data => reactor.OnNext(data));
+
         var sut = CreateFactory();
+        this.mockProductNameReactable.Object.PushNotification(productName);
 
         // Act
         var act = () => sut.CreateGitHubClient();
@@ -91,18 +95,18 @@ public class HttpClientFactoryTests
     public void CreateGitHubClient_WithNullOrEmptyToken_ThrowsException(string token)
     {
         // Arrange
-        IReactor<BuildInfoData>? reactor = null;
-        this.mockBuildInfoReactable.Setup(m => m.Subscribe(It.IsAny<IReactor<BuildInfoData>>()))
-            .Callback<IReactor<BuildInfoData>>(reactorObj => reactor = reactorObj);
+        IReactor<string>? reactor = null;
+        this.mockProductNameReactable.Setup(m => m.Subscribe(It.IsAny<IReactor<string>>()))
+            .Callback<IReactor<string>>(reactorObj => reactor = reactorObj);
 
-        this.mockBuildInfoReactable.Setup(m => m.PushNotification(It.IsAny<BuildInfoData>()))
-            .Callback<BuildInfoData>(data => reactor.OnNext(data));
+        this.mockProductNameReactable.Setup(m => m.PushNotification(It.IsAny<string>()))
+            .Callback<string>(data => reactor.OnNext(data));
 
-        var buildInfoData = new BuildInfoData("test-owner", "test-repo-name", "test-project", "test-token");
+        var data = "test-token";
         this.mockTokenService.Setup(m => m.GetToken()).Returns(token);
         var sut = CreateFactory();
 
-        this.mockBuildInfoReactable.Object.PushNotification(buildInfoData);
+        this.mockProductNameReactable.Object.PushNotification(data);
 
         // Act
         var act = () => sut.CreateGitHubClient();
@@ -116,20 +120,20 @@ public class HttpClientFactoryTests
     public void CreateGitHubClient_WhenInvoked_DisposesOfUnsubscriber()
     {
         // Arrange
-        IReactor<BuildInfoData>? reactor = null;
+        IReactor<string>? reactor = null;
 
-        this.mockBuildInfoReactable.Setup(m => m.Subscribe(It.IsAny<IReactor<BuildInfoData>>()))
-            .Callback<IReactor<BuildInfoData>>(reactorObj => reactor = reactorObj);
+        this.mockProductNameReactable.Setup(m => m.Subscribe(It.IsAny<IReactor<string>>()))
+            .Callback<IReactor<string>>(reactorObj => reactor = reactorObj);
 
-        this.mockBuildInfoReactable.Setup(m => m.PushNotification(It.IsAny<BuildInfoData>()))
-            .Callback<BuildInfoData>(data => reactor.OnNext(data));
+        this.mockProductNameReactable.Setup(m => m.PushNotification(It.IsAny<string>()))
+            .Callback<string>(data => reactor.OnNext(data));
 
         this.mockTokenService.Setup(m => m.GetToken()).Returns("test-token");
 
         var sut = CreateFactory();
 
-        var buildInfoData = new BuildInfoData("test-owner", "test-repo-name", "test-project", "test-token");
-        this.mockBuildInfoReactable.Object.PushNotification(buildInfoData);
+        var data = "test-token";
+        this.mockProductNameReactable.Object.PushNotification(data);
 
         // Act
         var actual = sut.CreateGitHubClient();
@@ -146,5 +150,5 @@ public class HttpClientFactoryTests
     /// </summary>
     /// <returns>The instance to test.</returns>
     private HttpClientFactory CreateFactory()
-        => new (this.mockBuildInfoReactable.Object, this.mockTokenService.Object);
+        => new (this.mockProductNameReactable.Object, this.mockTokenService.Object);
 }

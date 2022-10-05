@@ -4,7 +4,6 @@
 
 // ReSharper disable InconsistentNaming
 using CICDSystem.Reactables.Core;
-using CICDSystem.Reactables.ReactableData;
 using CICDSystem.Services;
 
 namespace CICDSystem.Factories;
@@ -35,7 +34,7 @@ internal static class ServiceFactory
         var executionContextService = App.Container.GetInstance<IExecutionContextService>();
         var gitRepoService = App.Container.GetInstance<IGitRepoService>();
         var clientFactory = App.Container.GetInstance<IHttpClientFactory>();
-        var buildInfoReactable = App.Container.GetInstance<IReactable<BuildInfoData>>();
+        var repoInfoReactable = App.Container.GetInstance<IReactable<(string, string)>>();
 
         actionsService = new GitHubActionsService(
             pullRequestNumber,
@@ -43,7 +42,7 @@ internal static class ServiceFactory
             executionContextService,
             gitRepoService,
             clientFactory,
-            buildInfoReactable);
+            repoInfoReactable);
 
         return actionsService;
     }

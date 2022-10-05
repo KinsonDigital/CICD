@@ -23,14 +23,14 @@ public partial class CICD // StatusChecks
         .Requires(
             () => ThatPullRequestNumberIsProvided(),
             () => ThatThePullRequestExists(),
-            () => ThatThePRBranchesAreValid(
+            () => ThatThePRBranchIsValid(
                 PRBranchContext.Source,
                 BranchType.Feature,
                 BranchType.PreviewFeature,
                 BranchType.Release,
                 BranchType.HotFix,
                 BranchType.Preview),
-            () => ThatThePRBranchesAreValid(
+            () => ThatThePRBranchIsValid(
                 PRBranchContext.Target,
                 BranchType.Develop,
                 BranchType.Master,
@@ -55,14 +55,14 @@ public partial class CICD // StatusChecks
         .Requires(
             () => ThatPullRequestNumberIsProvided(),
             () => ThatThePullRequestExists(),
-            () => ThatThePRBranchesAreValid(
+            () => ThatThePRBranchIsValid(
                 PRBranchContext.Source,
                 BranchType.Feature,
                 BranchType.PreviewFeature,
                 BranchType.Release,
                 BranchType.HotFix,
                 BranchType.Preview),
-            () => ThatThePRBranchesAreValid(
+            () => ThatThePRBranchIsValid(
                 PRBranchContext.Target,
                 BranchType.Develop,
                 BranchType.Master,
@@ -87,8 +87,8 @@ public partial class CICD // StatusChecks
         .Requires(
             () => ThatPullRequestNumberIsProvided(),
             () => ThatThePullRequestExists(),
-            () => ThatThePRSourceBranchIsValid(BranchType.Feature),
-            () => ThatThePRBranchesAreValid(PRBranchContext.Target, BranchType.Develop),
+            () => ThatThePRBranchIsValid(PRBranchContext.Source, BranchType.Feature),
+            () => ThatThePRBranchIsValid(PRBranchContext.Target, BranchType.Develop),
             () => ThatFeaturePRIssueNumberExists(),
             () => ThatFeaturePRIssueHasLabel(BranchType.Feature),
             () => ThatThePRHasBeenAssigned(),
@@ -101,8 +101,8 @@ public partial class CICD // StatusChecks
         .Requires(
             () => ThatPullRequestNumberIsProvided(),
             () => ThatThePullRequestExists(),
-            () => ThatThePRSourceBranchIsValid(BranchType.Master),
-            () => ThatThePRBranchesAreValid(PRBranchContext.Target, BranchType.Preview),
+            () => ThatThePRBranchIsValid(PRBranchContext.Source, BranchType.PreviewFeature),
+            // () => ThatThePRBranchIsValid(PRBranchContext.Target, BranchType.Preview),
             () => ThatPreviewFeaturePRIssueNumberExists(),
             () => ThatFeaturePRIssueHasLabel(BranchType.PreviewFeature),
             () => ThatThePRHasBeenAssigned(),
@@ -112,8 +112,8 @@ public partial class CICD // StatusChecks
         .Requires(
             () => ThatPullRequestNumberIsProvided(),
             () => ThatThePullRequestExists(),
-            () => ThatThePRSourceBranchIsValid(BranchType.HotFix),
-            () => ThatThePRBranchesAreValid(PRBranchContext.Target, BranchType.Master),
+            () => ThatThePRBranchIsValid(PRBranchContext.Source, BranchType.HotFix),
+            () => ThatThePRBranchIsValid(PRBranchContext.Target, BranchType.Master),
             () => ThatPreviewFeaturePRIssueNumberExists(),
             () => ThatFeaturePRIssueHasLabel(BranchType.HotFix),
             () => ThatThePRHasBeenAssigned(),
@@ -123,8 +123,8 @@ public partial class CICD // StatusChecks
         .Requires(
             () => ThatPullRequestNumberIsProvided(),
             () => ThatThePullRequestExists(),
-            () => ThatThePRSourceBranchIsValid(BranchType.Preview),
-            () => ThatThePRBranchesAreValid(PRBranchContext.Target, BranchType.Release),
+            () => ThatThePRBranchIsValid(PRBranchContext.Source, BranchType.Preview),
+            () => ThatThePRBranchIsValid(PRBranchContext.Target, BranchType.Release),
             () => ThatThePRHasBeenAssigned(),
             () => ThatThePRHasTheLabel("🚀Preview Release"),
             () => ThatTheProjectVersionsAreValid(ReleaseType.Preview),
@@ -148,8 +148,8 @@ public partial class CICD // StatusChecks
         .Requires(
             () => ThatPullRequestNumberIsProvided(),
             () => ThatThePullRequestExists(),
-            () => ThatThePRSourceBranchIsValid(BranchType.Release),
-            () => ThatThePRBranchesAreValid(PRBranchContext.Target, BranchType.Master),
+            () => ThatThePRBranchIsValid(PRBranchContext.Source, BranchType.Release),
+            () => ThatThePRBranchIsValid(PRBranchContext.Target, BranchType.Master),
             () => ThatThePRHasBeenAssigned(),
             () => ThatThePRHasTheLabel("🚀Production Release"),
             () => ThatTheProjectVersionsAreValid(ReleaseType.Production),
@@ -175,6 +175,8 @@ public partial class CICD // StatusChecks
         .Unlisted()
         .Executes(() =>
         {
+            // var srcResult = ThatThePRBranchIsValid(PRBranchContext.Source, BranchType.PreviewFeature);
+            var targetResult = ThatThePRBranchIsValid(PRBranchContext.Target, BranchType.Preview);
         });
 
     // ReSharper restore UnusedMember.Local

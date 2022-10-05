@@ -9,7 +9,6 @@ using System.Runtime.CompilerServices;
 using CICDSystem.Factories;
 using CICDSystem.Reactables;
 using CICDSystem.Reactables.Core;
-using CICDSystem.Reactables.ReactableData;
 using CICDSystem.Services;
 using SimpleInjector;
 
@@ -52,7 +51,8 @@ internal static class App
         IoCContainer.Register(() => FileSystem.File, Lifestyle.Singleton);
         IoCContainer.Register(() => FileSystem.Directory, Lifestyle.Singleton);
         IoCContainer.Register(() => FileSystem.Path, Lifestyle.Singleton);
-        IoCContainer.Register<IReactable<BuildInfoData>, BuildInfoReactable>(Lifestyle.Singleton);
+        IoCContainer.Register<IReactable<(string, string)>, RepoInfoReactable>(Lifestyle.Singleton);
+        IoCContainer.Register<IReactable<string>, ProductNameReactable>(Lifestyle.Singleton);
         IoCContainer.Register<IGitRepoService, GitRepoService>(Lifestyle.Singleton);
         IoCContainer.Register<IExecutionContextService, ExecutionContextService>(Lifestyle.Singleton);
         IoCContainer.Register<IGitHubTokenService, GitHubTokenService>(Lifestyle.Singleton);

@@ -6,7 +6,6 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using CICDSystem.Guards;
 using CICDSystem.Reactables.Core;
-using CICDSystem.Reactables.ReactableData;
 using CICDSystem.Services;
 using Octokit;
 using Octokit.Internal;
@@ -26,22 +25,22 @@ internal sealed class HttpClientFactory : IHttpClientFactory
     /// <summary>
     /// Initializes a new instance of the <see cref="HttpClientFactory"/> class.
     /// </summary>
-    /// <param name="buildInfoReactable">Provides push notifications of build information.</param>
+    /// <param name="productNamReactable">Provides push notifications of build information.</param>
     /// <param name="tokenService">Provides access to tokens.</param>
     /// <exception cref="ArgumentNullException">
     ///     Occurs if any of the arguments are <c>null</c>.
     /// </exception>
-    public HttpClientFactory(IReactable<BuildInfoData> buildInfoReactable, IGitHubTokenService tokenService)
+    public HttpClientFactory(IReactable<string> productNamReactable, IGitHubTokenService tokenService)
     {
-        EnsureThat.ParamIsNotNull(buildInfoReactable, nameof(buildInfoReactable));
+        EnsureThat.ParamIsNotNull(productNamReactable, nameof(productNamReactable));
         EnsureThat.ParamIsNotNull(tokenService, nameof(tokenService));
 
         this.tokenService = tokenService;
 
-        this.unsubscriber = buildInfoReactable.Subscribe(new Reactor<BuildInfoData>(
+        this.unsubscriber = productNamReactable.Subscribe(new Reactor<string>(
             onNext: data =>
             {
-                this.productName = data.ProjectName;
+                this.productName = data;
             },
             onCompleted: () => this.unsubscriber?.Dispose()));
     }

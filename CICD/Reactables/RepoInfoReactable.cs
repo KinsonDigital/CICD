@@ -1,22 +1,21 @@
-﻿// <copyright file="BuildInfoReactable.cs" company="KinsonDigital">
+﻿// <copyright file="RepoInfoReactable.cs" company="KinsonDigital">
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
 using CICDSystem.Reactables.Core;
-using CICDSystem.Reactables.ReactableData;
 
 namespace CICDSystem.Reactables;
 
 /// <summary>
-/// Creates a reactable to send push notifications to pass along information about a repository and the project.
+/// Provides push notifications on repository information.
 /// </summary>
-internal class BuildInfoReactable : Reactable<BuildInfoData>
+internal class RepoInfoReactable : Reactable<(string repoOwner, string repoName)>
 {
     /// <summary>
-    /// Sends a push notification to pass on repository and project information.
+    /// Sends a push notification on repository information.
     /// </summary>
     /// <param name="data">The data to send with the push notification.</param>
-    public override void PushNotification(BuildInfoData data)
+    public override void PushNotification((string repoOwner, string repoName) data)
     {
         /* Work from the end to the beginning of the list
            just in case the reactable is disposed(removed)

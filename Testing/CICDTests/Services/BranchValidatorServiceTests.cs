@@ -7,7 +7,6 @@ using System.Net;
 using CICDSystem;
 using CICDSystem.Factories;
 using CICDSystem.Reactables.Core;
-using CICDSystem.Reactables.ReactableData;
 using CICDSystem.Services;
 using FluentAssertions;
 using Moq;
@@ -23,12 +22,10 @@ public class BranchValidatorServiceTests
 {
     private const string RepoOwner = "test-owner";
     private const string RepoName = "test-repo-name";
-    private const string ProjectName = "test-project";
-    private const string Token = "test-token";
     private readonly Mock<IIssuesClient> mockIssuesClient;
     private readonly Mock<IPullRequestsClient> mockPRClient;
     private readonly Mock<IHttpClientFactory> mockHttpClientFactory;
-    private readonly Mock<IReactable<BuildInfoData>> mockBuildInfoReactable;
+    private readonly Mock<IReactable<(string, string)>> mockRepoInfoReactable;
     private readonly Mock<IGitRepoService> mockGitRepoService;
 
     /// <summary>
@@ -43,7 +40,7 @@ public class BranchValidatorServiceTests
         mockGitHubClient.SetupGet(p => p.PullRequest).Returns(this.mockPRClient.Object);
         mockGitHubClient.SetupGet(p => p.Issue).Returns(this.mockIssuesClient.Object);
 
-        this.mockBuildInfoReactable = new Mock<IReactable<BuildInfoData>>();
+        this.mockRepoInfoReactable = new Mock<IReactable<(string, string)>>();
 
         this.mockHttpClientFactory = new Mock<IHttpClientFactory>();
         this.mockHttpClientFactory.Setup(m => m.CreateGitHubClient()).Returns(mockGitHubClient.Object);
@@ -61,7 +58,7 @@ public class BranchValidatorServiceTests
             _ = new BranchValidatorService(
                 null,
                 this.mockGitRepoService.Object,
-                this.mockBuildInfoReactable.Object);
+                this.mockRepoInfoReactable.Object);
         };
 
         // Assert
@@ -79,7 +76,7 @@ public class BranchValidatorServiceTests
             _ = new BranchValidatorService(
                 this.mockHttpClientFactory.Object,
                 null,
-                this.mockBuildInfoReactable.Object);
+                this.mockRepoInfoReactable.Object);
         };
 
         // Assert
@@ -89,7 +86,7 @@ public class BranchValidatorServiceTests
     }
 
     [Fact]
-    public void Ctor_WithNullBuildInfoReactableParam_ThrowsException()
+    public void Ctor_WithNullRepoInfoReactableParam_ThrowsException()
     {
         // Arrange & Act
         var act = () =>
@@ -103,27 +100,27 @@ public class BranchValidatorServiceTests
         // Assert
         act.Should()
             .Throw<ArgumentNullException>()
-            .WithMessage("The parameter must not be null. (Parameter 'buildInfoReactable')");
+            .WithMessage("The parameter must not be null. (Parameter 'repoInfoReactable')");
     }
 
     [Fact]
     public void Ctor_WhenOnCompletedIsInvoked_InvokesUnsubscriberDispose()
     {
         // Arrange
-        IReactor<BuildInfoData>? reactor = null;
+        IReactor<(string, string)>? reactor = null;
         var mockUnsubscriber = new Mock<IDisposable>();
 
-        this.mockBuildInfoReactable.Setup(m => m.Subscribe(It.IsAny<IReactor<BuildInfoData>>()))
-            .Callback<IReactor<BuildInfoData>>(reactorObj => reactor = reactorObj)
-            .Returns<IReactor<BuildInfoData>>(_ => mockUnsubscriber.Object);
+        this.mockRepoInfoReactable.Setup(m => m.Subscribe(It.IsAny<IReactor<(string, string)>>()))
+            .Callback<IReactor<(string, string)>>(reactorObj => reactor = reactorObj)
+            .Returns<IReactor<(string, string)>>(_ => mockUnsubscriber.Object);
 
-        this.mockBuildInfoReactable.Setup(m => m.EndNotifications())
+        this.mockRepoInfoReactable.Setup(m => m.EndNotifications())
             .Callback(() => reactor.OnCompleted());
 
         _ = CreateService();
 
         // Act
-        this.mockBuildInfoReactable.Object.EndNotifications();
+        this.mockRepoInfoReactable.Object.EndNotifications();
 
         // Assert
         mockUnsubscriber.Verify(m => m.Dispose(), Times.Once);
@@ -133,18 +130,18 @@ public class BranchValidatorServiceTests
     public void Ctor_WhenOnCompletedIsInvokedWithNullUnsubscriber_DoesNotThrowException()
     {
         // Arrange
-        IReactor<BuildInfoData>? reactor = null;
-        this.mockBuildInfoReactable.Setup(m => m.Subscribe(It.IsAny<IReactor<BuildInfoData>>()))
-            .Callback<IReactor<BuildInfoData>>(reactorObj => reactor = reactorObj)
-            .Returns<IReactor<BuildInfoData>>(_ => null!);
+        IReactor<(string, string)>? reactor = null;
+        this.mockRepoInfoReactable.Setup(m => m.Subscribe(It.IsAny<IReactor<(string, string)>>()))
+            .Callback<IReactor<(string, string)>>(reactorObj => reactor = reactorObj)
+            .Returns<IReactor<(string, string)>>(_ => null!);
 
-        this.mockBuildInfoReactable.Setup(m => m.EndNotifications())
+        this.mockRepoInfoReactable.Setup(m => m.EndNotifications())
             .Callback(() => reactor.OnCompleted());
 
         _ = CreateService();
 
         // Act
-        var act = () => this.mockBuildInfoReactable.Object.EndNotifications();
+        var act = () => this.mockRepoInfoReactable.Object.EndNotifications();
 
         // Assert
         act.Should().NotThrow("the unsubscriber should have null check.");
@@ -992,19 +989,19 @@ public class BranchValidatorServiceTests
         bool expected)
     {
         // Arrange
-        var buildData = new BuildInfoData(RepoOwner, RepoName, ProjectName, Token);
-        IReactor<BuildInfoData>? reactor = null;
-        this.mockBuildInfoReactable.Setup(m => m.Subscribe(It.IsAny<IReactor<BuildInfoData>>()))
-            .Callback<IReactor<BuildInfoData>>(reactorObj => reactor = reactorObj);
-        this.mockBuildInfoReactable.Setup(m => m.PushNotification(It.IsAny<BuildInfoData>()))
-            .Callback<BuildInfoData>(data => reactor.OnNext(data));
+        var repoInfoData = (RepoOwner, RepoName);
+        IReactor<(string, string)>? reactor = null;
+        this.mockRepoInfoReactable.Setup(m => m.Subscribe(It.IsAny<IReactor<(string, string)>>()))
+            .Callback<IReactor<(string, string)>>(reactorObj => reactor = reactorObj);
+        this.mockRepoInfoReactable.Setup(m => m.PushNotification(It.IsAny<(string, string)>()))
+            .Callback<(string, string)>(data => reactor.OnNext(data));
 
         var pullRequest = CreatePullRequest(srcBranch, "target-branch");
         this.mockPRClient.Setup(m => m.Get(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
             .ReturnsAsync(pullRequest);
 
         var service = CreateService();
-        this.mockBuildInfoReactable.Object.PushNotification(buildData);
+        this.mockRepoInfoReactable.Object.PushNotification(repoInfoData);
 
         // Act
         var actual = service.PRSourceBranchCorrect(123, branchType).GetValue();
@@ -1018,19 +1015,19 @@ public class BranchValidatorServiceTests
     internal void PRSourceBranchCorrect_WhenInvokedWithoutPredicatesAndPRDoesNotExist_ReturnsFalse()
     {
         // Arrange
-        var buildData = new BuildInfoData(RepoOwner, RepoName, ProjectName, Token);
-        IReactor<BuildInfoData>? reactor = null;
-        this.mockBuildInfoReactable.Setup(m => m.Subscribe(It.IsAny<IReactor<BuildInfoData>>()))
-            .Callback<IReactor<BuildInfoData>>(reactorObj => reactor = reactorObj);
-        this.mockBuildInfoReactable.Setup(m => m.PushNotification(It.IsAny<BuildInfoData>()))
-            .Callback<BuildInfoData>(data => reactor.OnNext(data));
+        var repoInfoData = (RepoOwner, RepoName);
+        IReactor<(string, string)>? reactor = null;
+        this.mockRepoInfoReactable.Setup(m => m.Subscribe(It.IsAny<IReactor<(string, string)>>()))
+            .Callback<IReactor<(string, string)>>(reactorObj => reactor = reactorObj);
+        this.mockRepoInfoReactable.Setup(m => m.PushNotification(It.IsAny<(string, string)>()))
+            .Callback<(string, string)>(data => reactor.OnNext(data));
 
         this.mockPRClient.Setup(m => m.Get(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
             .Callback<string, string, int>((_, _, _) =>
                 throw new NotFoundException("not found", HttpStatusCode.NotFound));
 
         var service = CreateService();
-        this.mockBuildInfoReactable.Object.PushNotification(buildData);
+        this.mockRepoInfoReactable.Object.PushNotification(repoInfoData);
 
         // Act
         var actual = service.PRSourceBranchCorrect(123, It.IsAny<BranchType>()).GetValue();
@@ -1077,19 +1074,19 @@ public class BranchValidatorServiceTests
         bool expected)
     {
         // Arrange
-        var buildData = new BuildInfoData(RepoOwner, RepoName, ProjectName, Token);
-        IReactor<BuildInfoData>? reactor = null;
-        this.mockBuildInfoReactable.Setup(m => m.Subscribe(It.IsAny<IReactor<BuildInfoData>>()))
-            .Callback<IReactor<BuildInfoData>>(reactorObj => reactor = reactorObj);
-        this.mockBuildInfoReactable.Setup(m => m.PushNotification(It.IsAny<BuildInfoData>()))
-            .Callback<BuildInfoData>(data => reactor.OnNext(data));
+        var repoInfoData = (RepoOwner, RepoName);
+        IReactor<(string, string)>? reactor = null;
+        this.mockRepoInfoReactable.Setup(m => m.Subscribe(It.IsAny<IReactor<(string, string)>>()))
+            .Callback<IReactor<(string, string)>>(reactorObj => reactor = reactorObj);
+        this.mockRepoInfoReactable.Setup(m => m.PushNotification(It.IsAny<(string, string)>()))
+            .Callback<(string, string)>(data => reactor.OnNext(data));
 
         var pullRequest = CreatePullRequest(srcBranch, "target-branch");
         this.mockPRClient.Setup(m => m.Get(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
             .ReturnsAsync(pullRequest);
 
         var service = CreateService();
-        this.mockBuildInfoReactable.Object.PushNotification(buildData);
+        this.mockRepoInfoReactable.Object.PushNotification(repoInfoData);
 
         // Act
         var actual = service.PRSourceBranchCorrect(
@@ -1107,19 +1104,19 @@ public class BranchValidatorServiceTests
     internal void PRSourceBranchCorrect_WhenInvokedWithPredicatesAndPRDoesNotExist_ReturnsFalse()
     {
         // Arrange
-        var buildData = new BuildInfoData(RepoOwner, RepoName, ProjectName, Token);
-        IReactor<BuildInfoData>? reactor = null;
-        this.mockBuildInfoReactable.Setup(m => m.Subscribe(It.IsAny<IReactor<BuildInfoData>>()))
-            .Callback<IReactor<BuildInfoData>>(reactorObj => reactor = reactorObj);
-        this.mockBuildInfoReactable.Setup(m => m.PushNotification(It.IsAny<BuildInfoData>()))
-            .Callback<BuildInfoData>(data => reactor.OnNext(data));
+        var repoInfoData = (RepoOwner, RepoName);
+        IReactor<(string, string)>? reactor = null;
+        this.mockRepoInfoReactable.Setup(m => m.Subscribe(It.IsAny<IReactor<(string, string)>>()))
+            .Callback<IReactor<(string, string)>>(reactorObj => reactor = reactorObj);
+        this.mockRepoInfoReactable.Setup(m => m.PushNotification(It.IsAny<(string, string)>()))
+            .Callback<(string, string)>(data => reactor.OnNext(data));
 
         this.mockPRClient.Setup(m => m.Get(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
             .Callback<string, string, int>((_, _, _) =>
                 throw new NotFoundException("not found", HttpStatusCode.NotFound));
 
         var service = CreateService();
-        this.mockBuildInfoReactable.Object.PushNotification(buildData);
+        this.mockRepoInfoReactable.Object.PushNotification(repoInfoData);
 
         // Act
         var actual = service.PRSourceBranchCorrect(123, It.IsAny<BranchType>(), _ => true).GetValue();
@@ -1217,11 +1214,11 @@ public class BranchValidatorServiceTests
         bool expected)
     {
         // Arrange
-        IReactor<BuildInfoData>? reactor = null;
-        this.mockBuildInfoReactable.Setup(m => m.Subscribe(It.IsAny<IReactor<BuildInfoData>>()))
-            .Callback<IReactor<BuildInfoData>>(reactorObj => reactor = reactorObj);
-        this.mockBuildInfoReactable.Setup(m => m.PushNotification(It.IsAny<BuildInfoData>()))
-            .Callback<BuildInfoData>(data => reactor.OnNext(data));
+        IReactor<(string, string)>? reactor = null;
+        this.mockRepoInfoReactable.Setup(m => m.Subscribe(It.IsAny<IReactor<(string, string)>>()))
+            .Callback<IReactor<(string, string)>>(reactorObj => reactor = reactorObj);
+        this.mockRepoInfoReactable.Setup(m => m.PushNotification(It.IsAny<(string, string)>()))
+            .Callback<(string, string)>(data => reactor.OnNext(data));
 
         var pullRequest = CreatePullRequest("src-branch", targetBranch);
         this.mockPRClient.Setup(m => m.Get(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
@@ -1240,19 +1237,19 @@ public class BranchValidatorServiceTests
     internal void PRTargetBranchCorrect_WhenInvokedWithoutPredicatesAndPRDoesNotExist_ReturnsFalse()
     {
         // Arrange
-        var buildData = new BuildInfoData(RepoOwner, RepoName, ProjectName, Token);
-        IReactor<BuildInfoData>? reactor = null;
-        this.mockBuildInfoReactable.Setup(m => m.Subscribe(It.IsAny<IReactor<BuildInfoData>>()))
-            .Callback<IReactor<BuildInfoData>>(reactorObj => reactor = reactorObj);
-        this.mockBuildInfoReactable.Setup(m => m.PushNotification(It.IsAny<BuildInfoData>()))
-            .Callback<BuildInfoData>(data => reactor.OnNext(data));
+        var repoInfoData = (RepoOwner, RepoName);
+        IReactor<(string, string)>? reactor = null;
+        this.mockRepoInfoReactable.Setup(m => m.Subscribe(It.IsAny<IReactor<(string, string)>>()))
+            .Callback<IReactor<(string, string)>>(reactorObj => reactor = reactorObj);
+        this.mockRepoInfoReactable.Setup(m => m.PushNotification(It.IsAny<(string, string)>()))
+            .Callback<(string, string)>(data => reactor.OnNext(data));
 
         this.mockPRClient.Setup(m => m.Get(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
             .Callback<string, string, int>((_, _, _) =>
                 throw new NotFoundException("not found", HttpStatusCode.NotFound));
 
         var service = CreateService();
-        this.mockBuildInfoReactable.Object.PushNotification(buildData);
+        this.mockRepoInfoReactable.Object.PushNotification(repoInfoData);
 
         // Act
         var actual = service.PRTargetBranchCorrect(123, It.IsAny<BranchType>()).GetValue();
@@ -1299,11 +1296,11 @@ public class BranchValidatorServiceTests
         bool expected)
     {
         // Arrange
-        IReactor<BuildInfoData>? reactor = null;
-        this.mockBuildInfoReactable.Setup(m => m.Subscribe(It.IsAny<IReactor<BuildInfoData>>()))
-            .Callback<IReactor<BuildInfoData>>(reactorObj => reactor = reactorObj);
-        this.mockBuildInfoReactable.Setup(m => m.PushNotification(It.IsAny<BuildInfoData>()))
-            .Callback<BuildInfoData>(data => reactor.OnNext(data));
+        IReactor<(string, string)>? reactor = null;
+        this.mockRepoInfoReactable.Setup(m => m.Subscribe(It.IsAny<IReactor<(string, string)>>()))
+            .Callback<IReactor<(string, string)>>(reactorObj => reactor = reactorObj);
+        this.mockRepoInfoReactable.Setup(m => m.PushNotification(It.IsAny<(string, string)>()))
+            .Callback<(string, string)>(data => reactor.OnNext(data));
 
         var pullRequest = CreatePullRequest("src-branch", targetBranch);
         this.mockPRClient.Setup(m => m.Get(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
@@ -1326,19 +1323,19 @@ public class BranchValidatorServiceTests
     internal void PRTargetBranchCorrect_WhenInvokedWithPredicatesAndPRDoesNotExist_ReturnsFalse()
     {
         // Arrange
-        var buildData = new BuildInfoData(RepoOwner, RepoName, ProjectName, Token);
-        IReactor<BuildInfoData>? reactor = null;
-        this.mockBuildInfoReactable.Setup(m => m.Subscribe(It.IsAny<IReactor<BuildInfoData>>()))
-            .Callback<IReactor<BuildInfoData>>(reactorObj => reactor = reactorObj);
-        this.mockBuildInfoReactable.Setup(m => m.PushNotification(It.IsAny<BuildInfoData>()))
-            .Callback<BuildInfoData>(data => reactor.OnNext(data));
+        var repoInfoData = (RepoOwner, RepoName);
+        IReactor<(string, string)>? reactor = null;
+        this.mockRepoInfoReactable.Setup(m => m.Subscribe(It.IsAny<IReactor<(string, string)>>()))
+            .Callback<IReactor<(string, string)>>(reactorObj => reactor = reactorObj);
+        this.mockRepoInfoReactable.Setup(m => m.PushNotification(It.IsAny<(string, string)>()))
+            .Callback<(string, string)>(data => reactor.OnNext(data));
 
         this.mockPRClient.Setup(m => m.Get(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
             .Callback<string, string, int>((_, _, _) =>
                 throw new NotFoundException("not found", HttpStatusCode.NotFound));
 
         var service = CreateService();
-        this.mockBuildInfoReactable.Object.PushNotification(buildData);
+        this.mockRepoInfoReactable.Object.PushNotification(repoInfoData);
 
         // Act
         var actual = service.PRTargetBranchCorrect(123, It.IsAny<BranchType>(), _ => true).GetValue();
@@ -1392,18 +1389,18 @@ public class BranchValidatorServiceTests
         bool expected)
     {
         // Arrange
-        var buildData = new BuildInfoData(RepoOwner, RepoName, ProjectName, Token);
-        IReactor<BuildInfoData>? reactor = null;
-        this.mockBuildInfoReactable.Setup(m => m.Subscribe(It.IsAny<IReactor<BuildInfoData>>()))
-            .Callback<IReactor<BuildInfoData>>(reactorObj => reactor = reactorObj);
-        this.mockBuildInfoReactable.Setup(m => m.PushNotification(It.IsAny<BuildInfoData>()))
-            .Callback<BuildInfoData>(data => reactor.OnNext(data));
+        var repoInfoData = (RepoOwner, RepoName);
+        IReactor<(string, string)>? reactor = null;
+        this.mockRepoInfoReactable.Setup(m => m.Subscribe(It.IsAny<IReactor<(string, string)>>()))
+            .Callback<IReactor<(string, string)>>(reactorObj => reactor = reactorObj);
+        this.mockRepoInfoReactable.Setup(m => m.PushNotification(It.IsAny<(string, string)>()))
+            .Callback<(string, string)>(data => reactor.OnNext(data));
 
         this.mockIssuesClient.Setup(m => m.Get(It.IsAny<string>(), It.IsAny<string>(), 123))
             .ReturnsAsync(new Issue());
         var service = CreateService();
 
-        this.mockBuildInfoReactable.Object.PushNotification(buildData);
+        this.mockRepoInfoReactable.Object.PushNotification(repoInfoData);
 
         // Act
         var actual = service.BranchIssueNumberExists(branch);
@@ -1716,5 +1713,5 @@ public class BranchValidatorServiceTests
     private BranchValidatorService CreateService()
         => new (this.mockHttpClientFactory.Object,
                 this.mockGitRepoService.Object,
-                this.mockBuildInfoReactable.Object);
+                this.mockRepoInfoReactable.Object);
 }

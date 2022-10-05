@@ -95,7 +95,7 @@ public partial class CICD // Common
         const string leftBracket = "{";
         const string rightBracket = "}";
         const string projLocation = $"{leftBracket}PROJECT_NAME{rightBracket}";
-        const string repoOwner = $"{leftBracket}REPO_OWNER{rightBracket}";
+        const string repoOwnerInjectionPoint = $"{leftBracket}REPO_OWNER{rightBracket}";
         const string version = $"{leftBracket}VERSION{rightBracket}";
 
         if (File.Exists(templateFilePath) is false)
@@ -106,7 +106,7 @@ public partial class CICD // Common
         var tweetTemplate = File.ReadAllText(templateFilePath);
 
         tweetTemplate = tweetTemplate.Replace(projLocation, RepoName);
-        tweetTemplate = tweetTemplate.Replace(repoOwner, RepoOwner);
+        tweetTemplate = tweetTemplate.Replace(repoOwnerInjectionPoint, RepoOwner);
         tweetTemplate = tweetTemplate.Replace(version, releaseVersion);
 
         TwitterTasks.SendTweet(tweetTemplate, TwitterConsumerApiKey, TwitterConsumerApiSecret, TwitterAccessToken, TwitterAccessTokenSecret);

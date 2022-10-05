@@ -9,7 +9,6 @@ using System.Linq;
 using CICDSystem.Factories;
 using CICDSystem.Guards;
 using CICDSystem.Reactables.Core;
-using CICDSystem.Reactables.ReactableData;
 using Octokit;
 
 namespace CICDSystem.Services;
@@ -30,25 +29,25 @@ internal sealed class BranchValidatorService : IBranchValidatorService
     /// </summary>
     /// <param name="clientFactory">Creates HTTP clients.</param>
     /// <param name="gitRepoService">Provides GIT repository information.</param>
-    /// <param name="buildInfoReactable">Provides push notifications of build information.</param>
+    /// <param name="repoInfoReactable">Provides push notifications of build information.</param>
     public BranchValidatorService(
         IHttpClientFactory clientFactory,
         IGitRepoService gitRepoService,
-        IReactable<BuildInfoData> buildInfoReactable)
+        IReactable<(string, string)> repoInfoReactable)
     {
         EnsureThat.ParamIsNotNull(clientFactory, nameof(clientFactory));
         EnsureThat.ParamIsNotNull(gitRepoService, nameof(gitRepoService));
-        EnsureThat.ParamIsNotNull(buildInfoReactable, nameof(buildInfoReactable));
+        EnsureThat.ParamIsNotNull(repoInfoReactable, nameof(repoInfoReactable));
 
         this.clientFactory = clientFactory;
 
         this.gitRepoService = gitRepoService;
 
-        this.unsubscriber = buildInfoReactable.Subscribe(new Reactor<BuildInfoData>(
+        this.unsubscriber = repoInfoReactable.Subscribe(new Reactor<(string repoOwner, string repoName)>(
             onNext: data =>
             {
-                this.repoOwner = data.RepoOwner;
-                this.repoName = data.RepoName;
+                this.repoOwner = data.repoOwner;
+                this.repoName = data.repoName;
             },
             onCompleted: () => this.unsubscriber?.Dispose()));
     }

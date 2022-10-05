@@ -8,7 +8,6 @@ using System.Diagnostics.CodeAnalysis;
 using CICDSystem.Factories;
 using CICDSystem.Guards;
 using CICDSystem.Reactables.Core;
-using CICDSystem.Reactables.ReactableData;
 using Nuke.Common.CI.GitHubActions;
 
 namespace CICDSystem.Services;
@@ -34,14 +33,14 @@ internal class GitHubActionsService : IGitHubActionsService
     /// <param name="executionContextService">Provides information about the current build execution.</param>
     /// <param name="repoService">Provides repository related services.</param>
     /// <param name="clientFactory">Provides GitHub API communication.</param>
-    /// <param name="buildInfoReactable">Provides push notifications of build information.</param>
+    /// <param name="repoInfoReactable">Provides push notifications of build information.</param>
     public GitHubActionsService(
         int pullRequestNumber,
         ISecretService secretService,
         IExecutionContextService executionContextService,
         IGitRepoService repoService,
         IHttpClientFactory clientFactory,
-        IReactable<BuildInfoData> buildInfoReactable)
+        IReactable<(string, string)> repoInfoReactable)
     {
         EnsureThat.ParamIsNotNull(secretService, nameof(secretService));
         EnsureThat.ParamIsNotNull(executionContextService, nameof(executionContextService));
@@ -54,11 +53,11 @@ internal class GitHubActionsService : IGitHubActionsService
         this.repoService = repoService;
         this.clientFactory = clientFactory;
 
-        this.reactableUnsubscriber = buildInfoReactable.Subscribe(new Reactor<BuildInfoData>(
+        this.reactableUnsubscriber = repoInfoReactable.Subscribe(new Reactor<(string repoOwner, string repoName)>(
             onNext: data =>
             {
-                this.repoOwner = data.RepoOwner;
-                this.repoName = data.RepoName;
+                this.repoOwner = data.repoOwner;
+                this.repoName = data.repoName;
             },
             onCompleted: () => this.reactableUnsubscriber?.Dispose()));
     }

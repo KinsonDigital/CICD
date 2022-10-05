@@ -17,7 +17,6 @@ using Nuke.Common.Utilities;
 using Nuke.Common.Utilities.Collections;
 using Octokit;
 using Serilog;
-using SimpleInjector;
 using static Nuke.Common.NukeBuild;
 using Project = Nuke.Common.ProjectModel.Project;
 
