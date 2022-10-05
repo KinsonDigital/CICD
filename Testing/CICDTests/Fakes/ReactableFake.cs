@@ -10,7 +10,7 @@ namespace CICDSystemTests.Fakes;
 /// Used for testing the abstract <see cref="Reactable{TData}"/> class.
 /// </summary>
 /// <typeparam name="T">The type of notification to set.</typeparam>
-internal class ReactableFake<T> : Reactable<T>
+internal sealed class ReactableFake<T> : Reactable<T>
 {
     public override void PushNotification(T data) => throw new NotImplementedException();
 }

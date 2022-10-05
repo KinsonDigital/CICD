@@ -9,7 +9,7 @@ namespace CICDSystem.Reactables;
 /// <summary>
 /// Provides push notifications on repository information.
 /// </summary>
-internal class RepoInfoReactable : Reactable<(string repoOwner, string repoName)>
+internal sealed class RepoInfoReactable : Reactable<(string repoOwner, string repoName)>
 {
     /// <summary>
     /// Sends a push notification on repository information.

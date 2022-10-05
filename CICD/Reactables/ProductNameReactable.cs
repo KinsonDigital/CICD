@@ -9,7 +9,7 @@ namespace CICDSystem.Reactables;
 /// <summary>
 /// Provides push notifications on the product name.
 /// </summary>
-internal class ProductNameReactable : Reactable<string>
+internal sealed class ProductNameReactable : Reactable<string>
 {
     /// <summary>
     /// Sends a push notification on repository information.
