@@ -1,4 +1,4 @@
-﻿// <copyright file="App.cs" company="KinsonDigital">
+// <copyright file="App.cs" company="KinsonDigital">
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
@@ -54,6 +54,7 @@ internal static class App
         IoCContainer.Register<IReactable<(string, string)>, RepoInfoReactable>(Lifestyle.Singleton);
         IoCContainer.Register<IReactable<string>, ProductNameReactable>(Lifestyle.Singleton);
         IoCContainer.Register<IGitRepoService, GitRepoService>(Lifestyle.Singleton);
+        IoCContainer.Register<IPullRequestService, PullRequestService>(Lifestyle.Singleton);
         IoCContainer.Register<IExecutionContextService, ExecutionContextService>(Lifestyle.Singleton);
         IoCContainer.Register<IGitHubTokenService, GitHubTokenService>(Lifestyle.Singleton);
         IoCContainer.Register<IHttpClientFactory, HttpClientFactory>(Lifestyle.Singleton);
