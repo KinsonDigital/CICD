@@ -41,9 +41,6 @@ public partial class CICD // StatusChecks
         {
             Log.Information("💡Purpose: Verifies that all projects build for the solution.");
             Log.Information("✅Starting Status Check . . .");
-
-            PrintPullRequestInfo();
-
             Log.Information("Branch Is Valid!!");
         });
 
@@ -74,9 +71,6 @@ public partial class CICD // StatusChecks
             Log.Information("💡Purpose: Verifies that all unit tests for all of the solution projects pass.");
             Console.WriteLine();
             Log.Information("✅Starting Status Check . . .");
-
-            PrintPullRequestInfo();
-
             Log.Information("Branch Is Valid!!");
         });
 
