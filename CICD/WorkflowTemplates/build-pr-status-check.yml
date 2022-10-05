@@ -1,4 +1,4 @@
-name: ✅Build Status Check
+name: ✅Build PR Status Check
 
 
 defaults:
@@ -17,14 +17,23 @@ on:
 
 
 jobs:
-  build_project:
-    name: Build Project
+  build_pr_status_check:
+    name: Build PR Status Check
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+
     - name: Restore DotNet Tools
       run: dotnet tool restore
+
+    - name: Get Pull Request Number
+      id: get-pr-number
+      run: |
+        $pullRequestNumber = "${{ github.ref }}".Replace("refs/pull/", "").Replace("/merge", "");
+        Write-Host "Pull Request Number: $pullRequestNumber";
+        Write-Host "::set-output name=pr-number::$pullRequestNumber";
+
     - name: Run Build Status Check
-      run: dotnet cicd PRBuildStatusCheck
+      run: dotnet cicd PRBuildStatusCheck --pull-request-number ${{ steps.get-pr-number.outputs.pr-number }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

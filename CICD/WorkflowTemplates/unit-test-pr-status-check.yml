@@ -1,4 +1,4 @@
-name: ✅Unit Test Status Check
+name: ✅Unit Test PR Status Check
 
 
 defaults:
@@ -16,14 +16,23 @@ on:
       - master
 
 jobs:
-  build_project:
-    name: ubuntu-latest
+  unit_test_pr_status_check:
+    name: Unit Test PR Status Check
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+
     - name: Restore DotNet Tools
       run: dotnet tool restore
+
+    - name: Get Pull Request Number
+      id: get-pr-number
+      run: |
+        $pullRequestNumber = "${{ github.ref }}".Replace("refs/pull/", "").Replace("/merge", "");
+        Write-Host "Pull Request Number: $pullRequestNumber";
+        Write-Host "::set-output name=pr-number::$pullRequestNumber";
+
     - name: Run Unit Test Status Check
-      run: dotnet cicd PRUnitTestStatusCheck
+      run: dotnet cicd PRUnitTestStatusCheck --pull-request-number ${{ steps.get-pr-number.outputs.pr-number }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
