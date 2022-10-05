@@ -263,7 +263,7 @@ internal interface IBranchValidatorService
     /// matches the given <paramref name="branchType"/>.
     /// </summary>
     /// <param name="branchType">The type of branch to expect.</param>
-    /// <returns><c>true</c> if the a match.</returns>
+    /// <returns><c>true</c> if there is a match.</returns>
     bool CurrentBranchIsValid(BranchType branchType);
 
     /// <summary>
