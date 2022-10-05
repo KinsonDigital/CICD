@@ -17,7 +17,7 @@ internal static class EnsureThat
     /// </summary>
     /// <param name="value">The value to check.</param>
     /// <param name="paramName">The name of the parameter being checked.</param>
-    /// <typeparam name="T">The class restricted type of the value.</typeparam>
+    /// <typeparam name="T">The restricted class type of the <paramref name="value"/>.</typeparam>
     /// <remarks>
     /// <para>
     ///     This method is intended to have the value <paramref name="paramName"/> to be the

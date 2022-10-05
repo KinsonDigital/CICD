@@ -15,7 +15,7 @@ internal interface IWorkflowService
     /// <summary>
     /// Generates workflows for all of the nuke targets at the given <paramref name="destinationDir"/>.
     /// </summary>
-    /// <param name="destinationDir">The directory location to generate the workflow files at.</param>
+    /// <param name="destinationDir">The directory location to generate the workflow files.</param>
     /// <exception cref="ArgumentNullException">
     ///     Thrown if the <paramref name="destinationDir"/> is null or argument.
     /// </exception>

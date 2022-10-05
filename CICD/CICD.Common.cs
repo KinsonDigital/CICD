@@ -80,7 +80,8 @@ public partial class CICD // Common
 
         if (File.Exists(fullPackagePath))
         {
-            DotNetTasks.DotNetNuGetPush(s => DotNetNuGetPushSettingsExtensions.SetTargetPath<DotNetNuGetPushSettings>(s, fullPackagePath)
+            DotNetTasks.DotNetNuGetPush(s =>
+                s.SetTargetPath<DotNetNuGetPushSettings>(fullPackagePath)
                 .SetSource(NugetOrgSource)
                 .SetApiKey(NugetOrgApiKey));
         }
@@ -95,7 +96,7 @@ public partial class CICD // Common
         const string leftBracket = "{";
         const string rightBracket = "}";
         const string projLocation = $"{leftBracket}PROJECT_NAME{rightBracket}";
-        const string repoOwner = $"{leftBracket}REPO_OWNER{rightBracket}";
+        const string repoOwnerInjectionPoint = $"{leftBracket}REPO_OWNER{rightBracket}";
         const string version = $"{leftBracket}VERSION{rightBracket}";
 
         if (File.Exists(templateFilePath) is false)
@@ -106,7 +107,7 @@ public partial class CICD // Common
         var tweetTemplate = File.ReadAllText(templateFilePath);
 
         tweetTemplate = tweetTemplate.Replace(projLocation, RepoName);
-        tweetTemplate = tweetTemplate.Replace(repoOwner, RepoOwner);
+        tweetTemplate = tweetTemplate.Replace(repoOwnerInjectionPoint, RepoOwner);
         tweetTemplate = tweetTemplate.Replace(version, releaseVersion);
 
         TwitterTasks.SendTweet(tweetTemplate, TwitterConsumerApiKey, TwitterConsumerApiSecret, TwitterAccessToken, TwitterAccessTokenSecret);
@@ -132,47 +133,24 @@ public partial class CICD // Common
     private bool ReleaseNotesDoNotExist(ReleaseType releaseType, string version)
         => !ReleaseNotesExist(releaseType, version);
 
-    private void PrintPullRequestInfo()
-    {
-        // If the build is on the server and the GitHubActions object exists
-        if (IsServerBuild)
-        {
-            const string notPR = "Not a pull request";
-            Log.Information("Is Server Build: {Value}", ExecutionContext.IsServerBuild);
-            Log.Information("Is Local Build: {Value}", ExecutionContext.IsLocalBuild);
-            Log.Information("Repository Owner: {Value}", RepoOwner);
-            Log.Information("Status Check Invoked By: {Value}", GitHubActionsService.Actor);
-            Log.Information("Is PR: {Value}", GitHubActionsService.IsPullRequest);
-            Log.Information("Ref: {Value}", GitHubActionsService.Ref);
-            Log.Information(
-                "Destination Branch: {Value}",
-                GitHubActionsService.BaseRef ?? notPR);
-            Log.Information(
-                "Source Branch: {Value}",
-                GitHubActionsService.HeadRef ?? "The branch could not be determined.");
-        }
-        else
-        {
-            Log.Information("Local Build");
-        }
-    }
-
     private void DeleteAllNugetPackages()
     {
-        // If the build is local, find and delete the package first if it exists.
-        // This is to essentially overwrite the package so it is "updated".
+        // If this is a local build, find and delete all NuGet packages first.
+        // This overwrites the package so it is "updated".
         // Without doing this, the package already exists but does not get overwritten to be "updated"
-        if (IsLocalBuild)
+        if (!ExecutionContext.IsLocalBuild)
         {
-            var packages = Glob.Files(NugetOutputPath, "*.nupkg").ToArray();
+            return;
+        }
 
-            foreach (var package in packages)
+        var packages = Glob.Files(NugetOutputPath, "*.nupkg").ToArray();
+
+        foreach (var package in packages)
+        {
+            var filePath = $"{NugetOutputPath}/{package}";
+            if (File.Exists(filePath))
             {
-                var filePath = $"{NugetOutputPath}/{package}";
-                if (File.Exists(filePath))
-                {
-                    File.Delete(filePath);
-                }
+                File.Delete(filePath);
             }
         }
     }
@@ -279,7 +257,7 @@ public partial class CICD // Common
             return -1; // All of the other branches do not contain an issue number
         }
 
-        var separator = branchType switch
+        var startSection = branchType switch
         {
             BranchType.Feature => "feature/",
             BranchType.PreviewFeature => "preview/feature/",
@@ -287,8 +265,8 @@ public partial class CICD // Common
             _ => throw new ArgumentOutOfRangeException(nameof(branchType), "Not a valid issue type branch")
         };
 
-        var sections = branch.Split(separator, StringSplitOptions.RemoveEmptyEntries);
-        var issueNumStr = sections[0].Split('-')[0];
+        var valueToSplit = branch.Replace(startSection, string.Empty);
+        var issueNumStr = valueToSplit.Split('-')[0];
 
         var parseResult = int.TryParse(issueNumStr, out var issueNum);
 
@@ -338,19 +316,13 @@ public partial class CICD // Common
         return false;
     }
 
-    private string GetBranchSyntax(BranchType branchType)
-        => branchType switch
-        {
-            BranchType.Master => "master",
-            BranchType.Develop => "develop",
-            BranchType.Feature => "feature/#-*",
-            BranchType.PreviewFeature => "preview/feature/#-*",
-            BranchType.Release => "release/v#.#.#",
-            BranchType.Preview => "preview/v#.#.#-preview.#",
-            BranchType.HotFix => "hotfix/#-*",
-            BranchType.Other => "*",
-            _ => throw new ArgumentOutOfRangeException(nameof(branchType), branchType, null)
-        };
+    private void LogErrorAndFail(string errorMsg, string failMsg)
+    {
+        Log.Error(errorMsg);
+        Assert.Fail(failMsg);
+    }
+
+    private void LogSuccess(string successMsg) => Console.WriteLine($"{Environment.NewLine}{ConsoleTab}{successMsg}");
 
     private async Task<string> MergeBranch(string sourceBranch, string targetBranch)
     {

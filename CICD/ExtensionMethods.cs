@@ -2,8 +2,6 @@
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
-namespace CICDSystem;
-
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -19,8 +17,10 @@ using Nuke.Common.Utilities;
 using Nuke.Common.Utilities.Collections;
 using Octokit;
 using Serilog;
-using Project = Nuke.Common.ProjectModel.Project;
 using static Nuke.Common.NukeBuild;
+using Project = Nuke.Common.ProjectModel.Project;
+
+namespace CICDSystem;
 
 /// <summary>
 /// Provides helper methods throughout the project.
@@ -371,8 +371,8 @@ internal static class ExtensionMethods
 
         if (string.IsNullOrEmpty(version))
         {
-            // TODO: Create custom exception name MissingVersionException
-            // TODO: In the exception, explain how to set the version
+            // TODO: Create custom exception name MissingVersionException 
+            // TODO: In the exception, explain how to set the version 
             throw new Exception($"The version for project '{project.Name}' is not set.");
         }
 
@@ -385,8 +385,8 @@ internal static class ExtensionMethods
 
         if (string.IsNullOrEmpty(version))
         {
-            // TODO: Create custom exception name MissingFileVersionException
-            // TODO: In the exception, explain how to set the version
+            // TODO: Create custom exception name MissingFileVersionException 
+            // TODO: In the exception, explain how to set the version 
             throw new Exception($"The file version for project '{project.Name}' is not set.");
         }
 
@@ -399,8 +399,8 @@ internal static class ExtensionMethods
 
         if (string.IsNullOrEmpty(version))
         {
-            // TODO: Create custom exception name MissingAssemblyVersionException
-            // TODO: In the exception, explain how to set the version
+            // TODO: Create custom exception name MissingAssemblyVersionException - **Do you still need this?**
+            // TODO: In the exception, explain how to set the version - **Do you still need this?**
             throw new Exception($"The assembly version for project '{project.Name}' is not set.");
         }
 
@@ -731,7 +731,7 @@ internal static class ExtensionMethods
         var isPullRequest = issue.PullRequest is not null;
         var validLabelType = issue.Labels.Count == 1 && issue.Labels[0].Name == releaseLabelOrTitle;
 
-        return hasValidTitle  && hasSingleLabel && isPullRequest && validLabelType;
+        return hasValidTitle && hasSingleLabel && isPullRequest && validLabelType;
     }
 
     public static string GetLogText(this Issue issue, int tabCount = 0)
@@ -823,7 +823,8 @@ internal static class ExtensionMethods
 
         var errorMsg = "The {Value1} release notes for version '{Value2}' at file path '{Value3}'";
         errorMsg += " could not be found.";
-        Log.Error(errorMsg,
+        Log.Error(
+            errorMsg,
             releaseType.ToString().ToLower(),
             version,
             fullFilePath.Replace(solution.Directory, "./"));
@@ -848,7 +849,8 @@ internal static class ExtensionMethods
 
         var errorMsg = "The {Value1} release notes for version '{Value2}' at file path '{Value3}'";
         errorMsg += " could not be found.";
-        Log.Error(errorMsg,
+        Log.Error(
+            errorMsg,
             releaseType.ToString().ToLower(),
             version,
             fullFilePath.Replace(solution.Directory, "./"));
@@ -882,7 +884,8 @@ internal static class ExtensionMethods
     /// Returns a value indicating whether or not a branch with the given branch name
     /// matches the given <paramref name="pattern"/>.
     /// </summary>
-    /// <param name="pattern">The value to check against the branch name.</param>
+    /// <param name="value">The value to check against the branch name.</param>
+    /// <param name="pattern">The pattern to check against the <c>string</c> <paramref name="value"/>.</param>
     /// <returns><c>true</c> if the <paramref name="pattern"/> is equal to the branch name.</returns>
     /// <remarks>
     ///     The comparison is case sensitive.
@@ -902,7 +905,7 @@ internal static class ExtensionMethods
     /// <summary>
     /// Returns the name of the repository.
     /// </summary>
-    /// <param name="actions">GitHub actions related functionality.</param>
+    /// <param name="actions">GitHub Actions related functionality.</param>
     /// <returns>The name of the repository.</returns>
     public static string RepositoryName(this GitHubActions actions)
     {
@@ -942,7 +945,7 @@ internal static class ExtensionMethods
         const string regexMatchNumbers = @"\d+";
         const string regexMatchAnything = ".+";
 
-        // Remove any consecutive '#' and '*' symbols until no more consecutive symbols exists anymore
+        // Remove any consecutive '#' and '*' symbols until no more consecutive symbols exist
         globbingPattern = RemoveConsecutiveCharacters(new[] { MatchNumbers, MatchAnything }, globbingPattern);
 
         // Replace the '#' symbol with

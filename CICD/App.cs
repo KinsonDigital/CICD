@@ -1,17 +1,15 @@
-﻿// <copyright file="App.cs" company="KinsonDigital">
+// <copyright file="App.cs" company="KinsonDigital">
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
 // ReSharper disable InconsistentNaming
 using System.Diagnostics.CodeAnalysis;
 using System.IO.Abstractions;
-using System.Runtime.CompilerServices;
 using CICDSystem.Factories;
+using CICDSystem.Reactables;
+using CICDSystem.Reactables.Core;
 using CICDSystem.Services;
 using SimpleInjector;
-
-[assembly: InternalsVisibleTo(assemblyName: "CICDTests", AllInternalsVisible = true)] // Make this libraries internals visible to the unit test project
-[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2", AllInternalsVisible = true)]
 
 namespace CICDSystem;
 
@@ -49,14 +47,18 @@ internal static class App
         IoCContainer.Register(() => FileSystem.File, Lifestyle.Singleton);
         IoCContainer.Register(() => FileSystem.Directory, Lifestyle.Singleton);
         IoCContainer.Register(() => FileSystem.Path, Lifestyle.Singleton);
+        IoCContainer.Register<IReactable<(string, string)>, RepoInfoReactable>(Lifestyle.Singleton);
+        IoCContainer.Register<IReactable<string>, ProductNameReactable>(Lifestyle.Singleton);
+        IoCContainer.Register<IReactable<int>, PRNumberReactable>(Lifestyle.Singleton);
         IoCContainer.Register<IGitRepoService, GitRepoService>(Lifestyle.Singleton);
+        IoCContainer.Register<IPullRequestService, PullRequestService>(Lifestyle.Singleton);
         IoCContainer.Register<IExecutionContextService, ExecutionContextService>(Lifestyle.Singleton);
         IoCContainer.Register<IGitHubTokenService, GitHubTokenService>(Lifestyle.Singleton);
         IoCContainer.Register<IHttpClientFactory, HttpClientFactory>(Lifestyle.Singleton);
-        IoCContainer.Register<IGitHubClientService, GitHubClientService>(Lifestyle.Singleton);
         IoCContainer.Register<IWorkflowService, WorkflowService>(Lifestyle.Singleton);
         IoCContainer.Register<ISecretService, SecretService>(Lifestyle.Singleton);
         IoCContainer.Register<IJsonService, JsonService>(Lifestyle.Singleton);
+        IoCContainer.Register<IBranchValidatorService, BranchValidatorService>(Lifestyle.Singleton);
 
         isInitialized = true;
     }

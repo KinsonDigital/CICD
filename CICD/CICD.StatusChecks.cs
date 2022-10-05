@@ -23,14 +23,14 @@ public partial class CICD // StatusChecks
         .Requires(
             () => ThatPullRequestNumberIsProvided(),
             () => ThatThePullRequestExists(),
-            () => ThatThePRBranchesAreValid(
+            () => ThatThePRBranchIsValid(
                 PRBranchContext.Source,
                 BranchType.Feature,
                 BranchType.PreviewFeature,
                 BranchType.Release,
                 BranchType.HotFix,
                 BranchType.Preview),
-            () => ThatThePRBranchesAreValid(
+            () => ThatThePRBranchIsValid(
                 PRBranchContext.Target,
                 BranchType.Develop,
                 BranchType.Master,
@@ -41,9 +41,6 @@ public partial class CICD // StatusChecks
         {
             Log.Information("💡Purpose: Verifies that all projects build for the solution.");
             Log.Information("✅Starting Status Check . . .");
-
-            PrintPullRequestInfo();
-
             Log.Information("Branch Is Valid!!");
         });
 
@@ -55,14 +52,14 @@ public partial class CICD // StatusChecks
         .Requires(
             () => ThatPullRequestNumberIsProvided(),
             () => ThatThePullRequestExists(),
-            () => ThatThePRBranchesAreValid(
+            () => ThatThePRBranchIsValid(
                 PRBranchContext.Source,
                 BranchType.Feature,
                 BranchType.PreviewFeature,
                 BranchType.Release,
                 BranchType.HotFix,
                 BranchType.Preview),
-            () => ThatThePRBranchesAreValid(
+            () => ThatThePRBranchIsValid(
                 PRBranchContext.Target,
                 BranchType.Develop,
                 BranchType.Master,
@@ -74,9 +71,6 @@ public partial class CICD // StatusChecks
             Log.Information("💡Purpose: Verifies that all unit tests for all of the solution projects pass.");
             Console.WriteLine();
             Log.Information("✅Starting Status Check . . .");
-
-            PrintPullRequestInfo();
-
             Log.Information("Branch Is Valid!!");
         });
 
@@ -87,9 +81,9 @@ public partial class CICD // StatusChecks
         .Requires(
             () => ThatPullRequestNumberIsProvided(),
             () => ThatThePullRequestExists(),
-            () => ThatThePRBranchesAreValid(PRBranchContext.Source, BranchType.Feature),
-            () => ThatThePRBranchesAreValid(PRBranchContext.Target, BranchType.Develop),
-            () => ThatFeaturePRIssueNumberExists(),
+            () => ThatThePRBranchIsValid(PRBranchContext.Source, BranchType.Feature),
+            () => ThatThePRBranchIsValid(PRBranchContext.Target, BranchType.Develop),
+            () => ThatPRBranchIssueNumberExists(BranchType.Feature),
             () => ThatFeaturePRIssueHasLabel(BranchType.Feature),
             () => ThatThePRHasBeenAssigned(),
             () => ThatPRHasLabels());
@@ -101,9 +95,9 @@ public partial class CICD // StatusChecks
         .Requires(
             () => ThatPullRequestNumberIsProvided(),
             () => ThatThePullRequestExists(),
-            () => ThatThePRBranchesAreValid(PRBranchContext.Source, BranchType.PreviewFeature),
-            () => ThatThePRBranchesAreValid(PRBranchContext.Target, BranchType.Preview),
-            () => ThatPreviewFeaturePRIssueNumberExists(),
+            () => ThatThePRBranchIsValid(PRBranchContext.Source, BranchType.PreviewFeature),
+            () => ThatThePRBranchIsValid(PRBranchContext.Target, BranchType.Preview),
+            () => ThatPRBranchIssueNumberExists(BranchType.PreviewFeature),
             () => ThatFeaturePRIssueHasLabel(BranchType.PreviewFeature),
             () => ThatThePRHasBeenAssigned(),
             () => ThatPRHasLabels());
@@ -112,9 +106,9 @@ public partial class CICD // StatusChecks
         .Requires(
             () => ThatPullRequestNumberIsProvided(),
             () => ThatThePullRequestExists(),
-            () => ThatThePRBranchesAreValid(PRBranchContext.Source, BranchType.HotFix),
-            () => ThatThePRBranchesAreValid(PRBranchContext.Target, BranchType.Master),
-            () => ThatPreviewFeaturePRIssueNumberExists(),
+            () => ThatThePRBranchIsValid(PRBranchContext.Source, BranchType.HotFix),
+            () => ThatThePRBranchIsValid(PRBranchContext.Target, BranchType.Master),
+            () => ThatPreviewFeatureIssueNumberExists(),
             () => ThatFeaturePRIssueHasLabel(BranchType.HotFix),
             () => ThatThePRHasBeenAssigned(),
             () => ThatPRHasLabels());
@@ -123,8 +117,8 @@ public partial class CICD // StatusChecks
         .Requires(
             () => ThatPullRequestNumberIsProvided(),
             () => ThatThePullRequestExists(),
-            () => ThatThePRBranchesAreValid(PRBranchContext.Source, BranchType.Preview),
-            () => ThatThePRBranchesAreValid(PRBranchContext.Target, BranchType.Release),
+            () => ThatThePRBranchIsValid(PRBranchContext.Source, BranchType.Preview),
+            () => ThatThePRBranchIsValid(PRBranchContext.Target, BranchType.Release),
             () => ThatThePRHasBeenAssigned(),
             () => ThatThePRHasTheLabel("🚀Preview Release"),
             () => ThatTheProjectVersionsAreValid(ReleaseType.Preview),
@@ -148,12 +142,11 @@ public partial class CICD // StatusChecks
         .Requires(
             () => ThatPullRequestNumberIsProvided(),
             () => ThatThePullRequestExists(),
-            () => ThatThePRBranchesAreValid(PRBranchContext.Source, BranchType.Release),
-            () => ThatThePRBranchesAreValid(PRBranchContext.Target, BranchType.Master),
+            () => ThatThePRBranchIsValid(PRBranchContext.Source, BranchType.Release),
+            () => ThatThePRBranchIsValid(PRBranchContext.Target, BranchType.Master),
             () => ThatThePRHasBeenAssigned(),
             () => ThatThePRHasTheLabel("🚀Production Release"),
             () => ThatTheProjectVersionsAreValid(ReleaseType.Production),
-            () => ThatThePreviewPRBranchVersionsMatch(ReleaseType.Production),
             () => ThatThePRSourceBranchVersionSectionMatchesProjectVersion(ReleaseType.Production),
             () => ThatTheReleaseMilestoneExists(),
             () => ThatTheReleaseMilestoneContainsIssues(),
