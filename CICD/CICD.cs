@@ -61,7 +61,10 @@ public partial class CICD : NukeBuild
 
             var repoInfoReactable = App.Container.GetInstance<IReactable<(string repoOwner, string repoName)>>();
 
-            if (repoInfoReactable.NotificationsEnded)
+            var dataIsNotReady = string.IsNullOrEmpty(this.repoOwner) || string.IsNullOrEmpty(this.repoName);
+
+
+            if (dataIsNotReady || repoInfoReactable.NotificationsEnded)
             {
                 return;
             }
@@ -81,7 +84,9 @@ public partial class CICD : NukeBuild
 
             var repoInfoReactable = App.Container.GetInstance<IReactable<(string repoOwner, string repoName)>>();
 
-            if (repoInfoReactable.NotificationsEnded)
+            var dataIsNotReady = string.IsNullOrEmpty(this.repoOwner) || string.IsNullOrEmpty(this.repoName);
+
+            if (dataIsNotReady || repoInfoReactable.NotificationsEnded)
             {
                 return;
             }
@@ -119,10 +124,15 @@ public partial class CICD : NukeBuild
         {
             this.pullRequestNumber = value;
 
-            Console.WriteLine("--------DEBUG--------");
-            Console.WriteLine($"Instance Is Null: {GitHubActions.Instance is null}");
-            Console.WriteLine($"Pull Request Number: {GitHubActions.Instance?.PullRequestNumber ?? -1}");
-            Console.WriteLine("---------------------");
+            var prNumReactable = App.Container.GetInstance<IReactable<int>>();
+
+            if (prNumReactable.NotificationsEnded)
+            {
+                return;
+            }
+
+            prNumReactable.PushNotification(this.pullRequestNumber);
+            prNumReactable.EndNotifications();
         }
     }
 
