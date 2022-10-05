@@ -53,6 +53,7 @@ internal static class App
         IoCContainer.Register(() => FileSystem.Path, Lifestyle.Singleton);
         IoCContainer.Register<IReactable<(string, string)>, RepoInfoReactable>(Lifestyle.Singleton);
         IoCContainer.Register<IReactable<string>, ProductNameReactable>(Lifestyle.Singleton);
+        IoCContainer.Register<IReactable<int>, PRNumberReactable>(Lifestyle.Singleton);
         IoCContainer.Register<IGitRepoService, GitRepoService>(Lifestyle.Singleton);
         IoCContainer.Register<IPullRequestService, PullRequestService>(Lifestyle.Singleton);
         IoCContainer.Register<IExecutionContextService, ExecutionContextService>(Lifestyle.Singleton);
