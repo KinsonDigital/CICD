@@ -4,6 +4,7 @@
 
 // ReSharper disable InconsistentNaming
 using CICDSystem.Factories;
+using CICDSystem.Reactables.Core;
 using CICDSystem.Services;
 using Nuke.Common;
 using Nuke.Common.IO;
@@ -21,6 +22,10 @@ public partial class CICD : NukeBuild
     private const string ConsoleTab = "\t       ";
     [Solution]
     private readonly Solution? solution;
+    private string repoOwner = string.Empty;
+    private string repoName = string.Empty;
+    private string projectName = string.Empty;
+    private int pullRequestNumber;
 
     /// <summary>
     /// The main entry point of the build system.
@@ -30,10 +35,11 @@ public partial class CICD : NukeBuild
         Execute<CICD>(x => x.BuildAllProjects, x => x.RunAllUnitTests);
 
 #pragma warning disable SA1201 - A property should not follow a method
-    private IGitHubActionsService GitHubActionsService =>
-        ServiceFactory.CreateGitHubActionsService(PullRequestNumber, RepoOwner, RepoName);
-
     private IExecutionContextService ExecutionContext => App.Container.GetInstance<IExecutionContextService>();
+
+    private IBranchValidatorService BranchValidator => App.Container.GetInstance<IBranchValidatorService>();
+
+    private IPullRequestService PullRequestService => App.Container.GetInstance<IPullRequestService>();
 
     private Configuration Configuration => GetBuildConfig();
 
@@ -46,16 +52,88 @@ public partial class CICD : NukeBuild
     private bool SkipTwitterAnnouncement { get; set; }
 
     [Parameter("The owner of the GitHub repo.  This can also be the GitHub organization that owns the repository.")]
-    private string RepoOwner { get; set; } = string.Empty;
+    private string RepoOwner
+    {
+        get => this.repoOwner;
+        set
+        {
+            this.repoOwner = value;
+
+            var repoInfoReactable = App.Container.GetInstance<IReactable<(string repoOwner, string repoName)>>();
+
+            var dataIsNotReady = string.IsNullOrEmpty(this.repoOwner) || string.IsNullOrEmpty(this.repoName);
+
+            if (dataIsNotReady || repoInfoReactable.NotificationsEnded)
+            {
+                return;
+            }
+
+            repoInfoReactable.PushNotification((this.repoOwner, this.repoName));
+            repoInfoReactable.EndNotifications();
+        }
+    }
 
     [Parameter("The name of the GitHub repository.")]
-    private string RepoName { get; set; } = string.Empty;
+    private string RepoName
+    {
+        get => this.repoName;
+        set
+        {
+            this.repoName = value;
+
+            var repoInfoReactable = App.Container.GetInstance<IReactable<(string repoOwner, string repoName)>>();
+
+            var dataIsNotReady = string.IsNullOrEmpty(this.repoOwner) || string.IsNullOrEmpty(this.repoName);
+
+            if (dataIsNotReady || repoInfoReactable.NotificationsEnded)
+            {
+                return;
+            }
+
+            repoInfoReactable.PushNotification((this.repoOwner, this.repoName));
+            repoInfoReactable.EndNotifications();
+        }
+    }
 
     [Parameter("The name of the C# project.")]
-    private string ProjectName { get; set; } = string.Empty;
+    private string ProjectName
+    {
+        get => this.projectName;
+        set
+        {
+            this.projectName = value;
+
+            var productInfoReactable = App.Container.GetInstance<IReactable<string>>();
+
+            if (productInfoReactable.NotificationsEnded)
+            {
+                return;
+            }
+
+            productInfoReactable.PushNotification(this.projectName);
+            productInfoReactable.EndNotifications();
+        }
+    }
 
     [Parameter("The unique number/id of the GItHub pull request.  Used for pull request status checks when running locally.")]
-    private int PullRequestNumber { get; set; }
+    private int PullRequestNumber
+    {
+        get => this.pullRequestNumber;
+        set
+        {
+            this.pullRequestNumber = value;
+
+            var prNumReactable = App.Container.GetInstance<IReactable<int>>();
+
+            if (prNumReactable.NotificationsEnded)
+            {
+                return;
+            }
+
+            prNumReactable.PushNotification(this.pullRequestNumber);
+            prNumReactable.EndNotifications();
+        }
+    }
 
     [Parameter($"The name of the preview release notes directory name.  This will be located in the '{nameof(ReleaseNotesBaseDirPath)}'.")]
     private string PreviewReleaseNotesDirName { get; set; } = "PreviewReleases";
@@ -86,7 +164,7 @@ public partial class CICD : NukeBuild
     [Secret]
     private string TwitterAccessTokenSecret { get; set; } = string.Empty;
 
-    private IGitHubClient GitHubClient => App.Container.GetInstance<IGitHubClientService>().GetClient(RepoName);
+    private IGitHubClient GitHubClient => App.Container.GetInstance<IHttpClientFactory>().CreateGitHubClient();
 
     private AbsolutePath NugetOutputPath => RootDirectory / "Artifacts";
 
@@ -104,7 +182,7 @@ public partial class CICD : NukeBuild
                 : Configuration.Debug;
         }
 
-        return (GitHubActionsService.BaseRef ?? string.Empty).IsMasterBranch()
+        return PullRequestService.TargetBranch.IsMasterBranch()
             ? Configuration.Release
             : Configuration.Debug;
     }

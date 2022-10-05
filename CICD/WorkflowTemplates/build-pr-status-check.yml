@@ -1,4 +1,4 @@
-name: ✅Preview Release PR Status Check
+name: ✅Build PR Status Check
 
 
 defaults:
@@ -7,14 +7,18 @@ defaults:
 
 
 on:
+  workflow_dispatch:
   pull_request:
     branches:
+      - develop
+      - preview/v*.*.*-preview.*
       - release/v*.*.*
+      - master
 
 
 jobs:
-  preview_release_pr_status_check:
-    name: Preview Release PR Status Check
+  build_pr_status_check:
+    name: Build PR Status Check
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -29,7 +33,7 @@ jobs:
         Write-Host "Pull Request Number: $pullRequestNumber";
         Write-Host "::set-output name=pr-number::$pullRequestNumber";
 
-    - name: Run Preview Release PR Status Check
-      run: dotnet cicd PrevReleasePRStatusCheck --pull-request-number ${{ steps.get-pr-number.outputs.pr-number }}
+    - name: Run Build Status Check
+      run: dotnet cicd PRBuildStatusCheck --pull-request-number ${{ steps.get-pr-number.outputs.pr-number }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

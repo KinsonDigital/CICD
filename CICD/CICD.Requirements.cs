@@ -16,17 +16,10 @@ namespace CICDSystem;
 /// </summary>
 public partial class CICD // Requirements
 {
-    private const string BranchNotDetermined = "The branch could not be determined.";
-
     private bool ThatPullRequestNumberIsProvided()
     {
         nameof(ThatPullRequestNumberIsProvided)
             .LogRequirementTitle("Checking that a pull request number has been provided.");
-
-        if (ExecutionContext.IsServerBuild)
-        {
-            return GitHubActionsService.IsPullRequest;
-        }
 
         return PullRequestNumber > 0;
     }
@@ -36,10 +29,7 @@ public partial class CICD // Requirements
         nameof(ThatThePullRequestExists)
             .LogRequirementTitle("Checking if the pull request number exists.");
 
-        var prNumber = ExecutionContext.IsServerBuild
-            ? GitHubActionsService.PullRequestNumber ?? -1
-            : PullRequestNumber;
-
+        var prNumber = PullRequestService.PullRequestNumber;
         var result = GitHubClient.PullRequest.Exists(RepoOwner, RepoName, prNumber).Result;
 
         if (result)
@@ -60,7 +50,7 @@ public partial class CICD // Requirements
         nameof(ThatThePRHasBeenAssigned)
             .LogRequirementTitle("Checking if the pull request as been assigned to someone.");
 
-        var prNumber = GitHubActionsService.PullRequestNumber ?? -1;
+        var prNumber = PullRequestService.PullRequestNumber;
 
         if (prClient.HasAssignees(RepoOwner, RepoName, prNumber).Result)
         {
@@ -78,36 +68,89 @@ public partial class CICD // Requirements
         return true;
     }
 
-    private bool ThatFeaturePRIssueNumberExists()
+    private bool ThatPRBranchIssueNumberExists(BranchType branchType)
     {
-        var sourceBranch = GitHubActionsService.HeadRef ?? BranchNotDetermined;
-
-        nameof(ThatFeaturePRIssueNumberExists)
-            .LogRequirementTitle($"Checking that the issue number in the feature branch exists.");
-
-        var branchIssueNumber = ExtractIssueNumber(BranchType.Feature, sourceBranch);
-        var issueExists = GitHubClient.Issue.IssueExists(RepoOwner, RepoName, branchIssueNumber).Result;
-
-        if (issueExists is false)
+        if (PullRequestNumber <= 0)
         {
-            var errorMsg = $"The issue '{branchIssueNumber}' does not exist for feature branch '{sourceBranch}'.";
-            errorMsg += $"{Environment.NewLine}{ConsoleTab}The source branch '{sourceBranch}' must be recreated with the correct issue number.";
-            errorMsg += $"{Environment.NewLine}{ConsoleTab}The syntax requirements for a feature branch is 'feature/#-*'.";
-            Log.Error(errorMsg);
-            Assert.Fail("The feature branch issue number does not exist.");
+            LogErrorAndFail(
+                "The pull request number must be set to run this requirement.",
+                "Pull request not set.");
             return false;
         }
 
-        Log.Information($"{ConsoleTab}✅The feature branch '{sourceBranch}' is valid.");
+        var isNotIssueBranch = branchType != BranchType.Feature &&
+                               branchType != BranchType.PreviewFeature &&
+                               branchType != BranchType.HotFix;
+
+        var branchTypeStr = Enum.GetName(branchType)?.ToSpaceDelimitedSections().ToLower() ?? string.Empty;
+
+        if (isNotIssueBranch)
+        {
+            var featureBranchStr = Enum.GetName(BranchType.Feature)?.ToSpaceDelimitedSections().ToLower() ?? string.Empty;
+            var prevFeatureBranchStr = Enum.GetName(BranchType.PreviewFeature)?.ToSpaceDelimitedSections().ToLower() ?? string.Empty;
+            var hotfixBranchStr = Enum.GetName(BranchType.HotFix)?.ToSpaceDelimitedSections().ToLower() ?? string.Empty;
+
+            LogErrorAndFail(
+                $"The pull request 'source' branch must be a '{featureBranchStr}', '{prevFeatureBranchStr}', or '{hotfixBranchStr}'.",
+                "Branch is not an issue branch.");
+            return false;
+        }
+
+        var branch = PullRequestService.SourceBranch;
+
+        BranchValidator.Reset();
+
+        var isValidSyntax = branchType switch
+        {
+            BranchType.Master => BranchValidator.IsMasterBranch(branch).GetValue(),
+            BranchType.Develop => BranchValidator.IsDevelopBranch(branch).GetValue(),
+            BranchType.Feature => BranchValidator.IsFeatureBranch(branch).GetValue(),
+            BranchType.PreviewFeature => BranchValidator.IsPreviewFeatureBranch(branch).GetValue(),
+            BranchType.Release => BranchValidator.IsReleaseBranch(branch).GetValue(),
+            BranchType.Preview => BranchValidator.IsPreviewBranch(branch).GetValue(),
+            BranchType.HotFix => BranchValidator.IsHotFixBranch(branch).GetValue(),
+            BranchType.Other => false,
+            _ => throw new ArgumentOutOfRangeException(nameof(branchType), branchType, null)
+        };
+
+        if (isValidSyntax is false)
+        {
+            LogErrorAndFail(
+            $"The pull request 'source' branch syntax for branch '{branchTypeStr}' is invalid.",
+            "Invalid pull request branch syntax.");
+            return false;
+        }
+
+        var issueNumber = ExtractIssueNumber(branchType, branch);
+
+        if (issueNumber is -1)
+        {
+            LogErrorAndFail(
+                $"No issue number exists in the pull request 'source' branch name '{branchTypeStr}'.",
+                "Issue number does not exit in the branch name.");
+            return false;
+        }
+
+        var issueExists = GitHubClient.Issue.IssueExists(RepoOwner, RepoName, issueNumber).Result;
+
+        if (issueExists is false)
+        {
+            LogErrorAndFail(
+                $"The issue number '{issueNumber}' in the pull request 'source' branch named '{branchTypeStr}' does not exist.",
+                $"Issue with the number '{issueNumber}' in branch name does not exist.");
+            return false;
+        }
+
+        LogSuccess($"The pull request branch issue number '{issueNumber}' exists.");
 
         return true;
     }
 
-    private bool ThatPreviewFeaturePRIssueNumberExists()
+    private bool ThatPreviewFeatureIssueNumberExists()
     {
-        var sourceBranch = GitHubActionsService.HeadRef ?? BranchNotDetermined;
+        var sourceBranch = PullRequestService.SourceBranch;
 
-        nameof(ThatPreviewFeaturePRIssueNumberExists)
+        nameof(ThatPreviewFeatureIssueNumberExists)
             .LogRequirementTitle("Checking that the issue number in the preview feature branch exists.");
 
         var branchIssueNumber = ExtractIssueNumber(BranchType.PreviewFeature, sourceBranch);
@@ -149,7 +192,7 @@ public partial class CICD // Requirements
         }
         else
         {
-            var sourceBranch = GitHubActionsService.HeadRef ?? BranchNotDetermined;
+            var sourceBranch = PullRequestService.SourceBranch;
             var branchIssueNumber = ExtractIssueNumber(branchType, sourceBranch);
             var issueExists = GitHubClient.Issue.IssueExists(RepoOwner, RepoName, branchIssueNumber).Result;
 
@@ -192,7 +235,7 @@ public partial class CICD // Requirements
         nameof(ThatPRHasLabels)
             .LogRequirementTitle($"Checking if the pull request has labels.");
 
-        var prNumber = GitHubActionsService.PullRequestNumber ?? -1;
+        var prNumber = PullRequestService.PullRequestNumber;
 
         if (prClient.HasLabels(RepoOwner, RepoName, prNumber).Result)
         {
@@ -212,7 +255,7 @@ public partial class CICD // Requirements
 
     private bool ThatThePRHasTheLabel(string labelName)
     {
-        var prNumber = GitHubActionsService.PullRequestNumber ?? -1;
+        var prNumber = PullRequestService.PullRequestNumber;
 
         nameof(ThatThePRHasTheLabel)
             .LogRequirementTitle($"Checking if the pull request has a preview release label.");
@@ -276,19 +319,27 @@ public partial class CICD // Requirements
         return true;
     }
 
-    private bool ThatThePRBranchesAreValid(PRBranchContext branchContext, params BranchType[] branchTypes)
+    private bool ThatThePRBranchIsValid(PRBranchContext branchContext, params BranchType[] branchTypes)
     {
-        var branch = branchContext switch
-        {
-            PRBranchContext.Source => GitHubActionsService.HeadRef ?? BranchNotDetermined,
-            PRBranchContext.Target => GitHubActionsService.BaseRef ?? "Not a pull request.",
-            _ => throw new ArgumentOutOfRangeException(nameof(branchContext), branchContext, null)
-        };
-
         var branchContextStr = Enum.GetName(branchContext)?.ToLower() ?? string.Empty;
 
-        nameof(ThatThePRBranchesAreValid)
-            .LogRequirementTitle($"Validating the pull request {branchContextStr} branch '{branch}'.");
+        string branch;
+
+        try
+        {
+            branch = branchContext switch
+            {
+                PRBranchContext.Source => PullRequestService.SourceBranch,
+                PRBranchContext.Target => PullRequestService.TargetBranch,
+                _ => throw new ArgumentOutOfRangeException(nameof(branchContext), branchContext, null)
+            };
+        }
+        catch (Exception e) when (e is NotFoundException || (e.InnerException is not null && e.InnerException is NotFoundException))
+        {
+            Log.Error($"The pull request '{PullRequestNumber}' was not found.");
+            Assert.Fail("Pull request not found.");
+            return false;
+        }
 
         var foundBranchType = branchTypes.FirstOrDefault(t => t switch
         {
@@ -305,43 +356,42 @@ public partial class CICD // Requirements
 
         var branchTypeStr = Enum.GetName(foundBranchType)?.ToSpaceDelimitedSections().ToLower() ?? string.Empty;
 
-        var validMsg = $"{ConsoleTab}The {branchTypeStr} branch '{branch}' is valid.";
+        nameof(ThatThePRBranchIsValid)
+            .LogRequirementTitle($"Validating the pull request '{branchContextStr}' branch is a '{branchTypeStr}' branch.");
 
-        var branchSyntax = GetBranchSyntax(foundBranchType);
-        var errorMsg = $"The {branchTypeStr} branch '{{Value}}' is invalid.";
-        errorMsg += $"{Environment.NewLine}{ConsoleTab}The syntax for the '{branchTypeStr}' branch is '{branchSyntax}'.";
-
-        var isValidBranch = branchTypes.Any(t =>
+        var isValid = branchTypes.Any(t =>
         {
             return t switch
             {
-                BranchType.Develop => branch.IsDevelopBranch(),
-                BranchType.Master => branch.IsMasterBranch(),
-                BranchType.Feature => branch.IsFeatureBranch(),
-                BranchType.PreviewFeature => branch.IsPreviewFeatureBranch(),
-                BranchType.Release => branch.IsReleaseBranch(),
-                BranchType.Preview => branch.IsPreviewBranch(),
-                BranchType.HotFix => branch.IsHotFixBranch(),
+                BranchType.Master => BranchValidator.Reset().IsMasterBranch(branch).GetValue(),
+                BranchType.Develop => BranchValidator.Reset().IsDevelopBranch(branch).GetValue(),
+                BranchType.Feature => BranchValidator.Reset().IsFeatureBranch(branch).GetValue(),
+                BranchType.PreviewFeature => BranchValidator.Reset().IsPreviewFeatureBranch(branch).GetValue(),
+                BranchType.Release => BranchValidator.Reset().IsReleaseBranch(branch).GetValue(),
+                BranchType.Preview => BranchValidator.Reset().IsPreviewBranch(branch).GetValue(),
+                BranchType.HotFix => BranchValidator.Reset().IsHotFixBranch(branch).GetValue(),
                 BranchType.Other => false,
                 _ => throw new ArgumentOutOfRangeException(nameof(branchTypes), branchTypes, null)
             };
         });
 
-        if (isValidBranch)
+        if (isValid)
         {
-            Console.WriteLine(validMsg);
-            return true;
+            Console.WriteLine($"{Environment.NewLine}{ConsoleTab}The '{branchContextStr}' branch '{branch}' is valid.");
+        }
+        else
+        {
+            Log.Error($"The pull request '{branchContextStr}' branch '{branch}' is not a valid '{branchTypeStr}' branch.");
+            Assert.Fail($"Pull request '{branchContextStr}' branch is not valid.");
         }
 
-        Log.Error(errorMsg, branch);
-        Assert.Fail("Invalid pull request source branch.");
-        return false;
+        return isValid;
     }
 
     private bool ThatThePreviewPRBranchVersionsMatch(ReleaseType releaseType)
     {
-        var sourceBranch = GitHubActionsService.HeadRef ?? BranchNotDetermined;
-        var targetBranch = GitHubActionsService.BaseRef ?? "Not a pull request.";
+        var sourceBranch = PullRequestService.SourceBranch;
+        var targetBranch = PullRequestService.TargetBranch;
         var errors = new List<string>();
         var releaseTypeStr = releaseType.ToString().ToLower();
 
@@ -589,7 +639,7 @@ public partial class CICD // Requirements
 
     private bool ThatThePRSourceBranchVersionSectionMatchesProjectVersion(ReleaseType releaseType)
     {
-        var sourceBranch = GitHubActionsService.HeadRef ?? BranchNotDetermined;
+        var sourceBranch = PullRequestService.SourceBranch;
         var errors = new List<string>();
 
         var introMsg = "Checking that the project version matches the version section";

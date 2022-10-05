@@ -66,7 +66,7 @@
   <ItemGroup>
     <None Remove="stylecop.json" />
     <AdditionalFiles Include="stylecop.json" />
-    <None Update="WorkflowTemplates\build-status-check.yml">
+    <None Update="WorkflowTemplates\build-pr-status-check.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="WorkflowTemplates\feature-pr-status-check.yml">
@@ -89,6 +89,9 @@
     </None>
     <None Update="WorkflowTemplates\prod-release-pr-status-check.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="WorkflowTemplates\unit-test-pr-status-check.yml">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 
