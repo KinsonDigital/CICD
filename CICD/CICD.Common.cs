@@ -14,6 +14,7 @@ using Nuke.Common;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.Twitter;
 using Octokit;
+using Serilog;
 
 namespace CICDSystem;
 
@@ -256,7 +257,7 @@ public partial class CICD // Common
             return -1; // All of the other branches do not contain an issue number
         }
 
-        var separator = branchType switch
+        var startSection = branchType switch
         {
             BranchType.Feature => "feature/",
             BranchType.PreviewFeature => "preview/feature/",
@@ -264,8 +265,8 @@ public partial class CICD // Common
             _ => throw new ArgumentOutOfRangeException(nameof(branchType), "Not a valid issue type branch")
         };
 
-        var sections = branch.Split(separator, StringSplitOptions.RemoveEmptyEntries);
-        var issueNumStr = sections[0].Split('-')[0];
+        var valueToSplit = branch.Replace(startSection, string.Empty);
+        var issueNumStr = valueToSplit.Split('-')[0];
 
         var parseResult = int.TryParse(issueNumStr, out var issueNum);
 
@@ -314,6 +315,14 @@ public partial class CICD // Common
 
         return false;
     }
+
+    private void LogErrorAndFail(string errorMsg, string failMsg)
+    {
+        Log.Error(errorMsg);
+        Assert.Fail(failMsg);
+    }
+
+    private void LogSuccess(string successMsg) => Console.WriteLine($"{Environment.NewLine}{ConsoleTab}{successMsg}");
 
     private async Task<string> MergeBranch(string sourceBranch, string targetBranch)
     {
