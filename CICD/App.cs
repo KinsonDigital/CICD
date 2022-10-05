@@ -5,15 +5,11 @@
 // ReSharper disable InconsistentNaming
 using System.Diagnostics.CodeAnalysis;
 using System.IO.Abstractions;
-using System.Runtime.CompilerServices;
 using CICDSystem.Factories;
 using CICDSystem.Reactables;
 using CICDSystem.Reactables.Core;
 using CICDSystem.Services;
 using SimpleInjector;
-
-[assembly: InternalsVisibleTo(assemblyName: "CICDTests", AllInternalsVisible = true)] // Make this libraries internals visible to the unit test project
-[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2", AllInternalsVisible = true)]
 
 namespace CICDSystem;
 
