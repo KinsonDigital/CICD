@@ -36,10 +36,7 @@ public partial class CICD // Requirements
         nameof(ThatThePullRequestExists)
             .LogRequirementTitle("Checking if the pull request number exists.");
 
-        var prNumber = ExecutionContext.IsServerBuild
-            ? GitHubActionsService.PullRequestNumber ?? -1
-            : PullRequestNumber;
-
+        var prNumber = PullRequestService.PullRequestNumber;
         var result = GitHubClient.PullRequest.Exists(RepoOwner, RepoName, prNumber).Result;
 
         if (result)
@@ -60,7 +57,7 @@ public partial class CICD // Requirements
         nameof(ThatThePRHasBeenAssigned)
             .LogRequirementTitle("Checking if the pull request as been assigned to someone.");
 
-        var prNumber = GitHubActionsService.PullRequestNumber ?? -1;
+        var prNumber = PullRequestService.PullRequestNumber;
 
         if (prClient.HasAssignees(RepoOwner, RepoName, prNumber).Result)
         {
@@ -80,7 +77,7 @@ public partial class CICD // Requirements
 
     private bool ThatFeaturePRIssueNumberExists()
     {
-        var sourceBranch = GitHubActionsService.HeadRef ?? BranchNotDetermined;
+        var sourceBranch = PullRequestService.SourceBranch;
 
         nameof(ThatFeaturePRIssueNumberExists)
             .LogRequirementTitle($"Checking that the issue number in the feature branch exists.");
@@ -105,7 +102,7 @@ public partial class CICD // Requirements
 
     private bool ThatPreviewFeaturePRIssueNumberExists()
     {
-        var sourceBranch = GitHubActionsService.HeadRef ?? BranchNotDetermined;
+        var sourceBranch = PullRequestService.SourceBranch;
 
         nameof(ThatPreviewFeaturePRIssueNumberExists)
             .LogRequirementTitle("Checking that the issue number in the preview feature branch exists.");
@@ -149,7 +146,7 @@ public partial class CICD // Requirements
         }
         else
         {
-            var sourceBranch = GitHubActionsService.HeadRef ?? BranchNotDetermined;
+            var sourceBranch = PullRequestService.SourceBranch;
             var branchIssueNumber = ExtractIssueNumber(branchType, sourceBranch);
             var issueExists = GitHubClient.Issue.IssueExists(RepoOwner, RepoName, branchIssueNumber).Result;
 
@@ -192,7 +189,7 @@ public partial class CICD // Requirements
         nameof(ThatPRHasLabels)
             .LogRequirementTitle($"Checking if the pull request has labels.");
 
-        var prNumber = GitHubActionsService.PullRequestNumber ?? -1;
+        var prNumber = PullRequestService.PullRequestNumber;
 
         if (prClient.HasLabels(RepoOwner, RepoName, prNumber).Result)
         {
@@ -212,7 +209,7 @@ public partial class CICD // Requirements
 
     private bool ThatThePRHasTheLabel(string labelName)
     {
-        var prNumber = GitHubActionsService.PullRequestNumber ?? -1;
+        var prNumber = PullRequestService.PullRequestNumber;
 
         nameof(ThatThePRHasTheLabel)
             .LogRequirementTitle($"Checking if the pull request has a preview release label.");
@@ -280,12 +277,23 @@ public partial class CICD // Requirements
     {
         var branchContextStr = Enum.GetName(branchContext)?.ToLower() ?? string.Empty;
 
-        var branch = branchContext switch
+        string branch;
+
+        try
         {
-            PRBranchContext.Source => GitHubActionsService.HeadRef ?? BranchNotDetermined,
-            PRBranchContext.Target => GitHubActionsService.BaseRef ?? "Not a pull request.",
-            _ => throw new ArgumentOutOfRangeException(nameof(branchContext), branchContext, null)
-        };
+            branch = branchContext switch
+            {
+                PRBranchContext.Source => PullRequestService.SourceBranch,
+                PRBranchContext.Target => PullRequestService.TargetBranch,
+                _ => throw new ArgumentOutOfRangeException(nameof(branchContext), branchContext, null)
+            };
+        }
+        catch (Exception e) when (e is NotFoundException || (e.InnerException is not null && e.InnerException is NotFoundException))
+        {
+            Log.Error($"The pull request '{PullRequestNumber}' was not found.");
+            Assert.Fail("Pull request not found.");
+            return false;
+        }
 
         var foundBranchType = branchTypes.FirstOrDefault(t => t switch
         {
@@ -336,8 +344,8 @@ public partial class CICD // Requirements
 
     private bool ThatThePreviewPRBranchVersionsMatch(ReleaseType releaseType)
     {
-        var sourceBranch = GitHubActionsService.HeadRef ?? BranchNotDetermined;
-        var targetBranch = GitHubActionsService.BaseRef ?? "Not a pull request.";
+        var sourceBranch = PullRequestService.SourceBranch;
+        var targetBranch = PullRequestService.TargetBranch;
         var errors = new List<string>();
         var releaseTypeStr = releaseType.ToString().ToLower();
 
@@ -585,7 +593,7 @@ public partial class CICD // Requirements
 
     private bool ThatThePRSourceBranchVersionSectionMatchesProjectVersion(ReleaseType releaseType)
     {
-        var sourceBranch = GitHubActionsService.HeadRef ?? BranchNotDetermined;
+        var sourceBranch = PullRequestService.SourceBranch;
         var errors = new List<string>();
 
         var introMsg = "Checking that the project version matches the version section";

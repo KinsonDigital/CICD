@@ -194,7 +194,7 @@ public partial class CICD : NukeBuild
                 : Configuration.Debug;
         }
 
-        return (GitHubActionsService.BaseRef ?? string.Empty).IsMasterBranch()
+        return PullRequestService.TargetBranch.IsMasterBranch()
             ? Configuration.Release
             : Configuration.Debug;
     }
