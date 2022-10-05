@@ -26,7 +26,7 @@ internal enum ReleaseType
 }
 
 /// <summary>
-/// Represents if the context of a pull request branch is the source or target branch.
+/// Represents whether or not the context of a pull request branch is the source or target branch.
 /// </summary>
 internal enum PRBranchContext
 {
@@ -36,7 +36,7 @@ internal enum PRBranchContext
     Source,
 
     /// <summary>
-    /// The pull request <c>destination</c> branch that a <c>source</c> branch is merging into.
+    /// The pull request <c>destination</c> branch where a <c>source</c> branch is merging.
     /// </summary>
     Target,
 }
@@ -47,45 +47,49 @@ internal enum PRBranchContext
 internal enum BranchType
 {
     /// <summary>
-    /// The master branch.  This is for production.
+    /// The branch for production.
     /// </summary>
     Master,
 
     /// <summary>
-    /// The development branch.  Used for the majority of development.
+    /// The branch that contains the majority of development work.
     /// </summary>
     Develop,
 
     /// <summary>
-    /// The feature branch.  The majority of development is performed using feature branches that merge into develop.
+    /// The branch that contains smaller pieces of development work that merges into the <see cref="Develop"/> branch.
     /// </summary>
     Feature,
 
     /// <summary>
-    /// The preview feature branch.  This is for development of preview changes and gets merged into preview branches.
+    /// The branch that contains smaller pieces of development work that merges into <see cref="Preview"/> branches.
     /// </summary>
+    /// <remarks>This gets merged into <see cref="Preview"/> branches.
     PreviewFeature,
 
     /// <summary>
-    /// The release branch.  This is for encapsulating an arbitrary amount of changes to be released as a production release.
+    /// This branch that contains the majority of development work for a release.
     /// </summary>
-    /// <remarks>This gets merged into the master branch.</remarks>
+    /// <remarks>This gets merged into the <see cref="Master"/> branch.</remarks>
     Release,
 
     /// <summary>
-    /// The preview branch.  This is to hold an arbitrary amount of changes to be released as a preview release.
+    /// The branch that contains changes for a preview release.
     /// </summary>
-    /// <remarks>This gets merged into release branches.</remarks>
+    /// <remarks>This gets merged into <see cref="Release"/> branches.</remarks>
     Preview,
 
     /// <summary>
-    /// The hot fix branch.  This is to hold necessary changes for hot fix releases.
+    /// This branch that contains a hot fix.
     /// </summary>
-    /// <remarks>Intended to fix something quickly with as minimum changes as possible.</remarks>
+    /// <remarks>
+    ///     Intended to fix something quickly with as few changes as possible.
+    ///     This gets merged into the <see cref="Master"/> branch.
+    /// </remarks>
     HotFix,
 
     /// <summary>
-    /// Any other branch besides the main branching model branches.
+    /// Any other branch not previously mentioned.
     /// </summary>
     Other,
 }

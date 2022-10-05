@@ -38,7 +38,7 @@ public class AssertExtensions : Assert
     /// <summary>
     /// Asserts that the given test code does not throw the exception of type <typeparamref name="T"/> is not thrown.
     /// </summary>
-    /// <typeparam name="T">The type of exception to check for.</typeparam>
+    /// <typeparam name="T">The type of exception to check.</typeparam>
     /// <param name="testCode">The test code that should not throw the exception.</param>
     public static void DoesNotThrow<T>(Action testCode)
         where T : Exception

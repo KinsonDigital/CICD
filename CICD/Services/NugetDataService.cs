@@ -38,7 +38,7 @@ public sealed class NugetDataService : IDisposable
     /// <param name="packageName">The name of the package.</param>
     /// <remarks>
     ///     The param <paramref name="packageName"/> is not case sensitive.  The NuGet API
-    ///     requires that it is in lowercase.  This is taken care of for you.
+    ///     requires that it is lowercase and is taken care of for you.
     /// </remarks>
     /// <exception cref="ArgumentNullException">
     ///     Thrown if the <paramref name="packageName"/> param is null or empty.

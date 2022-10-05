@@ -371,8 +371,8 @@ internal static class ExtensionMethods
 
         if (string.IsNullOrEmpty(version))
         {
-            // TODO: Create custom exception name MissingVersionException
-            // TODO: In the exception, explain how to set the version
+            // TODO: Create custom exception name MissingVersionException 
+            // TODO: In the exception, explain how to set the version 
             throw new Exception($"The version for project '{project.Name}' is not set.");
         }
 
@@ -385,8 +385,8 @@ internal static class ExtensionMethods
 
         if (string.IsNullOrEmpty(version))
         {
-            // TODO: Create custom exception name MissingFileVersionException
-            // TODO: In the exception, explain how to set the version
+            // TODO: Create custom exception name MissingFileVersionException 
+            // TODO: In the exception, explain how to set the version 
             throw new Exception($"The file version for project '{project.Name}' is not set.");
         }
 
@@ -399,8 +399,8 @@ internal static class ExtensionMethods
 
         if (string.IsNullOrEmpty(version))
         {
-            // TODO: Create custom exception name MissingAssemblyVersionException
-            // TODO: In the exception, explain how to set the version
+            // TODO: Create custom exception name MissingAssemblyVersionException - **Do you still need this?**
+            // TODO: In the exception, explain how to set the version - **Do you still need this?**
             throw new Exception($"The assembly version for project '{project.Name}' is not set.");
         }
 
@@ -905,7 +905,7 @@ internal static class ExtensionMethods
     /// <summary>
     /// Returns the name of the repository.
     /// </summary>
-    /// <param name="actions">GitHub actions related functionality.</param>
+    /// <param name="actions">GitHub Actions related functionality.</param>
     /// <returns>The name of the repository.</returns>
     public static string RepositoryName(this GitHubActions actions)
     {
@@ -945,7 +945,7 @@ internal static class ExtensionMethods
         const string regexMatchNumbers = @"\d+";
         const string regexMatchAnything = ".+";
 
-        // Remove any consecutive '#' and '*' symbols until no more consecutive symbols exists anymore
+        // Remove any consecutive '#' and '*' symbols until no more consecutive symbols exist
         globbingPattern = RemoveConsecutiveCharacters(new[] { MatchNumbers, MatchAnything }, globbingPattern);
 
         // Replace the '#' symbol with
