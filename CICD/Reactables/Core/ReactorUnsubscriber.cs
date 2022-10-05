@@ -10,7 +10,7 @@ using CICDSystem.Guards;
 namespace CICDSystem.Reactables.Core;
 
 /// <summary>
-/// A reactor unsubscriber for unsubscribing from an <see cref="Reactable{TData}"/>.
+/// A reactor unsubscriber for unsubscribing from a <see cref="Reactable{TData}"/>.
 /// </summary>
 /// <typeparam name="T">
 ///     The type of data that is pushed to all of the subscribed <see cref="Reactor{T}"/>s.
@@ -39,7 +39,7 @@ internal sealed class ReactorUnsubscriber<T> : IDisposable
     public IReactor<T> Reactor { get; }
 
     /// <summary>
-    /// Gets the total number of current subscriptions that an <see cref="Reactable{TData}"/> has.
+    /// Gets the total number of current subscriptions that a <see cref="Reactable{TData}"/> has.
     /// </summary>
     public int TotalReactors => this.reactors.Count;
 

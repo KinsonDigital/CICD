@@ -237,8 +237,7 @@ internal interface IBranchValidatorService
     IBranchValidatorService Or();
 
     /// <summary>
-    /// Returns a <c>bool</c> value indicating whether or not the given <paramref name="branch"/> that <c>might</c> contain
-    /// and issue number exists.
+    /// Returns a <c>bool</c> value indicating whether or not the given <paramref name="branch"/> <c>might</c> contain an issue number.
     /// </summary>
     /// <param name="branch">The GIT branch.</param>
     /// <returns><c>true</c> if the issue number exists.</returns>
@@ -268,7 +267,7 @@ internal interface IBranchValidatorService
     bool CurrentBranchIsValid(BranchType branchType);
 
     /// <summary>
-    /// Resets the internal state of the objects logic.
+    /// Resets the internal state of the object's logic.
     /// </summary>
     /// <returns>The current object to continue the <c>Fluent API</c> chain.</returns>
     IBranchValidatorService Reset();

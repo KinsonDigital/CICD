@@ -520,7 +520,7 @@ internal sealed class BranchValidatorService : IBranchValidatorService
     }
 
     /// <inheritdoc/>
-    /// <exception cref="ArgumentNullException">Thrown if the <paramref name="branch"/> is null or empty..</exception>
+    /// <exception cref="ArgumentNullException">Thrown if the <paramref name="branch"/> is null or empty.</exception>
     /// <exception cref="Exception">Thrown if the issue number embedded in the <paramref name="branch"/> does not exist.</exception>
     public bool BranchIssueNumberExists(string branch)
     {
@@ -600,7 +600,7 @@ internal sealed class BranchValidatorService : IBranchValidatorService
     }
 
     /// <inheritdoc/>
-    /// <exception cref="Exception">Thrown if the currently checked out GIT branch is null or empty..</exception>
+    /// <exception cref="Exception">Thrown if the currently checked out GIT branch is null or empty.</exception>
     public bool CurrentBranchIsValid(string branchPattern)
     {
         var branch = this.gitRepoService.Branch;
@@ -614,7 +614,7 @@ internal sealed class BranchValidatorService : IBranchValidatorService
     }
 
     /// <inheritdoc/>
-    /// <exception cref="Exception">Thrown if the currently checked out GIT branch is null or empty..</exception>
+    /// <exception cref="Exception">Thrown if the currently checked out GIT branch is null or empty.</exception>
     /// <exception cref="ArgumentOutOfRangeException">Thrown if the <paramref name="branchType"/> is an invalid value.</exception>
     public bool CurrentBranchIsValid(BranchType branchType)
     {

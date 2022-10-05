@@ -134,20 +134,22 @@ public partial class CICD // Common
 
     private void DeleteAllNugetPackages()
     {
-        // If the build is local, find and delete the package first if it exists.
-        // This is to essentially overwrite the package so it is "updated".
+        // If this is a local build, find and delete all NuGet packages first.
+        // This overwrites the package so it is "updated".
         // Without doing this, the package already exists but does not get overwritten to be "updated"
-        if (ExecutionContext.IsLocalBuild)
+        if (!ExecutionContext.IsLocalBuild)
         {
-            var packages = Glob.Files(NugetOutputPath, "*.nupkg").ToArray();
+            return;
+        }
 
-            foreach (var package in packages)
+        var packages = Glob.Files(NugetOutputPath, "*.nupkg").ToArray();
+
+        foreach (var package in packages)
+        {
+            var filePath = $"{NugetOutputPath}/{package}";
+            if (File.Exists(filePath))
             {
-                var filePath = $"{NugetOutputPath}/{package}";
-                if (File.Exists(filePath))
-                {
-                    File.Delete(filePath);
-                }
+                File.Delete(filePath);
             }
         }
     }

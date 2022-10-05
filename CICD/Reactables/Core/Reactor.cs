@@ -23,7 +23,7 @@ internal sealed class Reactor<T> : IReactor<T>
     /// </summary>
     /// <param name="onNext">Executed when a push notification occurs.</param>
     /// <param name="onCompleted">Executed when the provider has finished sending push-based notifications.</param>
-    /// <param name="onError">Executed when the provider experiences an error condition.</param>
+    /// <param name="onError">Executed when the provider experiences an error.</param>
     public Reactor(Action<T>? onNext = null, Action? onCompleted = null, Action<Exception>? onError = null)
     {
         this.onNext = onNext;

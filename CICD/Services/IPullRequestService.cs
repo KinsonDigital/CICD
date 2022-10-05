@@ -18,7 +18,7 @@ public interface IPullRequestService
     /// <summary>
     /// Gets the target branch of a pull request.
     /// </summary>
-    /// <remarks>This is the branch that a pull request <see cref="SourceBranch"/> merging into.</remarks>
+    /// <remarks>This is the branch where a pull request <see cref="SourceBranch"/> merges.</remarks>
     string TargetBranch { get; }
 
     /// <summary>

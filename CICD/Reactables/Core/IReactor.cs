@@ -27,7 +27,7 @@ internal interface IReactor<in T>
     public void OnCompleted();
 
     /// <summary>
-    /// Notifies the reactor that the provider has experiences an error condition.
+    /// Notifies the reactor that the provider has experienced an error.
     /// </summary>
     /// <param name="error">An object that provides additional information about the error.</param>
     public void OnError(Exception error);

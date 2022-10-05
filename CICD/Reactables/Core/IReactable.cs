@@ -18,7 +18,7 @@ internal interface IReactable<T> : IDisposable
     bool NotificationsEnded { get; }
 
     /// <summary>
-    /// Notifies the provider that an reactor is to receive notifications.
+    /// Notifies the provider that a reactor is to receive notifications.
     /// </summary>
     /// <param name="reactor">The object that is to receive notifications.</param>
     /// <returns>
