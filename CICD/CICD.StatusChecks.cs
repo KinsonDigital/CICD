@@ -96,7 +96,7 @@ public partial class CICD // StatusChecks
             () => ThatPullRequestNumberIsProvided(),
             () => ThatThePullRequestExists(),
             () => ThatThePRBranchIsValid(PRBranchContext.Source, BranchType.PreviewFeature),
-            // () => ThatThePRBranchIsValid(PRBranchContext.Target, BranchType.Preview),
+            () => ThatThePRBranchIsValid(PRBranchContext.Target, BranchType.Preview),
             () => ThatPreviewFeaturePRIssueNumberExists(),
             () => ThatFeaturePRIssueHasLabel(BranchType.PreviewFeature),
             () => ThatThePRHasBeenAssigned(),
@@ -168,8 +168,6 @@ public partial class CICD // StatusChecks
         .Unlisted()
         .Executes(() =>
         {
-            // var srcResult = ThatThePRBranchIsValid(PRBranchContext.Source, BranchType.PreviewFeature);
-            var targetResult = ThatThePRBranchIsValid(PRBranchContext.Target, BranchType.Preview);
         });
 
     // ReSharper restore UnusedMember.Local

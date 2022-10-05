@@ -63,7 +63,6 @@ public partial class CICD : NukeBuild
 
             var dataIsNotReady = string.IsNullOrEmpty(this.repoOwner) || string.IsNullOrEmpty(this.repoName);
 
-
             if (dataIsNotReady || repoInfoReactable.NotificationsEnded)
             {
                 return;

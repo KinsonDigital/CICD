@@ -313,20 +313,6 @@ public partial class CICD // Common
         return false;
     }
 
-    private string GetBranchSyntax(BranchType branchType)
-        => branchType switch
-        {
-            BranchType.Master => "master",
-            BranchType.Develop => "develop",
-            BranchType.Feature => "feature/#-*",
-            BranchType.PreviewFeature => "preview/feature/#-*",
-            BranchType.Release => "release/v#.#.#",
-            BranchType.Preview => "preview/v#.#.#-preview.#",
-            BranchType.HotFix => "hotfix/#-*",
-            BranchType.Other => "*",
-            _ => throw new ArgumentOutOfRangeException(nameof(branchType), branchType, null)
-        };
-
     private async Task<string> MergeBranch(string sourceBranch, string targetBranch)
     {
         var mergeClient = GitHubClient.Repository.Merging;
