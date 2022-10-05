@@ -14,7 +14,6 @@ using Nuke.Common;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.Twitter;
 using Octokit;
-using Serilog;
 
 namespace CICDSystem;
 
@@ -80,7 +79,8 @@ public partial class CICD // Common
 
         if (File.Exists(fullPackagePath))
         {
-            DotNetTasks.DotNetNuGetPush(s => DotNetNuGetPushSettingsExtensions.SetTargetPath<DotNetNuGetPushSettings>(s, fullPackagePath)
+            DotNetTasks.DotNetNuGetPush(s =>
+                s.SetTargetPath<DotNetNuGetPushSettings>(fullPackagePath)
                 .SetSource(NugetOrgSource)
                 .SetApiKey(NugetOrgApiKey));
         }
@@ -137,7 +137,7 @@ public partial class CICD // Common
         // If the build is local, find and delete the package first if it exists.
         // This is to essentially overwrite the package so it is "updated".
         // Without doing this, the package already exists but does not get overwritten to be "updated"
-        if (IsLocalBuild)
+        if (ExecutionContext.IsLocalBuild)
         {
             var packages = Glob.Files(NugetOutputPath, "*.nupkg").ToArray();
 

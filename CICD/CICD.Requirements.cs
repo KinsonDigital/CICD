@@ -16,17 +16,10 @@ namespace CICDSystem;
 /// </summary>
 public partial class CICD // Requirements
 {
-    private const string BranchNotDetermined = "The branch could not be determined.";
-
     private bool ThatPullRequestNumberIsProvided()
     {
         nameof(ThatPullRequestNumberIsProvided)
             .LogRequirementTitle("Checking that a pull request number has been provided.");
-
-        if (ExecutionContext.IsServerBuild)
-        {
-            return GitHubActionsService.IsPullRequest;
-        }
 
         return PullRequestNumber > 0;
     }

@@ -3,12 +3,10 @@
 // </copyright>
 
 // ReSharper disable InconsistentNaming
-using System;
 using CICDSystem.Factories;
 using CICDSystem.Reactables.Core;
 using CICDSystem.Services;
 using Nuke.Common;
-using Nuke.Common.CI.GitHubActions;
 using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
 using Octokit;
@@ -119,25 +117,6 @@ public partial class CICD : NukeBuild
         get => this.pullRequestNumber;
         set
         {
-            // TODO: Refactor the current use of the Reactable<BuildInfoData> into separate reactables of tuple types instead.
-            // One will be for the repo owner and name will be a (string, string) tuple for the BranchValidatorService
-            // The other will be for the projectName will be a string type for the HttpClientFactory
-
-            /* TODO:
-             * `build-status-check.yml` changes:
-             *      file renamed to `build-pr-status-check.yml`
-             *      build status check workflow manual execution removed
-             *      extra step created to get pr number
-             *
-             * `unit-test-status-check.yml` changes:
-             *      file renamed to `unit-test-pr-status-check.yml`
-             *      unit test status check workflow manual execution removed
-             *      extra step created to get pr number
-             */
-
-            // TODO: Create a pull request service.  This service will have an observable that gets a push
-            // notification from here to a new Reactable with a generic as an long. Long because this will make sure that long term we don't
-            // run out of number space
             this.pullRequestNumber = value;
 
             Console.WriteLine("--------DEBUG--------");

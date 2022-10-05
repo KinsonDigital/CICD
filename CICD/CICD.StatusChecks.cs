@@ -147,7 +147,6 @@ public partial class CICD // StatusChecks
             () => ThatThePRHasBeenAssigned(),
             () => ThatThePRHasTheLabel("🚀Production Release"),
             () => ThatTheProjectVersionsAreValid(ReleaseType.Production),
-            () => ThatThePreviewPRBranchVersionsMatch(ReleaseType.Production),
             () => ThatThePRSourceBranchVersionSectionMatchesProjectVersion(ReleaseType.Production),
             () => ThatTheReleaseMilestoneExists(),
             () => ThatTheReleaseMilestoneContainsIssues(),
