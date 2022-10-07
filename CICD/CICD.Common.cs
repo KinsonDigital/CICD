@@ -122,9 +122,6 @@ public partial class CICD // Common
             _ => throw new ArgumentOutOfRangeException(nameof(releaseType), releaseType, null)
         };
 
-        nameof(ReleaseNotesExist)
-            .LogRequirementTitle($"Checking if the '{releaseType}' release notes exist.");
-
         return (from f in Glob.Files(releaseNotesDirPath, "*.md")
             where f.Contains(version)
             select f).Any();

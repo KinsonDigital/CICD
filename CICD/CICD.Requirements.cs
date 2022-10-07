@@ -1096,7 +1096,7 @@ public partial class CICD // Requirements
         {
             var notesDirPath = $"./Documentation/ReleaseNotes/{releaseType.ToString()}Releases";
             var errorMsg = $"The {releaseTypeStr} release notes do not exist for version {projectVersion}";
-            var notesFileName = $"Release-Notes-{projectVersion}.md";
+            var notesFileName = $"Release-Notes-v{projectVersion}.md";
             errorMsg += $"{Environment.NewLine}{ConsoleTab}The {releaseTypeStr} release notes go in the directory '{notesDirPath}'";
             errorMsg += $"{Environment.NewLine}{ConsoleTab}The {releaseTypeStr} release notes file name should be '{notesFileName}'.";
             errors.Add(errorMsg);
@@ -1119,7 +1119,7 @@ public partial class CICD // Requirements
 
         var releaseTypeStr = releaseType.ToString().ToLower();
 
-        nameof(ThatTheReleaseNotesExist)
+        nameof(ThatTheReleaseNotesTitleIsCorrect)
             .LogRequirementTitle($"Checking that the release notes for the {releaseTypeStr} release exist.");
 
         if (project is null)
@@ -1135,7 +1135,7 @@ public partial class CICD // Requirements
         {
             var notesDirPath = $"./Documentation/ReleaseNotes/{releaseType.ToString()}Releases";
             var errorMsg = $"The {releaseTypeStr} release notes do not exist for version {projectVersion}";
-            var notesFileName = $"Release-Notes-{projectVersion}.md";
+            var notesFileName = $"Release-Notes-v{projectVersion}.md";
             errorMsg += $"{Environment.NewLine}{ConsoleTab}The {releaseTypeStr} release notes go in the directory '{notesDirPath}'";
             errorMsg += $"{Environment.NewLine}{ConsoleTab}The {releaseTypeStr} release notes file name should be '{notesFileName}'.";
             errors.Add(errorMsg);
