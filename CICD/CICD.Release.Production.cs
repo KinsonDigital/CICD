@@ -37,7 +37,7 @@ public partial class CICD // Release.Production
             () => ThatTheProdReleaseNotesContainsPreviewReleaseItems(),
             () => ThatMilestoneIssuesExistInReleaseNotes(ReleaseType.Production),
             () => ThatGitHubReleaseDoesNotExist(ReleaseType.Production),
-            () => NugetPackageDoesNotExist()).After(BuildAllProjects, RunAllUnitTests)
+            () => ThatTheNugetPackageDoesNotExist()).After(BuildAllProjects, RunAllUnitTests)
         .DependsOn(BuildAllProjects, RunAllUnitTests)
         .Executes(async () =>
         {

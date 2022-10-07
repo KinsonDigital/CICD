@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using CICDSystem.Services;
 using Nuke.Common;
 using Octokit;
 using Serilog;
@@ -1445,6 +1446,44 @@ public partial class CICD // Requirements
         }
 
         Assert.Fail($"The '{switchStr}' switch is invalid or not used.");
+        return false;
+    }
+
+    private bool ThatTheNugetPackageDoesNotExist()
+    {
+        nameof(ThatTheNugetPackageDoesNotExist)
+            .LogRequirementTitle($"Checking that the nuget package does not already exist.");
+
+        var project = this.solution?.GetProject(RepoName);
+        var errors = new List<string>();
+
+        if (project is null)
+        {
+            var exMsg = $"The project named '{ProjectName}' could not be found.";
+            exMsg += $"{Environment.NewLine}Check that the 'ProjectName' param in the parameters.json is set correctly.";
+            throw new Exception(exMsg);
+        }
+
+        var projectVersion = project.GetVersion();
+
+        var nugetService = new NugetDataService();
+
+        var packageVersions = nugetService.GetNugetVersions(RepoName).Result;
+
+        var nugetPackageExists = packageVersions.Any(i => i == projectVersion);
+
+        if (nugetPackageExists)
+        {
+            errors.Add($"The nuget package '{RepoName}' version 'v{projectVersion}' already exists.");
+        }
+
+        if (errors.Count <= 0)
+        {
+            return true;
+        }
+
+        errors.PrintErrors();
+
         return false;
     }
 }
