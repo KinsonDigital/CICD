@@ -930,7 +930,7 @@ public partial class CICD // Requirements
 
         var openMilestonePullRequests = GitHubClient.Issue.PullRequestsForMilestone(RepoOwner, RepoName, $"v{projectVersion}")
             .Result
-            .Where(i => (skipReleaseToDoPullRequests || i.IsReleasePullRequest(releaseType)) && i.State == ItemState.Open).ToArray();
+            .Where(i => skipReleaseToDoPullRequests is false && i.IsReleasePullRequest(releaseType) && i.State == ItemState.Open).ToArray();
 
         if (openMilestonePullRequests.Length > 0)
         {
