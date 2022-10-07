@@ -891,7 +891,7 @@ public partial class CICD // Requirements
 
         var openMilestoneIssues = GitHubClient.Issue.IssuesForMilestone(RepoOwner, RepoName, projectVersion)
             .Result
-            .Where(i => (skipReleaseToDoIssues || i.IsReleaseToDoIssue(releaseType)) && i.State == ItemState.Open).ToArray();
+            .Where(i => skipReleaseToDoIssues is false && i.IsReleaseToDoIssue(releaseType) && i.State == ItemState.Open).ToArray();
 
         if (openMilestoneIssues.Length > 0)
         {
