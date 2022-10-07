@@ -119,6 +119,7 @@ public partial class CICD // Common
         {
             ReleaseType.Production => ProductionReleaseNotesDirPath,
             ReleaseType.Preview => PreviewReleaseNotesDirPath,
+            ReleaseType.HotFix => throw new NotImplementedException("Hot Fix release type not implemented."),
             _ => throw new ArgumentOutOfRangeException(nameof(releaseType), releaseType, null)
         };
 
