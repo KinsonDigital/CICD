@@ -5,6 +5,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using CICDSystem.Services;
 using Nuke.Common;
 using Octokit;
@@ -272,7 +274,7 @@ public partial class CICD // Requirements
 
         if (labelExists)
         {
-            Log.Information($"{ConsoleTab}✅The pull request '{prNumber}' has a preview label.");
+            Console.WriteLine($"{ConsoleTab}The pull request '{prNumber}' has a preview label.");
         }
         else
         {
@@ -1467,8 +1469,19 @@ public partial class CICD // Requirements
         var projectVersion = project.GetVersion();
 
         var nugetService = new NugetDataService();
+        var packageVersions = Array.Empty<string>();
 
-        var packageVersions = nugetService.GetNugetVersions(RepoName).Result;
+        try
+        {
+            packageVersions = nugetService.GetNugetVersions("CICDTest").Result;
+        }
+        catch (AggregateException e) when (e.InnerException is HttpRequestException exception)
+        {
+            if (exception.StatusCode == HttpStatusCode.NotFound)
+            {
+                return true;
+            }
+        }
 
         var nugetPackageExists = packageVersions.Any(i => i == projectVersion);
 
