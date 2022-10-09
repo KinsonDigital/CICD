@@ -799,28 +799,28 @@ public partial class CICD // Requirements
             errors.Add(errorMsg);
         }
 
-        var pullRequests = itemType switch
+        var milestoneItems = itemType switch
         {
             ItemType.Issue => issueClient.IssuesForMilestone(RepoOwner, RepoName, mileStoneTitle).Result,
             ItemType.PullRequest => issueClient.PullRequestsForMilestone(RepoOwner, RepoName, mileStoneTitle).Result,
             _ => throw new ArgumentOutOfRangeException(nameof(itemType), itemType, null)
         };
 
-        if (pullRequests.Length <= 0)
+        if (milestoneItems.Length <= 0)
         {
             var errorMsg = $"The milestone does not contain any {(itemType == ItemType.Issue ? "todo issues." : "pull requests.")}.";
             errorMsg += $"{Environment.NewLine}{ConsoleTab}To view the milestone, go here 👉🏼 {milestone?.HtmlUrl}";
             errors.Add(errorMsg);
         }
 
-        var prTitleAndLabel = releaseType switch
+        var itemTitleAndLabel = releaseType switch
         {
             ReleaseType.Preview => "🚀Preview Release",
             ReleaseType.Production => "🚀Production Release",
             _ => throw new ArgumentOutOfRangeException(nameof(releaseType), releaseType, null)
         };
 
-        var allReleasePullRequests = pullRequests.Where(i =>
+        var allReleaseItems = milestoneItems.Where(i =>
         {
             return itemType switch
             {
@@ -831,7 +831,7 @@ public partial class CICD // Requirements
         }).ToArray();
         var indent = Environment.NewLine + totalSpaces.CreateDuplicateCharacters(' ');
 
-        if (allReleasePullRequests.Length != 1)
+        if (allReleaseItems.Length != 1)
         {
             var itemTypeStr = itemType switch
             {
@@ -841,23 +841,23 @@ public partial class CICD // Requirements
             };
 
             var errorMsg =
-                $"The {releaseTypeStr} release milestone '{mileStoneTitle}' has '{allReleasePullRequests.Length}' release {itemTypeStr}s.";
+                $"The {releaseTypeStr} release milestone '{mileStoneTitle}' has '{allReleaseItems.Length}' release {itemTypeStr}s.";
             errorMsg += $"{indent}Release milestones should only have a single release {itemTypeStr}.";
             errorMsg += $"{indent}Release {itemTypeStr.CapitalizeWords()} Requirements:";
-            errorMsg += $"{indent}  - Title must be equal to '{prTitleAndLabel}'";
-            errorMsg += $"{indent}  - Contain only a single '{prTitleAndLabel}' label";
+            errorMsg += $"{indent}  - Title must be equal to '{itemTitleAndLabel}'";
+            errorMsg += $"{indent}  - Contain only a single '{itemTitleAndLabel}' label";
             errorMsg += $"{indent}  - The milestone should only contain 1 release {itemTypeStr}.";
 
             errors.Add(errorMsg);
         }
 
-        if (allReleasePullRequests.Length == 1)
+        if (allReleaseItems.Length == 1)
         {
-            allReleasePullRequests.LogAsInfo(15);
+            allReleaseItems.LogAsInfo(15);
         }
         else
         {
-            allReleasePullRequests.LogAsError(15);
+            allReleaseItems.LogAsError(15);
         }
 
         if (errors.Count <= 0)
