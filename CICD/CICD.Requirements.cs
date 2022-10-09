@@ -274,7 +274,7 @@ public partial class CICD // Requirements
 
         if (labelExists)
         {
-            Log.Information($"{ConsoleTab}✅The pull request '{prNumber}' has a preview label.");
+            Console.WriteLine($"{ConsoleTab}The pull request '{prNumber}' has a preview label.");
         }
         else
         {
