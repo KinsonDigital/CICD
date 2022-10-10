@@ -57,6 +57,8 @@ public partial class CICD : NukeBuild
         }
     }
 
+    private ISolutionService SolutionService => App.Container.GetInstance<ISolutionService>();
+
     private IExecutionContextService ExecutionContext => App.Container.GetInstance<IExecutionContextService>();
 
     private IBranchValidatorService BranchValidator => App.Container.GetInstance<IBranchValidatorService>();

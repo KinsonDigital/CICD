@@ -119,7 +119,7 @@
           "type": "boolean",
           "description": "If true, will skip the twitter announcement of a release"
         },
-        "solution": {
+        "Solution": {
           "type": "string",
           "description": "Path to a solution file that is automatically loaded"
         },
