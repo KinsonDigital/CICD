@@ -1,4 +1,4 @@
-﻿// <copyright file="ExtensionMethodsTests.cs" company="KinsonDigital">
+// <copyright file="ExtensionMethodsTests.cs" company="KinsonDigital">
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
@@ -102,6 +102,29 @@ public class ExtensionMethodsTests
         actual.Should().NotBeEquivalentTo(milestoneA);
         mockMilestonesClient.Verify(m => m.GetAllForRepository("test-owner", "test-repo"), Times.Once);
     }
+
+    [Theory]
+    [InlineData("v4.5.6", "test-html-url")]
+    [InlineData("v10.20.30-preview.9", "")]
+    public async void GetHtmlUrl_WhenInvoked_ReturnsCorrectResult(string title, string expected)
+    {
+        // Arrange
+        var milestoneA = CreateMilestoneObj("v1.2.3-preview.4", expected);
+        var milestoneB = CreateMilestoneObj("v4.5.6", expected);
+
+        var milestones = new[] { milestoneA, milestoneB };
+
+        var mockMilestonesClient = new Mock<IMilestonesClient>();
+        mockMilestonesClient.Setup(m => m.GetAllForRepository(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(milestones);
+
+        // Act
+        var actual = await mockMilestonesClient.Object.GetHtmlUrl("test-owner", "test-repo", title);
+
+        // Assert
+        mockMilestonesClient.Verify(m => m.GetAllForRepository("test-owner", "test-repo"), Times.Once);
+        actual.Should().Be(expected);
+    }
     #endregion
 
     /// <summary>
@@ -136,12 +159,13 @@ public class ExtensionMethodsTests
     /// Creates a new milestone object that contains the given <paramref name="title"/>.
     /// </summary>
     /// <param name="title">The title of the milestone.</param>
+    /// <param name="htmlUrl">The HTMl URL to the milestone page.</param>
     /// <returns>The instance to use for testing.</returns>
-    private static Milestone CreateMilestoneObj(string title)
+    private static Milestone CreateMilestoneObj(string title, string htmlUrl = null)
     {
         return new Milestone(
             url: string.Empty, // string
-            htmlUrl: string.Empty, // string
+            htmlUrl: string.IsNullOrEmpty(htmlUrl) ? string.Empty : htmlUrl, // string
             id: 1, // long
             number: 2, // int
             nodeId: string.Empty, // string
