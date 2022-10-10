@@ -51,7 +51,7 @@ public partial class CICD // Common
     {
         DeleteAllNugetPackages();
 
-        var project = Solution?.GetProjects(ProjectName).FirstOrDefault();
+        var project = SolutionService.GetProjects(ProjectName).FirstOrDefault();
 
         if (project is null)
         {

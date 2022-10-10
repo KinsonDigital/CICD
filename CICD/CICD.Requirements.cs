@@ -477,7 +477,7 @@ public partial class CICD // Requirements
     private bool ThatTheCurrentBranchVersionMatchesProjectVersion(BranchType branchType)
     {
         var targetBranch = Repo.Branch ?? string.Empty;
-        var project = Solution?.GetProject(RepoName);
+        var project = SolutionService.GetProject(RepoName);
 
         var errors = new List<string>();
         var branchTypeStr = branchType.ToString().ToSpaceDelimitedSections().ToLower();
@@ -526,7 +526,7 @@ public partial class CICD // Requirements
 
     private bool ThatTheProjectVersionsAreValid(ReleaseType releaseType)
     {
-        var project = Solution?.GetProject(RepoName);
+        var project = SolutionService.GetProject(RepoName);
         var errors = new List<string>();
 
         nameof(ThatTheProjectVersionsAreValid)
@@ -661,7 +661,7 @@ public partial class CICD // Requirements
 
         if (branchType is BranchType.Preview or BranchType.Release)
         {
-            var project = Solution?.GetProject(RepoName);
+            var project = SolutionService.GetProject(RepoName);
 
             if (project is null)
             {
@@ -691,7 +691,7 @@ public partial class CICD // Requirements
 
     private bool ThatTheReleaseMilestoneExists()
     {
-        var project = Solution?.GetProject(RepoName);
+        var project = SolutionService.GetProject(RepoName);
         var errors = new List<string>();
 
         nameof(ThatTheReleaseMilestoneExists)
@@ -727,7 +727,7 @@ public partial class CICD // Requirements
 
     private bool ThatTheReleaseMilestoneContainsIssues()
     {
-        var project = Solution?.GetProject(RepoName);
+        var project = SolutionService.GetProject(RepoName);
         var errors = new List<string>();
 
         nameof(ThatTheReleaseMilestoneContainsIssues)
@@ -773,7 +773,7 @@ public partial class CICD // Requirements
     private bool ThatTheReleaseMilestoneOnlyContainsSingle(ReleaseType releaseType, ItemType itemType)
     {
         const int totalSpaces = 15;
-        var project = Solution?.GetProject(RepoName);
+        var project = SolutionService.GetProject(RepoName);
         var errors = new List<string>();
         var releaseTypeStr = releaseType.ToString().ToLower();
 
@@ -874,7 +874,7 @@ public partial class CICD // Requirements
 
     private bool ThatAllOfTheReleaseMilestoneIssuesAreClosed(ReleaseType releaseType, bool skipReleaseToDoIssues)
     {
-        var project = Solution?.GetProject(RepoName);
+        var project = SolutionService.GetProject(RepoName);
         var errors = new List<string>();
 
         nameof(ThatAllOfTheReleaseMilestoneIssuesAreClosed)
@@ -916,7 +916,7 @@ public partial class CICD // Requirements
 
     private bool ThatAllOfTheReleaseMilestonePullRequestsAreClosed(ReleaseType releaseType, bool skipReleaseToDoPullRequests)
     {
-        var project = Solution?.GetProject(RepoName);
+        var project = SolutionService.GetProject(RepoName);
         var errors = new List<string>();
 
         nameof(ThatAllOfTheReleaseMilestonePullRequestsAreClosed)
@@ -955,7 +955,7 @@ public partial class CICD // Requirements
 
     private bool ThatAllMilestoneIssuesHaveLabels()
     {
-        var project = Solution?.GetProject(RepoName);
+        var project = SolutionService.GetProject(RepoName);
         var errors = new List<string>();
 
         nameof(ThatAllMilestoneIssuesHaveLabels)
@@ -998,7 +998,7 @@ public partial class CICD // Requirements
 
     private bool ThatAllMilestonePullRequestsHaveLabels()
     {
-        var project = Solution?.GetProject(RepoName);
+        var project = SolutionService.GetProject(RepoName);
         var errors = new List<string>();
 
         nameof(ThatAllMilestonePullRequestsHaveLabels)
@@ -1040,7 +1040,7 @@ public partial class CICD // Requirements
 
     private bool ThatTheReleaseTagDoesNotAlreadyExist(ReleaseType releaseType)
     {
-        var project = Solution?.GetProject(RepoName);
+        var project = SolutionService.GetProject(RepoName);
         var errors = new List<string>();
 
         var releaseTypeStr = releaseType.ToString().ToLower();
@@ -1078,7 +1078,7 @@ public partial class CICD // Requirements
 
     private bool ThatTheReleaseNotesExist(ReleaseType releaseType)
     {
-        var project = Solution?.GetProject(RepoName);
+        var project = SolutionService.GetProject(RepoName);
         var errors = new List<string>();
 
         var releaseTypeStr = releaseType.ToString().ToLower();
@@ -1117,7 +1117,7 @@ public partial class CICD // Requirements
 
     private bool ThatTheReleaseNotesTitleIsCorrect(ReleaseType releaseType)
     {
-        var project = Solution?.GetProject(RepoName);
+        var project = SolutionService.GetProject(RepoName);
         var errors = new List<string>();
 
         var releaseTypeStr = releaseType.ToString().ToLower();
@@ -1174,7 +1174,7 @@ public partial class CICD // Requirements
         const int totalIndexSpaces = 15;
         var indent = totalIndexSpaces.CreateDuplicateCharacters(' ');
         const string baseUrl = "https://github.com";
-        var project = Solution?.GetProject(RepoName);
+        var project = SolutionService.GetProject(RepoName);
         var errors = new List<string>();
 
         var releaseTypeStr = releaseType.ToString().ToLower();
@@ -1225,7 +1225,7 @@ public partial class CICD // Requirements
 
     private bool ThatTheProdReleaseNotesContainsPreviewReleaseSection()
     {
-        var project = Solution?.GetProject(RepoName);
+        var project = SolutionService.GetProject(RepoName);
         var errors = new List<string>();
 
         nameof(ThatTheProdReleaseNotesContainsPreviewReleaseSection)
@@ -1291,7 +1291,7 @@ public partial class CICD // Requirements
 
     private bool ThatTheProdReleaseNotesContainsPreviewReleaseItems()
     {
-        var project = Solution?.GetProject(RepoName);
+        var project = SolutionService.GetProject(RepoName);
         var errors = new List<string>();
 
         nameof(ThatTheProdReleaseNotesContainsPreviewReleaseSection)
@@ -1371,7 +1371,7 @@ public partial class CICD // Requirements
 
     private bool ThatGitHubReleaseDoesNotExist(ReleaseType releaseType)
     {
-        var project = Solution?.GetProject(RepoName);
+        var project = SolutionService.GetProject(RepoName);
         var errors = new List<string>();
 
         var releaseTypeStr = releaseType.ToString().ToLower();
@@ -1456,7 +1456,7 @@ public partial class CICD // Requirements
         nameof(ThatTheNugetPackageDoesNotExist)
             .LogRequirementTitle($"Checking that the nuget package does not already exist.");
 
-        var project = Solution?.GetProject(RepoName);
+        var project = SolutionService.GetProject(RepoName);
         var errors = new List<string>();
 
         if (project is null)
