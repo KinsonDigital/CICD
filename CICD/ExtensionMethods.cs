@@ -619,22 +619,29 @@ internal static class ExtensionMethods
             where m.Title == version
             select m).Any();
 
+    /// <summary>
+    /// Gets a milestone that contains a title that matches the given <paramref name="title"/>, that belongs to the
+    /// given <paramref name="owner"/> and repository with the name <paramref name="repoName"/>.
+    /// </summary>
+    /// <param name="client">Calls out to the GitHub API to get milestones.</param>
+    /// <param name="owner">The owner of the repository.</param>
+    /// <param name="repoName">The name of the repository.</param>
+    /// <param name="title">The title of the milestone.</param>
+    /// <returns>The milestone if it was found.</returns>
+    /// <remarks>
+    ///     Returns <c>null</c> if the milestone is not found.
+    /// </remarks>
     public static async Task<Milestone?> GetByTitle(
         this IMilestonesClient client,
         string owner,
         string repoName,
-        string name)
+        string title)
     {
         var milestones = (from m in await client.GetAllForRepository(owner, repoName)
-            where m.Title == name
+            where m.Title == title
             select m).ToArray();
 
-        if (milestones.Length <= 0)
-        {
-            return null;
-        }
-
-        return milestones[0];
+        return milestones.Length <= 0 ? null : milestones[0];
     }
 
     public static async Task<string> GetHtmlUrl(

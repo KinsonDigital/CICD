@@ -78,6 +78,30 @@ public class ExtensionMethodsTests
         mockMilestonesClient.Verify(m => m.GetAllForRepository("test-owner", "test-repo"), Times.Once);
         actual.Should().Be(expected);
     }
+
+    [Fact]
+    public async void GetByTitle_WhenInvoked_ReturnsCorrectResult()
+    {
+        // Arrange
+        const string title = "v4.5.6";
+        var milestoneA = CreateMilestoneObj("v1.2.3-preview.4");
+        var milestoneB = CreateMilestoneObj("v4.5.6");
+
+        var milestones = new[] { milestoneA, milestoneB };
+
+        var mockMilestonesClient = new Mock<IMilestonesClient>();
+        mockMilestonesClient.Setup(m => m.GetAllForRepository(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(milestones);
+
+        // Act
+        var actual = await mockMilestonesClient.Object.GetByTitle("test-owner", "test-repo", title);
+
+        // Assert
+        actual.Should().NotBeNull();
+        actual.Should().BeEquivalentTo(milestoneB);
+        actual.Should().NotBeEquivalentTo(milestoneA);
+        mockMilestonesClient.Verify(m => m.GetAllForRepository("test-owner", "test-repo"), Times.Once);
+    }
     #endregion
 
     /// <summary>
