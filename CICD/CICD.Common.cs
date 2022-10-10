@@ -26,7 +26,7 @@ public partial class CICD // Common
         .After(PRBuildStatusCheck, PRUnitTestStatusCheck)
         .Executes(() =>
         {
-            DotNetTasks.DotNetRestore(s => s.SetProjectFile<DotNetRestoreSettings>(this.solution));
+            DotNetTasks.DotNetRestore(s => s.SetProjectFile<DotNetRestoreSettings>(Solution));
         });
 
     /// <summary>
@@ -51,7 +51,7 @@ public partial class CICD // Common
     {
         DeleteAllNugetPackages();
 
-        var project = this.solution?.GetProjects(ProjectName).FirstOrDefault();
+        var project = Solution?.GetProjects(ProjectName).FirstOrDefault();
 
         if (project is null)
         {
@@ -218,8 +218,8 @@ public partial class CICD // Common
             throw new ArgumentException($"The version does not have the correct syntax for a {releaseType.ToString().ToLower()} release.");
         }
 
-        var releaseNotesFilePath = this.solution.BuildReleaseNotesFilePath(releaseType, version);
-        var releaseNotes = this.solution.GetReleaseNotes(releaseType, version);
+        var releaseNotesFilePath = Solution.BuildReleaseNotesFilePath(releaseType, version);
+        var releaseNotes = Solution.GetReleaseNotes(releaseType, version);
 
         if (string.IsNullOrEmpty(releaseNotes))
         {

@@ -20,8 +20,7 @@ public partial class CICD : NukeBuild
 {
     private const string NugetOrgSource = "https://api.nuget.org/v3/index.json";
     private const string ConsoleTab = "\t       ";
-    [Solution]
-    private readonly Solution? solution;
+    private Solution? solution;
     private string repoOwner = string.Empty;
     private string repoName = string.Empty;
     private string projectName = string.Empty;
@@ -35,6 +34,16 @@ public partial class CICD : NukeBuild
         Execute<CICD>(x => x.BuildAllProjects, x => x.RunAllUnitTests);
 
 #pragma warning disable SA1201 - A property should not follow a method
+    /// <summary>
+    /// Gets or sets the solution for the build.
+    /// </summary>
+    [Solution]
+    private Solution? Solution
+    {
+        get => this.solution;
+        set => this.solution = value;
+    }
+
     private IExecutionContextService ExecutionContext => App.Container.GetInstance<IExecutionContextService>();
 
     private IBranchValidatorService BranchValidator => App.Container.GetInstance<IBranchValidatorService>();

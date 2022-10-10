@@ -32,7 +32,7 @@ public partial class CICD // Common.Build
 
     private void BuildProjects(ProjectTypes projectTypes)
     {
-        var projects = this.solution?.AllProjects;
+        var projects = Solution?.AllProjects;
 
         if (projects is null || projects.Count <= 0)
         {
