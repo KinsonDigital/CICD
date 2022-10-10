@@ -111,7 +111,8 @@
               "ProductionRelease",
               "PRUnitTestStatusCheck",
               "RestoreSolution",
-              "RunAllUnitTests"
+              "RunAllUnitTests",
+              "Version"
             ]
           }
         },
@@ -143,7 +144,8 @@
               "ProductionRelease",
               "PRUnitTestStatusCheck",
               "RestoreSolution",
-              "RunAllUnitTests"
+              "RunAllUnitTests",
+              "Version"
             ]
           }
         },
