@@ -41,7 +41,20 @@ public partial class CICD : NukeBuild
     private Solution? Solution
     {
         get => this.solution;
-        set => this.solution = value;
+        set
+        {
+            this.solution = value;
+
+            var solutionReactable = App.Container.GetInstance<IReactable<Solution>>();
+
+            if (solutionReactable.NotificationsEnded || this.solution is null)
+            {
+                return;
+            }
+
+            solutionReactable.PushNotification(this.solution);
+            solutionReactable.EndNotifications();
+        }
     }
 
     private IExecutionContextService ExecutionContext => App.Container.GetInstance<IExecutionContextService>();
