@@ -54,6 +54,7 @@ public class SolutionWrapperTests
 
         // Act
         _ = new SolutionWrapper(this.mockSolutionReactable.Object);
+        reactor.OnNext(new Solution());
 
         // Assert
         this.mockSolutionReactable.Verify(m => m.Subscribe(It.IsAny<IReactor<Solution>>()), Times.Once);

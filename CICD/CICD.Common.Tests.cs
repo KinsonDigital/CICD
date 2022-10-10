@@ -33,8 +33,7 @@ public partial class CICD // Common.Tests
     /// </summary>
     private void RunTests()
     {
-        var projects = SolutionService.AllProjects.Where(p => p.Path.Name.EndsWith("Tests.csproj")).ToArray()
-                       ?? Array.Empty<Project>();
+        var projects = SolutionService.AllProjects.Where(p => p.Path.Name.EndsWith("Tests.csproj")).ToArray();
 
         if (projects.Any() is false)
         {
@@ -46,7 +45,8 @@ public partial class CICD // Common.Tests
 
         foreach (var project in projects)
         {
-            DotNetTasks.DotNetTest(s => DotNetTestSettingsExtensions.SetProjectFile<DotNetTestSettings>(s, project.Path)
+            DotNetTasks.DotNetTest(s => s
+                .SetProjectFile<DotNetTestSettings>(project.Path)
                 .SetConfiguration(Configuration)
                 .EnableNoRestore());
         }
