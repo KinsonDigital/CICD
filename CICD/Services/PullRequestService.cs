@@ -23,7 +23,7 @@ internal sealed class PullRequestService : IPullRequestService
     /// <summary>
     /// Initializes a new instance of the <see cref="PullRequestService"/> class.
     /// </summary>
-    /// <param name="repoInfoReactable">Provides push notifications of build information.</param>
+    /// <param name="repoInfoReactable">Provides push notifications about repository information.</param>
     /// <param name="prNumberReactable">Provides push notifications of the pull request number.</param>
     /// <param name="clientFactory">Creates HTTP clients.</param>
     public PullRequestService(

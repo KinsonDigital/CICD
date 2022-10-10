@@ -35,6 +35,7 @@
     <PackageIcon>cicd-logo-dark-mode.png</PackageIcon>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>cicd</ToolCommandName>
+    <NoWarn>7035</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

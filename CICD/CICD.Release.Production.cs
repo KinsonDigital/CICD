@@ -42,7 +42,7 @@ public partial class CICD // Release.Production
         .Executes(async () =>
         {
             var tweetTemplatePath = RootDirectory / ".github" / "ReleaseTweetTemplate.txt";
-            var version = this.solution?.GetProject(RepoName)?.GetVersion() ?? string.Empty;
+            var version = SolutionService.GetProject(RepoName)?.GetVersion() ?? string.Empty;
 
             version = version.StartsWith("v")
                 ? version

@@ -371,8 +371,8 @@ internal static class ExtensionMethods
 
         if (string.IsNullOrEmpty(version))
         {
-            // TODO: Create custom exception name MissingVersionException 
-            // TODO: In the exception, explain how to set the version 
+            // TODO: Create custom exception name MissingVersionException
+            // TODO: In the exception, explain how to set the version
             throw new Exception($"The version for project '{project.Name}' is not set.");
         }
 
@@ -385,8 +385,8 @@ internal static class ExtensionMethods
 
         if (string.IsNullOrEmpty(version))
         {
-            // TODO: Create custom exception name MissingFileVersionException 
-            // TODO: In the exception, explain how to set the version 
+            // TODO: Create custom exception name MissingFileVersionException
+            // TODO: In the exception, explain how to set the version
             throw new Exception($"The file version for project '{project.Name}' is not set.");
         }
 
@@ -780,84 +780,6 @@ internal static class ExtensionMethods
 
     public static void LogAsInfo(this IReadOnlyList<Issue> issues, int totalIndentSpaces = 0)
         => Log.Information(issues.GetLogText(totalIndentSpaces));
-
-    public static string BuildReleaseNotesFilePath(this Solution? solution, ReleaseType releaseType, string version)
-    {
-        if (solution is null)
-        {
-            return string.Empty;
-        }
-
-        const string relativeDir = "Documentation/ReleaseNotes";
-
-        var notesDirPath = releaseType switch
-        {
-            ReleaseType.Preview => $"{solution.Directory}/{relativeDir}/PreviewReleases",
-            ReleaseType.Production => $"{solution.Directory}/{relativeDir}/ProductionReleases",
-            ReleaseType.HotFix => throw new NotImplementedException("Hot Fix Release Notes not implemented yet."),
-            _ => throw new ArgumentOutOfRangeException(nameof(releaseType), releaseType, null)
-        };
-
-        version = version.StartsWith("v")
-            ? version.TrimStart("v")
-            : version;
-
-        var fileName = $"Release-Notes-v{version}.md";
-
-        return $"{notesDirPath}/{fileName}";
-    }
-
-    public static string GetReleaseNotes(this Solution? solution, ReleaseType releaseType, string version)
-    {
-        if (solution is null)
-        {
-            return string.Empty;
-        }
-
-        var fullFilePath = solution.BuildReleaseNotesFilePath(releaseType, version);
-
-        if (File.Exists(fullFilePath))
-        {
-            return File.ReadAllText(fullFilePath);
-        }
-
-        var errorMsg = "The {Value1} release notes for version '{Value2}' at file path '{Value3}'";
-        errorMsg += " could not be found.";
-        Log.Error(
-            errorMsg,
-            releaseType.ToString().ToLower(),
-            version,
-            fullFilePath.Replace(solution.Directory, "./"));
-        Assert.Fail("The release notes file could not be found.");
-
-        return File.ReadAllText(fullFilePath);
-    }
-
-    public static IEnumerable<string> GetReleaseNotesAsLines(this Solution? solution, ReleaseType releaseType, string version)
-    {
-        if (solution is null)
-        {
-            return Array.Empty<string>();
-        }
-
-        var fullFilePath = solution.BuildReleaseNotesFilePath(releaseType, version);
-
-        if (File.Exists(fullFilePath))
-        {
-            return File.ReadAllLines(fullFilePath);
-        }
-
-        var errorMsg = "The {Value1} release notes for version '{Value2}' at file path '{Value3}'";
-        errorMsg += " could not be found.";
-        Log.Error(
-            errorMsg,
-            releaseType.ToString().ToLower(),
-            version,
-            fullFilePath.Replace(solution.Directory, "./"));
-        Assert.Fail("The release notes file could not be found.");
-
-        return File.ReadAllLines(fullFilePath);
-    }
 
     public static void PrintErrors(this IEnumerable<string>? errors, string? failMsg = null)
     {
