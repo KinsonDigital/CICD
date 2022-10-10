@@ -12,7 +12,7 @@ namespace CICDSystem.Reactables;
 internal sealed class ProductNameReactable : Reactable<string>
 {
     /// <summary>
-    /// Sends a push notification on repository information.
+    /// Sends a push notification on the product name being built.
     /// </summary>
     /// <param name="data">The data to send with the push notification.</param>
     public override void PushNotification(string data)

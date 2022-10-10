@@ -30,8 +30,7 @@ public partial class CICD : NukeBuild
     /// The main entry point of the build system.
     /// </summary>
     /// <returns>An <c>integer</c> value representing an error code or 0 for no errors.</returns>
-    public static int Main() =>
-        Execute<CICD>(x => x.BuildAllProjects, x => x.RunAllUnitTests);
+    public static int Main() => Execute<CICD>(x => x.BuildAllProjects, x => x.RunAllUnitTests);
 
 #pragma warning disable SA1201 - A property should not follow a method
     /// <summary>

@@ -25,7 +25,7 @@ internal sealed class HttpClientFactory : IHttpClientFactory
     /// <summary>
     /// Initializes a new instance of the <see cref="HttpClientFactory"/> class.
     /// </summary>
-    /// <param name="productNamReactable">Provides push notifications of build information.</param>
+    /// <param name="productNamReactable">Provides push notifications about the pull request number.</param>
     /// <param name="tokenService">Provides access to tokens.</param>
     /// <exception cref="ArgumentNullException">
     ///     Occurs if any of the arguments are <c>null</c>.
