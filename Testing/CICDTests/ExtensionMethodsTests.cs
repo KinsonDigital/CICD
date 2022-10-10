@@ -55,6 +55,29 @@ public class ExtensionMethodsTests
         mockReleasesClient.Verify(m => m.GetAll("test-owner", "test-repo"), Times.Once);
         actual.Should().Be(expected);
     }
+
+    [Theory]
+    [InlineData("v4.5.6", true)]
+    [InlineData("v10.20.30-preview.9", false)]
+    public async void MilestoneExists_WhenInvoked_ReturnsCorrectResult(string version, bool expected)
+    {
+        // Arrange
+        var milestoneA = CreateMilestoneObj("v1.2.3-preview.4");
+        var milestoneB = CreateMilestoneObj("v4.5.6");
+
+        var milestones = new[] { milestoneA, milestoneB };
+
+        var mockMilestonesClient = new Mock<IMilestonesClient>();
+        mockMilestonesClient.Setup(m => m.GetAllForRepository(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(milestones);
+
+        // Act
+        var actual = await mockMilestonesClient.Object.MilestoneExists("test-owner", "test-repo", version);
+
+        // Assert
+        mockMilestonesClient.Verify(m => m.GetAllForRepository("test-owner", "test-repo"), Times.Once);
+        actual.Should().Be(expected);
+    }
     #endregion
 
     /// <summary>
@@ -83,5 +106,30 @@ public class ExtensionMethodsTests
             tarballUrl: string.Empty, // string
             zipballUrl: string.Empty, // string
             assets: null); // IReadOnlyList<ReleaseAsset>
+    }
+
+    /// <summary>
+    /// Creates a new milestone object that contains the given <paramref name="title"/>.
+    /// </summary>
+    /// <param name="title">The title of the milestone.</param>
+    /// <returns>The instance to use for testing.</returns>
+    private static Milestone CreateMilestoneObj(string title)
+    {
+        return new Milestone(
+            url: string.Empty, // string
+            htmlUrl: string.Empty, // string
+            id: 1, // long
+            number: 2, // int
+            nodeId: string.Empty, // string
+            state: ItemState.Open, // ItemState
+            title: title, // string
+            description: "test-milestone", // string
+            creator: null, // User
+            openIssues: 3, // int
+            closedIssues: 4, // int
+            createdAt: DateTimeOffset.Now, // DateTimeOffset
+            dueOn: DateTimeOffset.Now, // DateTimeOffset?
+            closedAt: DateTimeOffset.Now, // DateTimeOffset?
+            updatedAt: DateTimeOffset.Now); // DateTimeOffset?
     }
 }

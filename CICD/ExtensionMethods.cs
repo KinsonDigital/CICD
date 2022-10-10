@@ -602,6 +602,14 @@ internal static class ExtensionMethods
         }
     }
 
+    /// <summary>
+    /// Returns a value indicating whether or not a milestone with a title matches the given <paramref name="version"/> string.
+    /// </summary>
+    /// <param name="client">Calls out to the GitHub API to get milestones.</param>
+    /// <param name="owner">The owner of the repository.</param>
+    /// <param name="repoName">The name of the repository.</param>
+    /// <param name="version">The version string that the milestone title should match.</param>
+    /// <returns><c>true</c> if the milestone exists.</returns>
     public static async Task<bool> MilestoneExists(
         this IMilestonesClient client,
         string owner,
