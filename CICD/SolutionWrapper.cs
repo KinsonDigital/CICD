@@ -10,7 +10,7 @@ using System.Diagnostics.CodeAnalysis;
 using CICDSystem.Reactables.Core;
 using Nuke.Common.ProjectModel;
 
-namespace CICDSystem.Services;
+namespace CICDSystem;
 
 /// <inheritdoc/>
 [ExcludeFromCodeCoverage]

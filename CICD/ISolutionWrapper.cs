@@ -5,7 +5,7 @@
 using System.Collections.Generic;
 using Nuke.Common.ProjectModel;
 
-namespace CICDSystem.Services;
+namespace CICDSystem;
 
 /// <summary>
 /// A thin wrapper around the <see cref="Nuke.Common"/>.
