@@ -32,7 +32,8 @@ public partial class CICD : NukeBuild
     /// <returns>An <c>integer</c> value representing an error code or 0 for no errors.</returns>
     public static int Main() => Execute<CICD>(x => x.BuildAllProjects, x => x.RunAllUnitTests);
 
-#pragma warning disable SA1201 - A property should not follow a method
+#pragma warning disable SA1201
+
     /// <summary>
     /// Gets or sets the solution for the build.
     /// </summary>
@@ -194,7 +195,8 @@ public partial class CICD : NukeBuild
     private AbsolutePath PreviewReleaseNotesDirPath => ReleaseNotesBaseDirPath / PreviewReleaseNotesDirName;
 
     private AbsolutePath ProductionReleaseNotesDirPath => ReleaseNotesBaseDirPath / ProductionReleaseNotesDirName;
-#pragma warning restore SA1201 - A property should not follow a method
+
+#pragma warning restore SA1201
 
     private Configuration GetBuildConfig()
     {

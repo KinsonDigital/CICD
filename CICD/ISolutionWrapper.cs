@@ -33,7 +33,7 @@ internal interface ISolutionWrapper
     /// <summary>
     /// Returns a list of projects that match the given <paramref name="wildcardPattern"/>.
     /// </summary>
-    /// <param name="wildcardPattern">The pattern to use to find solution projects.</param>
+    /// <param name="wildcardPattern">The pattern to find solution projects.</param>
     /// <returns>The list of projects.</returns>
     IEnumerable<Project> GetProjects(string wildcardPattern);
 }

@@ -1144,7 +1144,7 @@ public partial class CICD // Requirements
             errors.Add(errorMsg);
         }
 
-        var releaseNotes = Solution.GetReleaseNotesAsLines(releaseType, projectVersion);
+        var releaseNotes = SolutionService.GetReleaseNotesAsLines(releaseType, projectVersion);
 
         var releaseNotesTitleSection = $"{RepoName} {releaseType} Release Notes - ";
         var foundTitle = releaseNotes.Where(l => l.Contains(releaseNotesTitleSection)).ToArray();
@@ -1191,7 +1191,7 @@ public partial class CICD // Requirements
         var milestoneTitle = $"v{projectVersion}";
 
         var milestoneIssues = GitHubClient.Issue.IssuesForMilestone(RepoOwner, RepoName, milestoneTitle).Result;
-        var releaseNotes = Solution.GetReleaseNotes(releaseType, projectVersion);
+        var releaseNotes = SolutionService.GetReleaseNotes(releaseType, projectVersion);
         if (string.IsNullOrEmpty(releaseNotes))
         {
             errors.Add($"No {releaseTypeStr} release notes exist to check for issue numbers.");
@@ -1250,7 +1250,7 @@ public partial class CICD // Requirements
 
         if (containsPreviewReleases)
         {
-            var releaseNotes = Solution.GetReleaseNotes(ReleaseType.Production, prodVersion);
+            var releaseNotes = SolutionService.GetReleaseNotes(ReleaseType.Production, prodVersion);
 
             if (string.IsNullOrEmpty(releaseNotes))
             {
@@ -1316,7 +1316,7 @@ public partial class CICD // Requirements
 
         if (containsPreviewReleases)
         {
-            var releaseNotes = Solution.GetReleaseNotes(ReleaseType.Production, prodVersion);
+            var releaseNotes = SolutionService.GetReleaseNotes(ReleaseType.Production, prodVersion);
 
             if (string.IsNullOrEmpty(releaseNotes))
             {

@@ -47,7 +47,9 @@ internal sealed class SolutionService : ISolutionService
     public IEnumerable<Project> GetProjects(string wildcardPattern) => this.solutionWrapper.GetProjects(wildcardPattern);
 
     /// <inheritdoc/>
-    // TODO: Add exceptions
+    /// <exception cref="ArgumentOutOfRangeException">
+    ///     Invoked when the <paramref name="releaseType"/> parameter enum is out of range.
+    /// </exception>
     public string BuildReleaseNotesFilePath(ReleaseType releaseType, string version)
     {
         const string relativeDir = "Documentation/ReleaseNotes";
@@ -70,7 +72,7 @@ internal sealed class SolutionService : ISolutionService
     }
 
     /// <inheritdoc/>
-    // TODO: Add exceptions
+    /// <exception cref="FileNotFoundException">Invoked if the release notes file does not exist.</exception>
     public string GetReleaseNotes(ReleaseType releaseType, string version)
     {
         var fullFilePath = BuildReleaseNotesFilePath(releaseType, version);
@@ -90,7 +92,7 @@ internal sealed class SolutionService : ISolutionService
     }
 
     /// <inheritdoc/>
-    // TODO: Add exceptions
+    /// <exception cref="FileNotFoundException">Invoked if the release notes file does not exist.</exception>
     public IEnumerable<string> GetReleaseNotesAsLines(ReleaseType releaseType, string version)
     {
         var fullFilePath = BuildReleaseNotesFilePath(releaseType, version);

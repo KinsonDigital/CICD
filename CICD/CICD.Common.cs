@@ -218,8 +218,8 @@ public partial class CICD // Common
             throw new ArgumentException($"The version does not have the correct syntax for a {releaseType.ToString().ToLower()} release.");
         }
 
-        var releaseNotesFilePath = Solution.BuildReleaseNotesFilePath(releaseType, version);
-        var releaseNotes = Solution.GetReleaseNotes(releaseType, version);
+        var releaseNotesFilePath = SolutionService.BuildReleaseNotesFilePath(releaseType, version);
+        var releaseNotes = SolutionService.GetReleaseNotes(releaseType, version);
 
         if (string.IsNullOrEmpty(releaseNotes))
         {
