@@ -6,6 +6,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using CICDSystem.Services;
 using GlobExpressions;
@@ -47,6 +48,39 @@ public partial class CICD // Common
             workflowService.GenerateWorkflows(outputDirPath);
         });
 
+    /// <summary>
+    /// Gets a target that is used to get the version number and print it to the console.
+    /// </summary>
+    // ReSharper disable UnusedMember.Local
+    private Target Version => _ => _
+        .Executes(() =>
+        {
+            var version = Assembly.GetEntryAssembly()?
+                .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
+                .InformationalVersion ?? string.Empty;
+
+            version = string.IsNullOrEmpty(version) ? string.Empty : $"v{version}";
+
+            if (version == "v1.0.0")
+            {
+                Log.Warning("The version is unknown or not set.");
+            }
+            else if (version == string.Empty)
+            {
+                Log.Error("There was a problem getting the version number.");
+            }
+            else
+            {
+                Log.Information("KinsonDigital.CICD Version: {Value}", version);
+            }
+        });
+
+    // ReSharper restore UnusedMember.Local
+
+    /// <summary>
+    /// Creates a nuget package.
+    /// </summary>
+    /// <exception cref="Exception">Thrown if the project is null.</exception>
     private void CreateNugetPackage()
     {
         DeleteAllNugetPackages();
