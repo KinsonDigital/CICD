@@ -2,6 +2,7 @@
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
+using System.Net;
 using CICDSystem;
 using FluentAssertions;
 using Moq;
@@ -125,6 +126,91 @@ public class ExtensionMethodsTests
         mockMilestonesClient.Verify(m => m.GetAllForRepository("test-owner", "test-repo"), Times.Once);
         actual.Should().Be(expected);
     }
+
+    [Fact]
+    public async void CloseMilestone_WhenMilestoneDoesNotExist_ThrowsException()
+    {
+        // Arrange
+        var milestoneA = CreateMilestoneObj("v1.2.3-preview.4");
+        var milestoneB = CreateMilestoneObj("v4.5.6");
+
+        var milestones = new[] { milestoneA, milestoneB };
+
+        var mockMilestonesClient = new Mock<IMilestonesClient>();
+        mockMilestonesClient.Setup(m => m.GetAllForRepository(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(milestones);
+
+        // Act
+        var act = async () => await mockMilestonesClient
+            .Object.CloseMilestone("test-owner", "test-repo", "v7.8.9");
+
+        // Assert
+        var exceptionAssertions = await act.Should().ThrowAsync<NotFoundException>();
+        exceptionAssertions.WithMessage("A milestone with the title/name 'v7.8.9' was not found.");
+        var exception = exceptionAssertions.Subject.ToArray()[0];
+
+        exception.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async void CloseMilestone_WithIssueUpdatingMilestone_ThrowsException()
+    {
+        // Arrange
+        var milestoneA = CreateMilestoneObj("v1.2.3-preview.4");
+        var milestones = new[] { milestoneA };
+
+        var mockMilestonesClient = new Mock<IMilestonesClient>();
+        mockMilestonesClient.Setup(m => m.GetAllForRepository(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(milestones);
+
+        mockMilestonesClient.Setup(m => m.Update(
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<int>(),
+            It.IsAny<MilestoneUpdate>())).ReturnsAsync(null as Milestone);
+
+        // Act
+        var act = async () => await mockMilestonesClient
+            .Object.CloseMilestone(It.IsAny<string>(), It.IsAny<string>(), "v1.2.3-preview.4");
+
+        // Assert
+        await act.Should().ThrowAsync<Exception>()
+            .WithMessage("The milestone 'v1.2.3-preview.4' could not be updated.");
+    }
+
+    [Fact]
+    public async void CloseMilestone_WhenMilestoneExists_ClosesMilestone()
+    {
+        // Arrange
+        var milestoneA = CreateMilestoneObj("v1.2.3-preview.4");
+        var milestoneB = CreateMilestoneObj("v4.5.6");
+
+        var milestones = new[] { milestoneA, milestoneB };
+        MilestoneUpdate? mileStoneUpdateObj = null;
+
+        var mockMilestonesClient = new Mock<IMilestonesClient>();
+        mockMilestonesClient.Setup(m => m.GetAllForRepository(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(milestones);
+        mockMilestonesClient.Setup(m => m.Update(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<int>(),
+                It.IsAny<MilestoneUpdate>()))
+            .ReturnsAsync(milestoneB)
+            .Callback<string, string, int, MilestoneUpdate>((_, _, _, milestoneUpdate) => mileStoneUpdateObj = milestoneUpdate);
+
+        // Act
+        var actual = await mockMilestonesClient
+            .Object.CloseMilestone("test-owner", "test-repo", "v4.5.6");
+
+        // Assert
+        mockMilestonesClient.Verify(m => m.GetAllForRepository("test-owner", "test-repo"), Times.Once);
+        mockMilestonesClient.Verify(m =>
+            m.Update("test-owner", "test-repo", 123, It.IsAny<MilestoneUpdate>()));
+        mileStoneUpdateObj.Should().NotBeNull();
+        mileStoneUpdateObj.State.Should().Be(ItemState.Closed);
+        actual.Should().BeEquivalentTo(milestoneB);
+    }
     #endregion
 
     /// <summary>
@@ -167,7 +253,7 @@ public class ExtensionMethodsTests
             url: string.Empty, // string
             htmlUrl: string.IsNullOrEmpty(htmlUrl) ? string.Empty : htmlUrl, // string
             id: 1, // long
-            number: 2, // int
+            number: 123, // int
             nodeId: string.Empty, // string
             state: ItemState.Open, // ItemState
             title: title, // string

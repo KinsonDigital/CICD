@@ -13,7 +13,6 @@ using Nuke.Common;
 using Nuke.Common.CI.GitHubActions;
 using Nuke.Common.Git;
 using Nuke.Common.ProjectModel;
-using Nuke.Common.Utilities;
 using Nuke.Common.Utilities.Collections;
 using Octokit;
 using Serilog;
@@ -666,15 +665,26 @@ internal static class ExtensionMethods
         return milestones.Length <= 0 ? string.Empty : milestones[0].HtmlUrl;
     }
 
-    public static async Task<Milestone> CloseMilestone(this IMilestonesClient client, string owner, string repoName, string name)
+    /// <summary>
+    /// Closes an open milestone with a title that matches the given <paramref name="title"/>, that belongs to the
+    /// given <paramref name="owner"/> and repository that is named <paramref name="repoName"/>.
+    /// </summary
+    /// <param name="client">Calls out to the GitHub API to get milestones.</param>
+    /// <param name="owner">The owner of the repository.</param>
+    /// <param name="repoName">The name of the repository.</param>
+    /// <param name="title">The title of the milestone.</param>
+    /// <returns>The milestone after being updated.</returns>
+    /// <exception cref="NotFoundException">Occurs if the milestone is not found.</exception>
+    /// <exception cref="Exception">Occurs if something goes wrong with the update process.</exception>
+    public static async Task<Milestone> CloseMilestone(this IMilestonesClient client, string owner, string repoName, string title)
     {
         var milestones = await client.GetAllForRepository(owner, repoName);
 
-        var foundMilestone = milestones.FirstOrDefault(m => m.Title == name);
+        var foundMilestone = milestones.FirstOrDefault(m => m.Title == title);
 
         if (foundMilestone is null)
         {
-            throw new NotFoundException($"A milestone with the title/name '{name}' was not found", HttpStatusCode.NotFound);
+            throw new NotFoundException($"A milestone with the title/name '{title}' was not found.", HttpStatusCode.NotFound);
         }
 
         var mileStoneUpdate = new MilestoneUpdate()
@@ -686,7 +696,7 @@ internal static class ExtensionMethods
 
         if (updatedMilestone is null)
         {
-            throw new Exception($"The milestone '{name}' could not be updated.");
+            throw new Exception($"The milestone '{title}' could not be updated.");
         }
 
         return updatedMilestone;
