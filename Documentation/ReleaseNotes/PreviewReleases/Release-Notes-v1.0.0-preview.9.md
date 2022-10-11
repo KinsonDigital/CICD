@@ -21,8 +21,7 @@ As with all software, there is always a chance for issues and bugs, especially f
 <h2 style="font-weight:bold" align="center">Bug Fixes 🐛</h2>
 
 1. [#67](https://github.com/KinsonDigital/CICD/issues/67) - Fixed a bug where release todo issues and pull requests contained in milestones were not being skipped during milestone state checks.
-2. [#69](https://github.com/KinsonDigital/CICD/issues/69) - Fixed a bug when checking if a NuGet package exists that has never existed before, would throw an exception instead of returning `true` or `false`.
-   - This would occur if the package does not exist in **_nuget.org_**.
+2. [#69](https://github.com/KinsonDigital/CICD/issues/69) - Fixed a bug that threw an exception instead of returning `true` or `false`, if a NuGet package never existed in **_nuget.org_**.
 
 ---
 

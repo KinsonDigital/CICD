@@ -644,7 +644,7 @@ internal static class ExtensionMethods
     }
 
     /// <summary>
-    /// Gets the HTML url of a release that matches the given <paramref name="title"/>, that belongs to the
+    /// Gets the HTML URL of a release that matches the given <paramref name="title"/>, that belongs to the
     /// given <paramref name="owner"/> and repository with the name <paramref name="repoName"/>.
     /// </summary>
     /// <param name="client">Calls out to the GitHub API to get milestones.</param>
