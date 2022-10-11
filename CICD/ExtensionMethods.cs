@@ -710,7 +710,7 @@ internal static class ExtensionMethods
     /// <param name="owner">The owner of the repository.</param>
     /// <param name="repoName">The name of the repository.</param>
     /// <param name="title">The title of the milestone.</param>
-    /// <param name="description">The description to update the milestone to.</param>
+    /// <param name="description">The description to update the milestone.</param>
     /// <returns>The updated milestone.</returns>
     /// <exception cref="NotFoundException">Occurs if the milestone is not found.</exception>
     /// <exception cref="Exception">Occurs if something goes wrong with the update process.</exception>
