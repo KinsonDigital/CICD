@@ -780,23 +780,29 @@ internal static class ExtensionMethods
         return hasValidTitle && hasSingleLabel && isPullRequest && validLabelType;
     }
 
-    public static string GetLogText(this Issue issue, int tabCount = 0)
+    /// <summary>
+    /// Gets the text for logging issue data to the console.
+    /// </summary>
+    /// <param name="issue">The issue to log.</param>
+    /// <param name="totalSpaces">The total number of spaces to indent the content.</param>
+    /// <returns>The text to log to the console.</returns>
+    public static string GetLogText(this Issue issue, int totalSpaces = 0)
     {
-        var tabs = string.Empty;
-        for (var i = 0; i < tabCount; i++)
+        var indent = string.Empty;
+        for (var i = 0; i < totalSpaces; i++)
         {
-            tabs += " ";
+            indent += " ";
         }
 
         var text = string.Empty;
 
         var prOrIssuePrefix = issue.PullRequest is null ? "Issue" : "PR";
-        text += $"{Environment.NewLine}{tabs}{prOrIssuePrefix} Number: {issue.Number}";
-        text += $"{Environment.NewLine}{tabs}{prOrIssuePrefix} Title: {issue.Title}";
-        text += $"{Environment.NewLine}{tabs}{prOrIssuePrefix} State: {issue.State}";
-        text += $"{Environment.NewLine}{tabs}{prOrIssuePrefix} Url: {issue.HtmlUrl}";
-        text += $"{Environment.NewLine}{tabs}Labels ({issue.Labels.Count}):";
-        issue.Labels.ForEach(l => text += $"{Environment.NewLine}{tabs}\t  - `{l.Name}`");
+        text += $"{Environment.NewLine}{indent}{prOrIssuePrefix} Number: {issue.Number}";
+        text += $"{Environment.NewLine}{indent}{prOrIssuePrefix} Title: {issue.Title}";
+        text += $"{Environment.NewLine}{indent}{prOrIssuePrefix} State: {issue.State}";
+        text += $"{Environment.NewLine}{indent}{prOrIssuePrefix} Url: {issue.HtmlUrl}";
+        text += $"{Environment.NewLine}{indent}Labels ({issue.Labels.Count}):";
+        issue.Labels.ForEach(l => text += $"{Environment.NewLine}{indent}\t  - `{l.Name}`");
 
         return text;
     }

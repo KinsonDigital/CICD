@@ -2,6 +2,7 @@
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
+using System.Collections.ObjectModel;
 using System.Net;
 using CICDSystem;
 using FluentAssertions;
@@ -14,6 +15,7 @@ namespace CICDSystemTests;
 public class ExtensionMethodsTests
 {
     #region Method Tests
+
     [Theory]
     [InlineData("CONVERTOKEBAB", "CONVERTOKEBAB")]
     [InlineData("converttokebab", "converttokebab")]
@@ -307,6 +309,29 @@ public class ExtensionMethodsTests
         mileStoneUpdateObj.Description.Should().Be("test-description");
         actual.Should().BeEquivalentTo(milestoneB);
     }
+
+    [Fact]
+    public void GetLogText_WhenInvoked_ReturnsCorrectResult()
+    {
+        var expected = $"{Environment.NewLine}  Issue Number: 123";
+        expected += $"{Environment.NewLine}  Issue Title: test-issue";
+        expected += $"{Environment.NewLine}  Issue State: open";
+        expected += $"{Environment.NewLine}  Issue Url: test-url";
+        expected += $"{Environment.NewLine}  Labels (2):";
+        expected += $"{Environment.NewLine}  \t  - `label-a`";
+        expected += $"{Environment.NewLine}  \t  - `label-b`";
+
+        var labelA = CreateLabelObj("label-a");
+        var labelB = CreateLabelObj("label-b");
+        var labels = new ReadOnlyCollection<Label>(new[] { labelA, labelB });
+        var issue = CreateIssueObj("test-issue", 123, ItemState.Open, "test-url", labels);
+
+        // Act
+        var actual = issue.GetLogText(2);
+
+        // Assert
+        actual.Should().Be(expected);
+    }
     #endregion
 
     /// <summary>
@@ -361,5 +386,55 @@ public class ExtensionMethodsTests
             dueOn: DateTimeOffset.Now, // DateTimeOffset?
             closedAt: DateTimeOffset.Now, // DateTimeOffset?
             updatedAt: DateTimeOffset.Now); // DateTimeOffset?
+    }
+
+    /// <summary>
+    /// Creates a new issue object that contains the given parameters.
+    /// </summary>
+    /// <returns>The instance to use for testing.</returns>
+    private static Issue CreateIssueObj(string title, int number, ItemState state, string htmlUrl, IReadOnlyList<Label> labels)
+    {
+        return new Issue(
+            id: 1, // int
+            nodeId: string.Empty, // string
+            url: string.Empty, // string
+            htmlUrl: htmlUrl, // string
+            commentsUrl: string.Empty, // string
+            eventsUrl: null, // string
+            number: number, // int
+            state: state, // ItemState
+            title: title, // string
+            body: null, // string
+            closedBy: null, // IReadOnlyList<LabelUser
+            user: null, // User
+            labels: labels, // IReadOnlyList<Label>
+            assignee: null, // User
+            assignees: null, // IReadOnlyList<User>
+            milestone: null, // Milestone
+            comments: 55, // int
+            pullRequest: null, // PullRequest
+            closedAt: DateTimeOffset.Now, // DateTimeOffsetDateTimeOffset?
+            createdAt: DateTimeOffset.Now, // DateTimeOffset
+            updatedAt: DateTimeOffset.Now, // DateTimeOffset?
+            locked: false, // bool
+            repository: null, // Repository
+            reactions: null, // ReactionSummary
+            activeLockReason: null); // LockReason?
+    }
+
+    /// <summary>
+    /// Creates a new label object that has the given name.
+    /// </summary>
+    /// <returns>The instance to use for testing.</returns>
+    private static Label CreateLabelObj(string name)
+    {
+        return new Label(
+            id: 123, // long
+            url: string.Empty, // string
+            name: name, // string
+            nodeId: string.Empty, // string
+            color: string.Empty, // string
+            description: string.Empty, // string
+            @default: false); // bool
     }
 }
