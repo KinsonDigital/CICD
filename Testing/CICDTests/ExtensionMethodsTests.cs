@@ -211,6 +211,102 @@ public class ExtensionMethodsTests
         mileStoneUpdateObj.State.Should().Be(ItemState.Closed);
         actual.Should().BeEquivalentTo(milestoneB);
     }
+
+    [Fact]
+    public async void UpdateMilestoneDescription_WhenMilestoneDoesNotExist_ThrowsException()
+    {
+        // Arrange
+        var milestoneA = CreateMilestoneObj("v1.2.3-preview.4");
+        var milestoneB = CreateMilestoneObj("v4.5.6");
+
+        var milestones = new[] { milestoneA, milestoneB };
+
+        var mockMilestonesClient = new Mock<IMilestonesClient>();
+        mockMilestonesClient.Setup(m => m.GetAllForRepository(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<MilestoneRequest>()))
+            .ReturnsAsync(milestones);
+
+        // Act
+        var act = async () => await mockMilestonesClient
+            .Object.UpdateMilestoneDescription("test-owner", "test-repo", "v7.8.9", "test-description");
+
+        // Assert
+        var exceptionAssertions = await act.Should().ThrowAsync<NotFoundException>();
+        exceptionAssertions.WithMessage("A milestone with the title/name 'v7.8.9' was not found.");
+        var exception = exceptionAssertions.Subject.ToArray()[0];
+
+        exception.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async void UpdateMilestoneDescription_WithIssueUpdatingMilestone_ThrowsException()
+    {
+        // Arrange
+        var milestoneA = CreateMilestoneObj("v1.2.3-preview.4");
+        var milestones = new[] { milestoneA };
+
+        var mockMilestonesClient = new Mock<IMilestonesClient>();
+        mockMilestonesClient.Setup(m => m.GetAllForRepository(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<MilestoneRequest>()))
+            .ReturnsAsync(milestones);
+
+        mockMilestonesClient.Setup(m => m.Update(
+            It.IsAny<string>(),
+            It.IsAny<string>(),
+            It.IsAny<int>(),
+            It.IsAny<MilestoneUpdate>())).ReturnsAsync(null as Milestone);
+
+        // Act
+        var act = async () => await mockMilestonesClient
+            .Object.UpdateMilestoneDescription(It.IsAny<string>(), It.IsAny<string>(), "v1.2.3-preview.4", "test-description");
+
+        // Assert
+        await act.Should().ThrowAsync<Exception>()
+            .WithMessage("The milestone 'v1.2.3-preview.4' description could not be updated.");
+    }
+
+    [Fact]
+    public async void UpdateMilestoneDescription_WhenMilestoneExists_ClosesMilestone()
+    {
+        // Arrange
+        var milestoneA = CreateMilestoneObj("v1.2.3-preview.4");
+        var milestoneB = CreateMilestoneObj("v4.5.6");
+
+        var milestones = new[] { milestoneA, milestoneB };
+        MilestoneUpdate? mileStoneUpdateObj = null;
+
+        var mockMilestonesClient = new Mock<IMilestonesClient>();
+        mockMilestonesClient.Setup(m => m.GetAllForRepository(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<MilestoneRequest>()))
+            .ReturnsAsync(milestones);
+
+        mockMilestonesClient.Setup(m => m.Update(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<int>(),
+                It.IsAny<MilestoneUpdate>()))
+            .ReturnsAsync(milestoneB)
+            .Callback<string, string, int, MilestoneUpdate>((_, _, _, milestoneUpdate) => mileStoneUpdateObj = milestoneUpdate);
+
+        // Act
+        var actual = await mockMilestonesClient
+            .Object.UpdateMilestoneDescription("test-owner", "test-repo", "v4.5.6", "test-description");
+
+        // Assert
+        mockMilestonesClient.Verify(m =>
+            m.GetAllForRepository("test-owner", "test-repo", It.IsAny<MilestoneRequest>()), Times.Once);
+        mockMilestonesClient.Verify(m =>
+            m.Update("test-owner", "test-repo", 123, It.IsAny<MilestoneUpdate>()));
+        mileStoneUpdateObj.Should().NotBeNull();
+        mileStoneUpdateObj.Description.Should().Be("test-description");
+        actual.Should().BeEquivalentTo(milestoneB);
+    }
     #endregion
 
     /// <summary>

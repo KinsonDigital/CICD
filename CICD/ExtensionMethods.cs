@@ -668,7 +668,7 @@ internal static class ExtensionMethods
     /// <summary>
     /// Closes an open milestone with a title that matches the given <paramref name="title"/>, that belongs to the
     /// given <paramref name="owner"/> and repository that is named <paramref name="repoName"/>.
-    /// </summary
+    /// </summary>
     /// <param name="client">Calls out to the GitHub API to get milestones.</param>
     /// <param name="owner">The owner of the repository.</param>
     /// <param name="repoName">The name of the repository.</param>
@@ -702,21 +702,33 @@ internal static class ExtensionMethods
         return updatedMilestone;
     }
 
+    /// <summary>
+    /// Updates the <paramref name="description"/> of a milestone that has the given milestone <paramref name="title"/>
+    /// and belongs to the given <paramref name="owner"/> and is part of a repository that matches the given <paramref name="repoName"/>.
+    /// </summary>
+    /// <param name="client">Calls out to the GitHub API to get milestones.</param>
+    /// <param name="owner">The owner of the repository.</param>
+    /// <param name="repoName">The name of the repository.</param>
+    /// <param name="title">The title of the milestone.</param>
+    /// <param name="description">The description to update the milestone to.</param>
+    /// <returns>The updated milestone.</returns>
+    /// <exception cref="NotFoundException">Occurs if the milestone is not found.</exception>
+    /// <exception cref="Exception">Occurs if something goes wrong with the update process.</exception>
     public static async Task<Milestone> UpdateMilestoneDescription(
         this IMilestonesClient client,
         string owner,
         string repoName,
-        string milestoneName,
+        string title,
         string description)
     {
         var request = new MilestoneRequest() { State = ItemStateFilter.All };
         var milestones = await client.GetAllForRepository(owner, repoName, request);
 
-        var foundMilestone = milestones.FirstOrDefault(m => m.Title == milestoneName);
+        var foundMilestone = milestones.FirstOrDefault(m => m.Title == title);
 
         if (foundMilestone is null)
         {
-            throw new NotFoundException($"A milestone with the title/name '{milestoneName}' was not found", HttpStatusCode.NotFound);
+            throw new NotFoundException($"A milestone with the title/name '{title}' was not found.", HttpStatusCode.NotFound);
         }
 
         var mileStoneUpdate = new MilestoneUpdate()
@@ -728,7 +740,7 @@ internal static class ExtensionMethods
 
         if (updatedMilestone is null)
         {
-            throw new Exception($"The milestone '{milestoneName}' description could not be updated.");
+            throw new Exception($"The milestone '{title}' description could not be updated.");
         }
 
         return updatedMilestone;
