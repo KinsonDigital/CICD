@@ -20,8 +20,7 @@ public partial class CICD : NukeBuild
 {
     private const string NugetOrgSource = "https://api.nuget.org/v3/index.json";
     private const string ConsoleTab = "\t       ";
-    [Solution]
-    private readonly Solution? solution;
+    private Solution? solution;
     private string repoOwner = string.Empty;
     private string repoName = string.Empty;
     private string projectName = string.Empty;
@@ -31,10 +30,35 @@ public partial class CICD : NukeBuild
     /// The main entry point of the build system.
     /// </summary>
     /// <returns>An <c>integer</c> value representing an error code or 0 for no errors.</returns>
-    public static int Main() =>
-        Execute<CICD>(x => x.BuildAllProjects, x => x.RunAllUnitTests);
+    public static int Main() => Execute<CICD>(x => x.BuildAllProjects, x => x.RunAllUnitTests);
 
-#pragma warning disable SA1201 - A property should not follow a method
+#pragma warning disable SA1201
+
+    /// <summary>
+    /// Gets or sets the solution for the build.
+    /// </summary>
+    [Solution]
+    private Solution? Solution
+    {
+        get => this.solution;
+        set
+        {
+            this.solution = value;
+
+            var solutionReactable = App.Container.GetInstance<IReactable<Solution>>();
+
+            if (solutionReactable.NotificationsEnded || this.solution is null)
+            {
+                return;
+            }
+
+            solutionReactable.PushNotification(this.solution);
+            solutionReactable.EndNotifications();
+        }
+    }
+
+    private ISolutionService SolutionService => App.Container.GetInstance<ISolutionService>();
+
     private IExecutionContextService ExecutionContext => App.Container.GetInstance<IExecutionContextService>();
 
     private IBranchValidatorService BranchValidator => App.Container.GetInstance<IBranchValidatorService>();
@@ -171,7 +195,8 @@ public partial class CICD : NukeBuild
     private AbsolutePath PreviewReleaseNotesDirPath => ReleaseNotesBaseDirPath / PreviewReleaseNotesDirName;
 
     private AbsolutePath ProductionReleaseNotesDirPath => ReleaseNotesBaseDirPath / ProductionReleaseNotesDirName;
-#pragma warning restore SA1201 - A property should not follow a method
+
+#pragma warning restore SA1201
 
     private Configuration GetBuildConfig()
     {

@@ -136,7 +136,7 @@ public partial class CICD // StatusChecks
             () => ThatTheReleaseNotesTitleIsCorrect(ReleaseType.Preview),
             () => ThatMilestoneIssuesExistInReleaseNotes(ReleaseType.Preview),
             () => ThatGitHubReleaseDoesNotExist(ReleaseType.Preview),
-            () => NugetPackageDoesNotExist());
+            () => ThatTheNugetPackageDoesNotExist());
 
     private Target ProdReleasePRStatusCheck => _ => _
         .Requires(
@@ -162,7 +162,7 @@ public partial class CICD // StatusChecks
             () => ThatTheProdReleaseNotesContainsPreviewReleaseItems(),
             () => ThatMilestoneIssuesExistInReleaseNotes(ReleaseType.Production),
             () => ThatGitHubReleaseDoesNotExist(ReleaseType.Production),
-            () => NugetPackageDoesNotExist());
+            () => ThatTheNugetPackageDoesNotExist());
 
     private Target DebugTask => _ => _
         .Unlisted()

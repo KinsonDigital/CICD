@@ -36,12 +36,12 @@ public partial class CICD // Release.Preview
             () => ThatTheReleaseNotesTitleIsCorrect(ReleaseType.Preview),
             () => ThatMilestoneIssuesExistInReleaseNotes(ReleaseType.Preview),
             () => ThatGitHubReleaseDoesNotExist(ReleaseType.Preview),
-            () => NugetPackageDoesNotExist()).After(BuildAllProjects, RunAllUnitTests)
+            () => ThatTheNugetPackageDoesNotExist()).After(BuildAllProjects, RunAllUnitTests)
         .DependsOn(BuildAllProjects, RunAllUnitTests)
         .Executes(async () =>
         {
             var tweetTemplatePath = RootDirectory / ".github" / "ReleaseTweetTemplate.txt";
-            var version = this.solution?.GetProject(RepoName)?.GetVersion() ?? string.Empty;
+            var version = SolutionService.GetProject(RepoName)?.GetVersion() ?? string.Empty;
 
             version = version.StartsWith("v")
                 ? version

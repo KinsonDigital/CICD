@@ -13,7 +13,6 @@ using Nuke.Common;
 using Nuke.Common.CI.GitHubActions;
 using Nuke.Common.Git;
 using Nuke.Common.ProjectModel;
-using Nuke.Common.Utilities;
 using Nuke.Common.Utilities.Collections;
 using Octokit;
 using Serilog;
@@ -371,8 +370,8 @@ internal static class ExtensionMethods
 
         if (string.IsNullOrEmpty(version))
         {
-            // TODO: Create custom exception name MissingVersionException 
-            // TODO: In the exception, explain how to set the version 
+            // TODO: Create custom exception name MissingVersionException
+            // TODO: In the exception, explain how to set the version
             throw new Exception($"The version for project '{project.Name}' is not set.");
         }
 
@@ -385,8 +384,8 @@ internal static class ExtensionMethods
 
         if (string.IsNullOrEmpty(version))
         {
-            // TODO: Create custom exception name MissingFileVersionException 
-            // TODO: In the exception, explain how to set the version 
+            // TODO: Create custom exception name MissingFileVersionException
+            // TODO: In the exception, explain how to set the version
             throw new Exception($"The file version for project '{project.Name}' is not set.");
         }
 
@@ -602,6 +601,14 @@ internal static class ExtensionMethods
         }
     }
 
+    /// <summary>
+    /// Returns a value indicating whether or not a milestone with a title matches the given <paramref name="version"/> string.
+    /// </summary>
+    /// <param name="client">Calls out to the GitHub API to get milestones.</param>
+    /// <param name="owner">The owner of the repository.</param>
+    /// <param name="repoName">The name of the repository.</param>
+    /// <param name="version">The version string that the milestone title should match.</param>
+    /// <returns><c>true</c> if the milestone exists.</returns>
     public static async Task<bool> MilestoneExists(
         this IMilestonesClient client,
         string owner,
@@ -611,46 +618,73 @@ internal static class ExtensionMethods
             where m.Title == version
             select m).Any();
 
+    /// <summary>
+    /// Gets a milestone that contains a title that matches the given <paramref name="title"/>, that belongs to the
+    /// given <paramref name="owner"/> and repository with the name <paramref name="repoName"/>.
+    /// </summary>
+    /// <param name="client">Calls out to the GitHub API to get milestones.</param>
+    /// <param name="owner">The owner of the repository.</param>
+    /// <param name="repoName">The name of the repository.</param>
+    /// <param name="title">The title of the milestone.</param>
+    /// <returns>The milestone if it was found.</returns>
+    /// <remarks>
+    ///     Returns <c>null</c> if the milestone is not found.
+    /// </remarks>
     public static async Task<Milestone?> GetByTitle(
         this IMilestonesClient client,
         string owner,
         string repoName,
-        string name)
+        string title)
     {
         var milestones = (from m in await client.GetAllForRepository(owner, repoName)
-            where m.Title == name
+            where m.Title == title
             select m).ToArray();
 
-        if (milestones.Length <= 0)
-        {
-            return null;
-        }
-
-        return milestones[0];
+        return milestones.Length <= 0 ? null : milestones[0];
     }
 
+    /// <summary>
+    /// Gets the HTML URL of a release that matches the given <paramref name="title"/>, that belongs to the
+    /// given <paramref name="owner"/> and repository with the name <paramref name="repoName"/>.
+    /// </summary>
+    /// <param name="client">Calls out to the GitHub API to get milestones.</param>
+    /// <param name="owner">The owner of the repository.</param>
+    /// <param name="repoName">The name of the repository.</param>
+    /// <param name="title">The title of the milestone.</param>
+    /// <returns>The HTML URL of the milestone.</returns>
     public static async Task<string> GetHtmlUrl(
         this IMilestonesClient client,
         string owner,
         string repoName,
-        string name)
+        string title)
     {
         var milestones = (from m in await client.GetAllForRepository(owner, repoName)
-            where m.Title == name
+            where m.Title == title
             select m).ToArray();
 
         return milestones.Length <= 0 ? string.Empty : milestones[0].HtmlUrl;
     }
 
-    public static async Task<Milestone> CloseMilestone(this IMilestonesClient client, string owner, string repoName, string name)
+    /// <summary>
+    /// Closes an open milestone with a title that matches the given <paramref name="title"/>, that belongs to the
+    /// given <paramref name="owner"/> and repository that is named <paramref name="repoName"/>.
+    /// </summary>
+    /// <param name="client">Calls out to the GitHub API to get milestones.</param>
+    /// <param name="owner">The owner of the repository.</param>
+    /// <param name="repoName">The name of the repository.</param>
+    /// <param name="title">The title of the milestone.</param>
+    /// <returns>The milestone after being updated.</returns>
+    /// <exception cref="NotFoundException">Occurs if the milestone is not found.</exception>
+    /// <exception cref="Exception">Occurs if something goes wrong with the update process.</exception>
+    public static async Task<Milestone> CloseMilestone(this IMilestonesClient client, string owner, string repoName, string title)
     {
         var milestones = await client.GetAllForRepository(owner, repoName);
 
-        var foundMilestone = milestones.FirstOrDefault(m => m.Title == name);
+        var foundMilestone = milestones.FirstOrDefault(m => m.Title == title);
 
         if (foundMilestone is null)
         {
-            throw new NotFoundException($"A milestone with the title/name '{name}' was not found", HttpStatusCode.NotFound);
+            throw new NotFoundException($"A milestone with the title/name '{title}' was not found.", HttpStatusCode.NotFound);
         }
 
         var mileStoneUpdate = new MilestoneUpdate()
@@ -662,27 +696,39 @@ internal static class ExtensionMethods
 
         if (updatedMilestone is null)
         {
-            throw new Exception($"The milestone '{name}' could not be updated.");
+            throw new Exception($"The milestone '{title}' could not be updated.");
         }
 
         return updatedMilestone;
     }
 
+    /// <summary>
+    /// Updates the <paramref name="description"/> of a milestone that has the given milestone <paramref name="title"/>
+    /// and belongs to the given <paramref name="owner"/> and is part of a repository that matches the given <paramref name="repoName"/>.
+    /// </summary>
+    /// <param name="client">Calls out to the GitHub API to get milestones.</param>
+    /// <param name="owner">The owner of the repository.</param>
+    /// <param name="repoName">The name of the repository.</param>
+    /// <param name="title">The title of the milestone.</param>
+    /// <param name="description">The description to update the milestone.</param>
+    /// <returns>The updated milestone.</returns>
+    /// <exception cref="NotFoundException">Occurs if the milestone is not found.</exception>
+    /// <exception cref="Exception">Occurs if something goes wrong with the update process.</exception>
     public static async Task<Milestone> UpdateMilestoneDescription(
         this IMilestonesClient client,
         string owner,
         string repoName,
-        string milestoneName,
+        string title,
         string description)
     {
         var request = new MilestoneRequest() { State = ItemStateFilter.All };
         var milestones = await client.GetAllForRepository(owner, repoName, request);
 
-        var foundMilestone = milestones.FirstOrDefault(m => m.Title == milestoneName);
+        var foundMilestone = milestones.FirstOrDefault(m => m.Title == title);
 
         if (foundMilestone is null)
         {
-            throw new NotFoundException($"A milestone with the title/name '{milestoneName}' was not found", HttpStatusCode.NotFound);
+            throw new NotFoundException($"A milestone with the title/name '{title}' was not found.", HttpStatusCode.NotFound);
         }
 
         var mileStoneUpdate = new MilestoneUpdate()
@@ -694,7 +740,7 @@ internal static class ExtensionMethods
 
         if (updatedMilestone is null)
         {
-            throw new Exception($"The milestone '{milestoneName}' description could not be updated.");
+            throw new Exception($"The milestone '{title}' description could not be updated.");
         }
 
         return updatedMilestone;
@@ -734,23 +780,29 @@ internal static class ExtensionMethods
         return hasValidTitle && hasSingleLabel && isPullRequest && validLabelType;
     }
 
-    public static string GetLogText(this Issue issue, int tabCount = 0)
+    /// <summary>
+    /// Gets the text for logging issue data to the console.
+    /// </summary>
+    /// <param name="issue">The issue to log.</param>
+    /// <param name="totalSpaces">The total number of spaces to indent the content.</param>
+    /// <returns>The text to log to the console.</returns>
+    public static string GetLogText(this Issue issue, int totalSpaces = 0)
     {
-        var tabs = string.Empty;
-        for (var i = 0; i < tabCount; i++)
+        var indent = string.Empty;
+        for (var i = 0; i < totalSpaces; i++)
         {
-            tabs += " ";
+            indent += " ";
         }
 
         var text = string.Empty;
 
         var prOrIssuePrefix = issue.PullRequest is null ? "Issue" : "PR";
-        text += $"{Environment.NewLine}{tabs}{prOrIssuePrefix} Number: {issue.Number}";
-        text += $"{Environment.NewLine}{tabs}{prOrIssuePrefix} Title: {issue.Title}";
-        text += $"{Environment.NewLine}{tabs}{prOrIssuePrefix} State: {issue.State}";
-        text += $"{Environment.NewLine}{tabs}{prOrIssuePrefix} Url: {issue.HtmlUrl}";
-        text += $"{Environment.NewLine}{tabs}Labels ({issue.Labels.Count}):";
-        issue.Labels.ForEach(l => text += $"{Environment.NewLine}{tabs}\t  - `{l.Name}`");
+        text += $"{Environment.NewLine}{indent}{prOrIssuePrefix} Number: {issue.Number}";
+        text += $"{Environment.NewLine}{indent}{prOrIssuePrefix} Title: {issue.Title}";
+        text += $"{Environment.NewLine}{indent}{prOrIssuePrefix} State: {issue.State}";
+        text += $"{Environment.NewLine}{indent}{prOrIssuePrefix} Url: {issue.HtmlUrl}";
+        text += $"{Environment.NewLine}{indent}Labels ({issue.Labels.Count}):";
+        issue.Labels.ForEach(l => text += $"{Environment.NewLine}{indent}\t  - `{l.Name}`");
 
         return text;
     }
@@ -780,84 +832,6 @@ internal static class ExtensionMethods
 
     public static void LogAsInfo(this IReadOnlyList<Issue> issues, int totalIndentSpaces = 0)
         => Log.Information(issues.GetLogText(totalIndentSpaces));
-
-    public static string BuildReleaseNotesFilePath(this Solution? solution, ReleaseType releaseType, string version)
-    {
-        if (solution is null)
-        {
-            return string.Empty;
-        }
-
-        const string relativeDir = "Documentation/ReleaseNotes";
-
-        var notesDirPath = releaseType switch
-        {
-            ReleaseType.Preview => $"{solution.Directory}/{relativeDir}/PreviewReleases",
-            ReleaseType.Production => $"{solution.Directory}/{relativeDir}/ProductionReleases",
-            ReleaseType.HotFix => throw new NotImplementedException("Hot Fix Release Notes not implemented yet."),
-            _ => throw new ArgumentOutOfRangeException(nameof(releaseType), releaseType, null)
-        };
-
-        version = version.StartsWith("v")
-            ? version.TrimStart("v")
-            : version;
-
-        var fileName = $"Release-Notes-v{version}.md";
-
-        return $"{notesDirPath}/{fileName}";
-    }
-
-    public static string GetReleaseNotes(this Solution? solution, ReleaseType releaseType, string version)
-    {
-        if (solution is null)
-        {
-            return string.Empty;
-        }
-
-        var fullFilePath = solution.BuildReleaseNotesFilePath(releaseType, version);
-
-        if (File.Exists(fullFilePath))
-        {
-            return File.ReadAllText(fullFilePath);
-        }
-
-        var errorMsg = "The {Value1} release notes for version '{Value2}' at file path '{Value3}'";
-        errorMsg += " could not be found.";
-        Log.Error(
-            errorMsg,
-            releaseType.ToString().ToLower(),
-            version,
-            fullFilePath.Replace(solution.Directory, "./"));
-        Assert.Fail("The release notes file could not be found.");
-
-        return File.ReadAllText(fullFilePath);
-    }
-
-    public static IEnumerable<string> GetReleaseNotesAsLines(this Solution? solution, ReleaseType releaseType, string version)
-    {
-        if (solution is null)
-        {
-            return Array.Empty<string>();
-        }
-
-        var fullFilePath = solution.BuildReleaseNotesFilePath(releaseType, version);
-
-        if (File.Exists(fullFilePath))
-        {
-            return File.ReadAllLines(fullFilePath);
-        }
-
-        var errorMsg = "The {Value1} release notes for version '{Value2}' at file path '{Value3}'";
-        errorMsg += " could not be found.";
-        Log.Error(
-            errorMsg,
-            releaseType.ToString().ToLower(),
-            version,
-            fullFilePath.Replace(solution.Directory, "./"));
-        Assert.Fail("The release notes file could not be found.");
-
-        return File.ReadAllLines(fullFilePath);
-    }
 
     public static void PrintErrors(this IEnumerable<string>? errors, string? failMsg = null)
     {

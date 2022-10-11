@@ -29,7 +29,7 @@ internal sealed class BranchValidatorService : IBranchValidatorService
     /// </summary>
     /// <param name="clientFactory">Creates HTTP clients.</param>
     /// <param name="gitRepoService">Provides GIT repository information.</param>
-    /// <param name="repoInfoReactable">Provides push notifications of build information.</param>
+    /// <param name="repoInfoReactable">Provides push notifications about repository information.</param>
     public BranchValidatorService(
         IHttpClientFactory clientFactory,
         IGitRepoService gitRepoService,

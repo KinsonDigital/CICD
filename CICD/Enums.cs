@@ -64,7 +64,7 @@ internal enum BranchType
     /// <summary>
     /// The branch that contains smaller pieces of development work that merges into <see cref="Preview"/> branches.
     /// </summary>
-    /// <remarks>This gets merged into <see cref="Preview"/> branches.
+    /// <remarks>This gets merged into <see cref="Preview"/> branches.</remarks>
     PreviewFeature,
 
     /// <summary>

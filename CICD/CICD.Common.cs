@@ -3,10 +3,10 @@
 // </copyright>
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using CICDSystem.Services;
 using GlobExpressions;
@@ -27,7 +27,7 @@ public partial class CICD // Common
         .After(PRBuildStatusCheck, PRUnitTestStatusCheck)
         .Executes(() =>
         {
-            DotNetTasks.DotNetRestore(s => s.SetProjectFile<DotNetRestoreSettings>(this.solution));
+            DotNetTasks.DotNetRestore(s => s.SetProjectFile<DotNetRestoreSettings>(Solution));
         });
 
     /// <summary>
@@ -48,11 +48,44 @@ public partial class CICD // Common
             workflowService.GenerateWorkflows(outputDirPath);
         });
 
+    /// <summary>
+    /// Gets a target that is used to get the version number and print it to the console.
+    /// </summary>
+    // ReSharper disable UnusedMember.Local
+    private Target Version => _ => _
+        .Executes(() =>
+        {
+            var version = Assembly.GetEntryAssembly()?
+                .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
+                .InformationalVersion ?? string.Empty;
+
+            version = string.IsNullOrEmpty(version) ? string.Empty : $"v{version}";
+
+            if (version == "v1.0.0")
+            {
+                Log.Warning("The version is unknown or not set.");
+            }
+            else if (version == string.Empty)
+            {
+                Log.Error("There was a problem getting the version number.");
+            }
+            else
+            {
+                Log.Information("KinsonDigital.CICD Version: {Value}", version);
+            }
+        });
+
+    // ReSharper restore UnusedMember.Local
+
+    /// <summary>
+    /// Creates a nuget package.
+    /// </summary>
+    /// <exception cref="Exception">Thrown if the project is null.</exception>
     private void CreateNugetPackage()
     {
         DeleteAllNugetPackages();
 
-        var project = this.solution?.GetProjects(ProjectName).FirstOrDefault();
+        var project = SolutionService.GetProjects(ProjectName).FirstOrDefault();
 
         if (project is null)
         {
@@ -119,11 +152,9 @@ public partial class CICD // Common
         {
             ReleaseType.Production => ProductionReleaseNotesDirPath,
             ReleaseType.Preview => PreviewReleaseNotesDirPath,
+            ReleaseType.HotFix => throw new NotImplementedException("Hot Fix release type not implemented."),
             _ => throw new ArgumentOutOfRangeException(nameof(releaseType), releaseType, null)
         };
-
-        nameof(ReleaseNotesExist)
-            .LogRequirementTitle($"Checking if the '{releaseType}' release notes exist.");
 
         return (from f in Glob.Files(releaseNotesDirPath, "*.md")
             where f.Contains(version)
@@ -221,8 +252,8 @@ public partial class CICD // Common
             throw new ArgumentException($"The version does not have the correct syntax for a {releaseType.ToString().ToLower()} release.");
         }
 
-        var releaseNotesFilePath = this.solution.BuildReleaseNotesFilePath(releaseType, version);
-        var releaseNotes = this.solution.GetReleaseNotes(releaseType, version);
+        var releaseNotesFilePath = SolutionService.BuildReleaseNotesFilePath(releaseType, version);
+        var releaseNotes = SolutionService.GetReleaseNotes(releaseType, version);
 
         if (string.IsNullOrEmpty(releaseNotes))
         {
@@ -276,44 +307,6 @@ public partial class CICD // Common
         }
 
         return -1;
-    }
-
-    private bool NugetPackageDoesNotExist()
-    {
-        nameof(NugetPackageDoesNotExist)
-            .LogRequirementTitle($"Checking that the nuget package does not already exist.");
-
-        var project = this.solution?.GetProject(RepoName);
-        var errors = new List<string>();
-
-        if (project is null)
-        {
-            var exMsg = $"The project named '{ProjectName}' could not be found.";
-            exMsg += $"{Environment.NewLine}Check that the 'ProjectName' param in the parameters.json is set correctly.";
-            throw new Exception(exMsg);
-        }
-
-        var projectVersion = project.GetVersion();
-
-        var nugetService = new NugetDataService();
-
-        var packageVersions = nugetService.GetNugetVersions(RepoName).Result;
-
-        var nugetPackageExists = packageVersions.Any(i => i == projectVersion);
-
-        if (nugetPackageExists)
-        {
-            errors.Add($"The nuget package '{RepoName}' version 'v{projectVersion}' already exists.");
-        }
-
-        if (errors.Count <= 0)
-        {
-            return true;
-        }
-
-        errors.PrintErrors();
-
-        return false;
     }
 
     private void LogErrorAndFail(string errorMsg, string failMsg)
