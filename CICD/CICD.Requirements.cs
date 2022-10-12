@@ -577,7 +577,7 @@ public partial class CICD // Requirements
 
             if (validVersionSyntax)
             {
-                statusMsg += $"The version '{project.GetVersion()}' is valid.{Environment.NewLine}";
+                statusMsg += $"{ConsoleTab}The version '{project.GetVersion()}' is valid.{Environment.NewLine}";
             }
             else
             {
@@ -598,7 +598,7 @@ public partial class CICD // Requirements
 
             if (validFileVersionSyntax)
             {
-                statusMsg += $"The file version '{project.GetVersion()}' is valid.{Environment.NewLine}";
+                statusMsg += $"{ConsoleTab}The file version '{project.GetVersion()}' is valid.{Environment.NewLine}";
             }
             else
             {
@@ -619,7 +619,7 @@ public partial class CICD // Requirements
 
             if (validAssemblyVersionSyntax)
             {
-                statusMsg += $"The assembly version '{project.GetAssemblyVersion()}' is valid.{Environment.NewLine}";
+                statusMsg += $"{ConsoleTab}The assembly version '{project.GetAssemblyVersion()}' is valid.{Environment.NewLine}";
             }
             else
             {
@@ -631,7 +631,7 @@ public partial class CICD // Requirements
 
         if (errors.Count <= 0)
         {
-            Log.Information($"{statusMsg}{Environment.NewLine}");
+            Console.WriteLine($"{statusMsg}{Environment.NewLine}");
             return true;
         }
 
