@@ -556,6 +556,32 @@ internal static class ExtensionMethods
         }
     }
 
+    /// <summary>
+    /// Returns a value indicating whether or not a pull request is assigned to a milestone.
+    /// </summary>
+    /// <param name="client">Calls out to the GitHub API to get a pull request.</param>
+    /// <param name="owner">The owner of the repository.</param>
+    /// <param name="repoName">The name of the repository.</param>
+    /// <param name="prNumber">The pull request number.</param>
+    /// <returns>An asynchronous <c>boolean</c> of <c>true</c> if assigned.</returns>
+    public static async Task<(bool, Milestone?)> AssignedToMilestone(
+        this IPullRequestsClient client,
+        string owner,
+        string repoName,
+        int prNumber)
+    {
+        try
+        {
+            var milestone = (await client.Get(owner, repoName, prNumber)).Milestone;
+
+            return (milestone is not null, milestone);
+        }
+        catch (NotFoundException)
+        {
+            return (false, null);
+        }
+    }
+
     public static async Task<bool> ReleaseExists(
         this IReleasesClient client,
         string owner,

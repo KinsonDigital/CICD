@@ -1038,6 +1038,35 @@ public partial class CICD // Requirements
         return false;
     }
 
+    /// <summary>
+    /// Verifies that a pull request is assigned to a milestone.
+    /// </summary>
+    /// <returns><c>true</c> if assigned to a milestone.</returns>
+    private bool ThatThePRIsAssignedToMilestone()
+    {
+        nameof(ThatAllMilestonePullRequestsHaveLabels)
+            .LogRequirementTitle("Checking that the pull request is assigned to a milestone.");
+
+        if (PullRequestNumber <= 0)
+        {
+            Log.Error("The pull request number is not valid.");
+            return false;
+        }
+
+        (var isAssigned, Milestone? milestone) = GitHubClient.PullRequest.AssignedToMilestone(RepoOwner, RepoName, PullRequestNumber).Result;
+
+        if (isAssigned)
+        {
+            var title = milestone?.Title ?? string.Empty;
+            Console.Write($"{Environment.NewLine}The pull request '{PullRequestNumber}' is assigned to milestone '{title}'.");
+            return true;
+        }
+
+        Log.Error($"The pull request '{PullRequestNumber}' is not assigned to a milestone.");
+        Assert.Fail("Pull request not assigned to a milestone.");
+        return false;
+    }
+
     private bool ThatTheReleaseTagDoesNotAlreadyExist(ReleaseType releaseType)
     {
         var project = SolutionService.GetProject(RepoName);
