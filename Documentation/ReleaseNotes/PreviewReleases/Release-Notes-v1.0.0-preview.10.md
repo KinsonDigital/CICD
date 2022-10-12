@@ -4,7 +4,7 @@
 
 <h2 align="center" style='font-weight:bold'>Quick Reminder</h2>
 
-<div algn="center">
+<div align="center">
 
 As with all software, there is always a chance for issues and bugs, especially for preview releases, which is why your input is greatly appreciated. 🙏🏼
 </div>
@@ -13,7 +13,7 @@ As with all software, there is always a chance for issues and bugs, especially f
 
 <h2 style="font-weight:bold" align="center">New Features ✨</h2>
 
-1. [#66](https://github.com/KinsonDigital/CICD/issues/66) - Added the ability for the status checks below to check if the pull request has a milestone assigned.
+1. [#66](https://github.com/KinsonDigital/CICD/issues/66) - Added the ability for the status checks below to check whether or not the pull request has a milestone assigned.
    - FeaturePRStatusCheck
    - PreviewFeaturePRStatusCheck
    - HotFixPRStatusCheck
