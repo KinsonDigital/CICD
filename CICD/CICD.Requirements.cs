@@ -186,7 +186,7 @@ public partial class CICD // Requirements
         var branchTypeStr = branchType.ToString().ToSpaceDelimitedSections().ToLower();
 
         nameof(ThatFeaturePRIssueHasLabel)
-            .LogRequirementTitle($"Checking that the issue number in the '{branchTypeStr}' branch exists.");
+            .LogRequirementTitle($"Checking if the issue for the '{branchTypeStr}' branch contains at least one label.");
 
         // If the branch type is invalid
         if (validBranchTypes.Contains(branchType) is false)
