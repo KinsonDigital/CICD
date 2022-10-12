@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 using CICDSystem.Services;
 using GlobExpressions;
@@ -186,44 +187,69 @@ public partial class CICD // Common
         }
     }
 
-    private async Task<string> GetProdMilestoneDescription(string version)
+    /// <summary>
+    /// Creates a custom milestone description with the given <paramref name="title"/>.
+    /// </summary>
+    /// <param name="title">The title of the milestone.</param>
+    /// <param name="releaseType">The type of release that the milestone represents.</param>
+    /// <returns>The custom description.</returns>
+    /// <remarks>The title of a milestone is the same as the version number.</remarks>
+    private async Task<string> CreateMilestoneDescription(string title, ReleaseType releaseType)
     {
-        version = version.StartsWith('v')
-            ? version
-            : $"v{version}";
+        title = title.StartsWith('v')
+            ? title
+            : $"v{title}";
 
-        var detailsStartTag = $"<details closed><summary>Preview Releases</summary>{Environment.NewLine}";
-        const string tableHeader = "|Preview Release|Total Issues|";
-        const string alignmentRow = "|:----|:----:|";
+        var releaseTypeStr = releaseType.ToString();
+        var detailsStartTag = $"<details closed><summary>{releaseTypeStr} Releases</summary>{Environment.NewLine}";
         const string detailsEndTag = "</details>";
 
         var issueClient = GitHubClient.Issue;
-        var request = new MilestoneRequest { State = ItemStateFilter.All };
-        var previewMilestones = (await issueClient.Milestone.GetAllForRepository(RepoOwner, RepoName, request))
-            .Where(m => m.Title.IsPreviewVersion() && m.Title.StartsWith(version)).ToArray();
+        var issues = await issueClient.IssuesForMilestone(RepoOwner, RepoName, title);
+        var pullRequests = await GitHubClient.PullRequest.PullRequestsForMilestone(RepoOwner, RepoName, title);
+        var result = $"Container for holding everything released in version {title}";
 
-        var result = $"Container for holding everything released in version {version}";
+        var mostTimeSpent = issues.MostTimeSpentOnIssue();
+        var totalTimeSpent = issues.TotalTimeToComplete();
 
-        if (previewMilestones.Length > 0)
+        var totalItems = $"Total Items: {issues.Length + pullRequests.Length}";
+        var totalIssues = $"Total Issues: {issues.Length}";
+        var totalPullRequests = $"Total Pull Requests: {pullRequests.Length}";
+        var mostTimeSpendOnSingleIssue = $"Most Time Spend On Single Issue: {mostTimeSpent}";
+        var totalTimeSpentToCompleteRelease = $"Total Time To Complete Release: {totalTimeSpent}";
+        var typeOfWorkLabels = issues.GetDistinctLabelNames().ToArray();
+        var assigneeData = issues.GetDistinctAssigneeLoginAndUrl().ToArray();
+
+        var labelStrBuilder = new StringBuilder();
+
+        // Build up the string of label names surrounded by back ticks
+        foreach (var label in typeOfWorkLabels)
         {
-            var tableDataRows = previewMilestones.Select(m =>
-            {
-                var totalMilestoneIssues = issueClient.IssuesForMilestone(RepoOwner, RepoName, m.Title).Result.Length;
-
-                return $"{Environment.NewLine}|[🚀{m.Title}]({m.HtmlUrl})|{totalMilestoneIssues}|";
-            });
-
-            result += $"{Environment.NewLine}{detailsStartTag}";
-            result += $"{Environment.NewLine}{tableHeader}";
-            result += $"{Environment.NewLine}{alignmentRow}";
-
-            foreach (var dataRow in tableDataRows)
-            {
-                result += dataRow;
-            }
+            labelStrBuilder.Append($"  - `{label}`{Environment.NewLine}");
         }
 
-        result += $"{Environment.NewLine}{detailsEndTag}";
+        var typeOfWorkReleased = $"Type Of Work Released:{Environment.NewLine}{labelStrBuilder.ToString().TrimEnd()}";
+
+        var assigneeDataStrBuilder = new StringBuilder();
+
+        foreach (var data in assigneeData)
+        {
+            assigneeDataStrBuilder.Append($"  - [{data.login}]({data.url}){Environment.NewLine}");
+        }
+
+        var workCompletedBy = $"Work Completed By:{Environment.NewLine}{assigneeDataStrBuilder.ToString().TrimEnd().TrimEnd(',')}";
+
+        result += $"{Environment.NewLine}{detailsStartTag}{Environment.NewLine}";
+
+        result += $"{totalItems}{Environment.NewLine}";
+        result += $"{totalIssues}{Environment.NewLine}";
+        result += $"{totalPullRequests}{Environment.NewLine}";
+        result += $"{mostTimeSpendOnSingleIssue}{Environment.NewLine}";
+        result += $"{totalTimeSpentToCompleteRelease}{Environment.NewLine}";
+        result += $"{typeOfWorkReleased}{Environment.NewLine}";
+        result += $"{Environment.NewLine}{workCompletedBy}{Environment.NewLine}";
+
+        result += detailsEndTag;
 
         return result;
     }
