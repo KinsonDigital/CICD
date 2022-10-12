@@ -556,6 +556,45 @@ internal static class ExtensionMethods
         }
     }
 
+    /// <summary>
+    /// Returns a value indicating whether or not a pull request is assigned to a milestone.
+    /// </summary>
+    /// <param name="client">Calls out to the GitHub API to get a pull request.</param>
+    /// <param name="owner">The owner of the repository.</param>
+    /// <param name="repoName">The name of the repository.</param>
+    /// <param name="prNumber">The pull request number.</param>
+    /// <returns>An asynchronous <c>boolean</c> of <c>true</c> if assigned.</returns>
+    /// <remarks>
+    ///     <para>
+    ///         Closed milestones are considered released so opened pull requests cannot be assigned to a closed milestone.
+    ///     </para>
+    ///
+    ///     <para>
+    ///         Open milestones are not considered released so closed pull requests cannot be assigned to an opened milestone.
+    ///     </para>
+    /// </remarks>
+    public static async Task<(bool isAssigned, Milestone? milestone)> AssignedToMilestone(
+        this IPullRequestsClient client,
+        string owner,
+        string repoName,
+        int prNumber)
+    {
+        try
+        {
+            var pr = await client.Get(owner, repoName, prNumber);
+
+            var isAssigned = pr.State == ItemState.Open
+                ? pr.Milestone is not null && pr.Milestone.State == ItemState.Open
+                : pr.Milestone is not null && pr.Milestone.State == ItemState.Closed;
+
+            return (isAssigned, pr?.Milestone ?? null);
+        }
+        catch (NotFoundException)
+        {
+            return (false, null);
+        }
+    }
+
     public static async Task<bool> ReleaseExists(
         this IReleasesClient client,
         string owner,
