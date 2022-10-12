@@ -406,6 +406,75 @@ internal static class ExtensionMethods
         return version;
     }
 
+    /// <summary>
+    /// Returns a string that represents the most amount of time that was spent on any of the given <paramref name="issues"/>.
+    /// </summary>
+    /// <param name="issues">The issues to analyze.</param>
+    /// <returns>The most time spent on an issue in string format.</returns>
+    /// <remarks>
+    ///     Format is <c>'#d #h #m'</c>.
+    /// </remarks>
+    public static string MostTimeSpentOnIssue(this IEnumerable<Issue> issues)
+    {
+        var mostTimeSpent = issues.Max(i => i.ClosedAt - i.CreatedAt);
+
+        return mostTimeSpent is null
+            ? "Unknown"
+            : $"{mostTimeSpent.Value.Days}d {mostTimeSpent.Value.Hours}h {mostTimeSpent.Value.Minutes}m";
+    }
+
+    /// <summary>
+    /// Returns a string that represents the total amount of time that the given list of <paramref name="issues"/> was completed.
+    /// </summary>
+    /// <param name="issues">The issues to analyze.</param>
+    /// <returns>The total time spend on all of the issues.</returns>
+    /// <remarks>
+    ///     Format is <c>'#d #h #m'</c>.
+    /// </remarks>
+    public static string TotalTimeToComplete(this IEnumerable<Issue> issues)
+    {
+        var enumeratedIssues = issues.ToArray();
+        var oldest = enumeratedIssues.Min(i => issues.Count() <= 1 ? i.CreatedAt : i.ClosedAt);
+        var newest = enumeratedIssues.Max(i => i.ClosedAt);
+
+        var timeToComplete = newest - oldest;
+
+        return timeToComplete is null
+            ? "Unknown"
+            : $"{timeToComplete.Value.Days}d {timeToComplete.Value.Hours}h {timeToComplete.Value.Minutes}m";
+    }
+
+    /// <summary>
+    /// Returns a distinct list of all the labels in the given list of <paramref name="issues"/>.
+    /// </summary>
+    /// <param name="issues">The list of issues.</param>
+    /// <returns>A distinct list of label names.</returns>
+    public static IEnumerable<string> GetDistinctLabelNames(this IEnumerable<Issue> issues)
+    {
+        var allLabels = new List<string>();
+
+        foreach (var issue in issues)
+        {
+            allLabels.AddRange(issue.Labels.Select(l => l.Name));
+        }
+
+        return allLabels.Distinct();
+    }
+
+    /// <summary>
+    /// Gets a distinct list of all the assignee URL's for all of the issues.
+    /// </summary>
+    /// <param name="issues">The list of issues.</param>
+    /// <returns>The distinct list of URL's.</returns>
+    public static IEnumerable<(string login, string url)> GetDistinctAssigneeLoginAndUrl(this IEnumerable<Issue> issues)
+    {
+        var assignees = issues.Where(i => i.Assignee is not null).Select(i => i.Assignee).ToArray();
+
+        var data = assignees.Select(a => (a.Login, a.HtmlUrl)).ToArray();
+
+        return data.DistinctBy(i => i.Login);
+    }
+
     public static async Task<bool> TagExists(
         this IRepositoriesClient client,
         string repoOwner,
@@ -457,11 +526,20 @@ internal static class ExtensionMethods
         }
     }
 
+    /// <summary>
+    /// Returns all of the issues assigned to a milestone that matches the given <paramref name="milestoneTitle"/>,
+    /// for the given repository <paramref name="owner"/> and for the repository that matches the given <paramref name="repoName"/>.
+    /// </summary>
+    /// <param name="client">Calls out to the GitHub API to get issues.</param>
+    /// <param name="owner">The owner of the repository.</param>
+    /// <param name="repoName">The name of the repository.</param>
+    /// <param name="milestoneTitle">The title of the milestone.</param>
+    /// <returns>The list of issues.</returns>
     public static async Task<Issue[]> IssuesForMilestone(
         this IIssuesClient client,
         string owner,
         string repoName,
-        string milestoneName)
+        string milestoneTitle)
     {
         var issueRequest = new RepositoryIssueRequest
         {
@@ -473,7 +551,7 @@ internal static class ExtensionMethods
             .Where(i =>
                 i.PullRequest is null &&
                 i.Milestone is not null &&
-                i.Milestone.Title == milestoneName).ToArray();
+                i.Milestone.Title == milestoneTitle).ToArray();
 
         return issues;
     }
@@ -553,6 +631,71 @@ internal static class ExtensionMethods
         catch (NotFoundException)
         {
             return false;
+        }
+    }
+
+    /// <summary>
+    /// Returns all of the pull requests assigned to a milestone that matches the given <paramref name="milestoneTitle"/>,
+    /// for the given repository <paramref name="owner"/> and for the repository that matches the given <paramref name="repoName"/>.
+    /// </summary>
+    /// <param name="client">Calls out to the GitHub API to get issues.</param>
+    /// <param name="owner">The owner of the repository.</param>
+    /// <param name="repoName">The name of the repository.</param>
+    /// <param name="milestoneTitle">The title of the milestone.</param>
+    /// <returns>The list of issues.</returns>
+    public static async Task<PullRequest[]> PullRequestsForMilestone(
+        this IPullRequestsClient client,
+        string owner,
+        string repoName,
+        string milestoneTitle)
+    {
+        var issueRequest = new PullRequestRequest
+        {
+            State = ItemStateFilter.All,
+        };
+
+        var pullRequests = (await client.GetAllForRepository(owner, repoName, issueRequest))
+            .Where(i => i.Milestone is not null && i.Milestone.Title == milestoneTitle).ToArray();
+
+        return pullRequests;
+    }
+
+    /// <summary>
+    /// Returns a value indicating whether or not a pull request is assigned to a milestone.
+    /// </summary>
+    /// <param name="client">Calls out to the GitHub API to get a pull request.</param>
+    /// <param name="owner">The owner of the repository.</param>
+    /// <param name="repoName">The name of the repository.</param>
+    /// <param name="prNumber">The pull request number.</param>
+    /// <returns>An asynchronous <c>boolean</c> of <c>true</c> if assigned.</returns>
+    /// <remarks>
+    ///     <para>
+    ///         Closed milestones are considered released so opened pull requests cannot be assigned to a closed milestone.
+    ///     </para>
+    ///
+    ///     <para>
+    ///         Open milestones are not considered released so closed pull requests cannot be assigned to an opened milestone.
+    ///     </para>
+    /// </remarks>
+    public static async Task<(bool isAssigned, Milestone? milestone)> AssignedToMilestone(
+        this IPullRequestsClient client,
+        string owner,
+        string repoName,
+        int prNumber)
+    {
+        try
+        {
+            var pr = await client.Get(owner, repoName, prNumber);
+
+            var isAssigned = pr.State == ItemState.Open
+                ? pr.Milestone is not null && pr.Milestone.State == ItemState.Open
+                : pr.Milestone is not null && pr.Milestone.State == ItemState.Closed;
+
+            return (isAssigned, pr?.Milestone ?? null);
+        }
+        catch (NotFoundException)
+        {
+            return (false, null);
         }
     }
 

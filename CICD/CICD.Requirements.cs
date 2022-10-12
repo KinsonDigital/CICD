@@ -186,7 +186,7 @@ public partial class CICD // Requirements
         var branchTypeStr = branchType.ToString().ToSpaceDelimitedSections().ToLower();
 
         nameof(ThatFeaturePRIssueHasLabel)
-            .LogRequirementTitle($"Checking that the issue number in the '{branchTypeStr}' branch exists.");
+            .LogRequirementTitle($"Checking if the issue for the '{branchTypeStr}' branch contains at least one label.");
 
         // If the branch type is invalid
         if (validBranchTypes.Contains(branchType) is false)
@@ -577,7 +577,7 @@ public partial class CICD // Requirements
 
             if (validVersionSyntax)
             {
-                statusMsg += $"The version '{project.GetVersion()}' is valid.{Environment.NewLine}";
+                statusMsg += $"{ConsoleTab}The version '{project.GetVersion()}' is valid.{Environment.NewLine}";
             }
             else
             {
@@ -598,7 +598,7 @@ public partial class CICD // Requirements
 
             if (validFileVersionSyntax)
             {
-                statusMsg += $"The file version '{project.GetVersion()}' is valid.{Environment.NewLine}";
+                statusMsg += $"{ConsoleTab}The file version '{project.GetVersion()}' is valid.{Environment.NewLine}";
             }
             else
             {
@@ -619,7 +619,7 @@ public partial class CICD // Requirements
 
             if (validAssemblyVersionSyntax)
             {
-                statusMsg += $"The assembly version '{project.GetAssemblyVersion()}' is valid.{Environment.NewLine}";
+                statusMsg += $"{ConsoleTab}The assembly version '{project.GetAssemblyVersion()}' is valid.{Environment.NewLine}";
             }
             else
             {
@@ -631,7 +631,7 @@ public partial class CICD // Requirements
 
         if (errors.Count <= 0)
         {
-            Log.Information($"{statusMsg}{Environment.NewLine}");
+            Console.WriteLine($"{statusMsg}{Environment.NewLine}");
             return true;
         }
 
@@ -1035,6 +1035,35 @@ public partial class CICD // Requirements
 
         errors.PrintErrors();
 
+        return false;
+    }
+
+    /// <summary>
+    /// Verifies that a pull request is assigned to a milestone.
+    /// </summary>
+    /// <returns><c>true</c> if assigned to a milestone.</returns>
+    private bool ThatThePRIsAssignedToMilestone()
+    {
+        nameof(ThatAllMilestonePullRequestsHaveLabels)
+            .LogRequirementTitle("Checking that the pull request is assigned to a milestone.");
+
+        if (PullRequestNumber <= 0)
+        {
+            Log.Error("The pull request number is not valid.");
+            return false;
+        }
+
+        (var isAssigned, Milestone? milestone) = GitHubClient.PullRequest.AssignedToMilestone(RepoOwner, RepoName, PullRequestNumber).Result;
+
+        if (isAssigned)
+        {
+            var title = milestone?.Title ?? string.Empty;
+            Console.Write($"{Environment.NewLine}The pull request '{PullRequestNumber}' is assigned to milestone '{title}'.");
+            return true;
+        }
+
+        Log.Error($"The pull request '{PullRequestNumber}' is not assigned to a milestone.");
+        Assert.Fail("Pull request not assigned to a milestone.");
         return false;
     }
 

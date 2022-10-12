@@ -198,17 +198,8 @@ public partial class CICD : NukeBuild
 
 #pragma warning restore SA1201
 
-    private Configuration GetBuildConfig()
-    {
-        if (ExecutionContext.IsLocalBuild)
-        {
-            return (Repo.Branch ?? string.Empty).IsMasterBranch()
-                ? Configuration.Release
-                : Configuration.Debug;
-        }
-
-        return PullRequestService.TargetBranch.IsMasterBranch()
+    private Configuration GetBuildConfig() =>
+        (Repo.Branch ?? string.Empty).IsMasterBranch()
             ? Configuration.Release
             : Configuration.Debug;
-    }
 }
