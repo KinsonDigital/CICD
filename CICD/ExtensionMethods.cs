@@ -564,7 +564,16 @@ internal static class ExtensionMethods
     /// <param name="repoName">The name of the repository.</param>
     /// <param name="prNumber">The pull request number.</param>
     /// <returns>An asynchronous <c>boolean</c> of <c>true</c> if assigned.</returns>
-    public static async Task<(bool, Milestone?)> AssignedToMilestone(
+    /// <remarks>
+    ///     <para>
+    ///         Closed milestones are considered released so opened pull requests cannot be assigned to a closed milestone.
+    ///     </para>
+    ///
+    ///     <para>
+    ///         Open milestones are not considered released so closed pull requests cannot be assigned to an opened milestone.
+    ///     </para>
+    /// </remarks>
+    public static async Task<(bool isAssigned, Milestone? milestone)> AssignedToMilestone(
         this IPullRequestsClient client,
         string owner,
         string repoName,
@@ -572,9 +581,13 @@ internal static class ExtensionMethods
     {
         try
         {
-            var milestone = (await client.Get(owner, repoName, prNumber)).Milestone;
+            var pr = await client.Get(owner, repoName, prNumber);
 
-            return (milestone is not null, milestone);
+            var isAssigned = pr.State == ItemState.Open
+                ? pr.Milestone is not null && pr.Milestone.State == ItemState.Open
+                : pr.Milestone is not null && pr.Milestone.State == ItemState.Closed;
+
+            return (isAssigned, pr?.Milestone ?? null);
         }
         catch (NotFoundException)
         {
