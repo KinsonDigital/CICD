@@ -335,14 +335,6 @@ public partial class CICD // Common
         return -1;
     }
 
-    private void LogErrorAndFail(string errorMsg, string failMsg)
-    {
-        Log.Error(errorMsg);
-        Assert.Fail(failMsg);
-    }
-
-    private void LogSuccess(string successMsg) => Console.WriteLine($"{Environment.NewLine}{ConsoleTab}{successMsg}");
-
     private async Task<string> MergeBranch(string sourceBranch, string targetBranch)
     {
         var mergeClient = GitHubClient.Repository.Merging;
