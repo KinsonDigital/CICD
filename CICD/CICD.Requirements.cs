@@ -115,7 +115,7 @@ public partial class CICD // Requirements
             return false;
         }
 
-        var branchIssueNumber = ExtractIssueNumber(BranchType.PreviewFeature, sourceBranch);
+        var branchIssueNumber = ExtractIssueNumber(branchType, sourceBranch);
         var issueExists = GitHubClient.Issue.IssueExists(RepoOwner, RepoName, branchIssueNumber).Result;
 
         if (issueExists is false)
