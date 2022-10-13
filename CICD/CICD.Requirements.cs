@@ -1051,6 +1051,57 @@ public partial class CICD // Requirements
         return false;
     }
 
+    /// <summary>
+    /// Returns a value indicating whether or not all of the items of the given <paramref name="itemType"/> are assigned.
+    /// </summary>
+    /// <returns><c>true</c> if all of the items are assigned.</returns>
+    private bool ThatAllMilestoneItemsAreAssigned(ItemType itemType)
+    {
+        var project = SolutionService.GetProject(RepoName);
+        var errors = new List<string>();
+
+        var itemTypeStr = itemType.ToString().ToSpaceDelimitedSections().ToLower();
+
+        nameof(ThatAllMilestoneItemsAreAssigned)
+            .LogRequirementTitle($"Checking that all {itemTypeStr} in the milestone are assigned.");
+
+        if (project is null)
+        {
+            errors.Add($"Could not find the project '{RepoName}'");
+        }
+
+        var projectVersion = project?.GetVersion() ?? string.Empty;
+        var milestoneTitle = $"v{projectVersion}";
+        var issueClient = GitHubClient.Issue;
+
+        var items = issueClient.IssuesForMilestone(RepoOwner, RepoName, milestoneTitle)
+            .Result
+            .Where(i => itemType switch
+        {
+            ItemType.Issue => i.IsIssue(),
+            ItemType.PullRequest => i.IsPullRequest(),
+            _ => throw new ArgumentOutOfRangeException(nameof(itemType), itemType, $"{nameof(itemType)} is out of range.")
+        }).ToArray();
+
+        var unassignedIssues = items.Where(i => i.Assignee is null).Select(i => i).ToArray();
+
+        if (unassignedIssues.Length > 0)
+        {
+            var errorMsg = $"The milestone '{milestoneTitle}' contains issues that are not assigned.";
+            errorMsg += $"{Environment.NewLine}{unassignedIssues.GetLogText(15)}";
+            errors.Add(errorMsg);
+        }
+
+        if (errors.Count <= 0)
+        {
+            return true;
+        }
+
+        errors.PrintErrors("1 or more issues are not assigned.");
+
+        return false;
+    }
+
     private bool ThatAllMilestonePullRequestsHaveLabels()
     {
         var project = SolutionService.GetProject(RepoName);
