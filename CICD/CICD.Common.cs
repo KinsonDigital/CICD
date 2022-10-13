@@ -201,7 +201,7 @@ public partial class CICD // Common
             : $"v{title}";
 
         var releaseTypeStr = releaseType.ToString();
-        var detailsStartTag = $"<details closed><summary>{releaseTypeStr} Releases</summary>{Environment.NewLine}";
+        var detailsStartTag = $"<details closed><summary>{releaseTypeStr} Release</summary>{Environment.NewLine}";
         const string detailsEndTag = "</details>";
 
         var issueClient = GitHubClient.Issue;
