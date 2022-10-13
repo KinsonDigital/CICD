@@ -904,7 +904,7 @@ internal static class ExtensionMethods
     public static bool IsPullRequest(this Issue issue) => issue.PullRequest is not null;
 
     /// <summary>
-    /// Returns a value indicating if a GitHub issue is a release to do issue.
+    /// Returns a value indicating whether or not a GitHub issue is a release to do issue.
     /// </summary>
     /// <param name="issue">The GitHub issue to check.</param>
     /// <param name="releaseType">The type of release issue.</param>
@@ -928,7 +928,7 @@ internal static class ExtensionMethods
     }
 
     /// <summary>
-    /// Returns a value indicating if a GitHub issue is a release pull request.
+    /// Returns a value indicating whether or not a GitHub issue is a release pull request.
     /// </summary>
     /// <param name="issue">The GitHub issue to check.</param>
     /// <param name="releaseType">The type of release pull request.</param>

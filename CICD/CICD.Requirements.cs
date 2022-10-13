@@ -216,7 +216,7 @@ public partial class CICD // Requirements
     }
 
     /// <summary>
-    /// Returns a value indicating if the pull request contains a label that matches the given <paramref name="labels"/>.
+    /// Returns a value indicating whether or not the pull request contains a label that matches the given <paramref name="labels"/>.
     /// </summary>
     /// <param name="labels">The name of the label.</param>
     /// <returns><c>true</c> if the pull request has the label.</returns>
