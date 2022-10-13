@@ -110,11 +110,23 @@ public partial class CICD // StatusChecks
             () => ThatThePullRequestExists(),
             () => ThatThePRBranchIsValid(PRBranchContext.Source, BranchType.HotFix),
             () => ThatThePRBranchIsValid(PRBranchContext.Target, BranchType.Master),
-            () => ThatThePRIsAssignedToMilestone(),
             () => ThatThePRSourceBranchIssueNumberExists(),
-            () => ThatFeaturePRIssueHasLabel(BranchType.HotFix),
             () => ThatThePRHasBeenAssigned(),
-            () => ThatPRHasLabels());
+            () => ThatThePRIsAssignedToMilestone(),
+            () => ThatThePRHasTheLabel("🔥Hot Fix Release🚀", "🐛bug"),
+            () => ThatTheProjectVersionsAreValid(ReleaseType.Production),
+            () => ThatThePRSourceBranchVersionSectionMatchesProjectVersion(ReleaseType.Production),
+            () => ThatTheReleaseTagDoesNotAlreadyExist(ReleaseType.Production),
+            () => ThatTheReleaseMilestoneExists(),
+            () => ThatTheReleaseMilestoneContainsIssues(),
+            () => ThatAllMilestoneIssuesHaveLabels(),
+            () => ThatMilestoneIssuesExistInReleaseNotes(ReleaseType.Production),
+            () => ThatTheMilestoneContainsOnlySingleItemOfType(ItemType.Issue),
+            () => ThatTheMilestoneContainsOnlySingleItemOfType(ItemType.PullRequest),
+            () => ThatTheReleaseNotesExist(ReleaseType.Production),
+            () => ThatTheReleaseNotesTitleIsCorrect(ReleaseType.Production),
+            () => ThatGitHubReleaseDoesNotExist(ReleaseType.Production),
+            () => ThatTheNugetPackageDoesNotExist());
 
     private Target PrevReleasePRStatusCheck => _ => _
         .Requires(
