@@ -745,7 +745,17 @@ public partial class CICD // Requirements
         return false;
     }
 
-    private bool ThatTheReleaseMilestoneOnlyContainsSingle(ReleaseType releaseType, ItemType itemType)
+    /// <summary>
+    /// Returns a value indicating whether or not a milestone only contains a single release item
+    /// of the given <paramref name="releaseType"/> and <paramref name="itemType"/>.
+    /// </summary>
+    /// <param name="releaseType">The type of release of the item.</param>
+    /// <param name="itemType">The type of item.</param>
+    /// <returns><c>true</c> if only single item exists in the milestone.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// Thrown if the <paramref name="releaseType"/> or <paramref name="itemType"/> is out of range.
+    /// </exception>
+    private bool ThatTheReleaseMilestoneOnlyContainsSingleReleaseItem(ReleaseType releaseType, ItemType itemType)
     {
         const int totalSpaces = 15;
         var project = SolutionService.GetProject(RepoName);
@@ -754,7 +764,7 @@ public partial class CICD // Requirements
 
         var introMsg = "Checking that the release milestone only contains a single release ";
         introMsg += $"{(itemType == ItemType.Issue ? "todo issue" : "pull request")} item.";
-        nameof(ThatTheReleaseMilestoneOnlyContainsSingle)
+        nameof(ThatTheReleaseMilestoneOnlyContainsSingleReleaseItem)
             .LogRequirementTitle(introMsg);
 
         if (project is null)
