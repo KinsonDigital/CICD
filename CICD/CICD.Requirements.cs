@@ -71,105 +71,64 @@ public partial class CICD // Requirements
         return true;
     }
 
-    private bool ThatPRBranchIssueNumberExists(BranchType branchType)
-    {
-        if (PullRequestNumber <= 0)
-        {
-            LogErrorAndFail(
-                "The pull request number must be set to run this requirement.",
-                "Pull request not set.");
-            return false;
-        }
-
-        var isNotIssueBranch = branchType != BranchType.Feature &&
-                               branchType != BranchType.PreviewFeature &&
-                               branchType != BranchType.HotFix;
-
-        var branchTypeStr = Enum.GetName(branchType)?.ToSpaceDelimitedSections().ToLower() ?? string.Empty;
-
-        if (isNotIssueBranch)
-        {
-            var featureBranchStr = Enum.GetName(BranchType.Feature)?.ToSpaceDelimitedSections().ToLower() ?? string.Empty;
-            var prevFeatureBranchStr = Enum.GetName(BranchType.PreviewFeature)?.ToSpaceDelimitedSections().ToLower() ?? string.Empty;
-            var hotfixBranchStr = Enum.GetName(BranchType.HotFix)?.ToSpaceDelimitedSections().ToLower() ?? string.Empty;
-
-            LogErrorAndFail(
-                $"The pull request 'source' branch must be a '{featureBranchStr}', '{prevFeatureBranchStr}', or '{hotfixBranchStr}'.",
-                "Branch is not an issue branch.");
-            return false;
-        }
-
-        var branch = PullRequestService.SourceBranch;
-
-        BranchValidator.Reset();
-
-        var isValidSyntax = branchType switch
-        {
-            BranchType.Master => BranchValidator.IsMasterBranch(branch).GetValue(),
-            BranchType.Develop => BranchValidator.IsDevelopBranch(branch).GetValue(),
-            BranchType.Feature => BranchValidator.IsFeatureBranch(branch).GetValue(),
-            BranchType.PreviewFeature => BranchValidator.IsPreviewFeatureBranch(branch).GetValue(),
-            BranchType.Release => BranchValidator.IsReleaseBranch(branch).GetValue(),
-            BranchType.Preview => BranchValidator.IsPreviewBranch(branch).GetValue(),
-            BranchType.HotFix => BranchValidator.IsHotFixBranch(branch).GetValue(),
-            BranchType.Other => false,
-            _ => throw new ArgumentOutOfRangeException(nameof(branchType), branchType, null)
-        };
-
-        if (isValidSyntax is false)
-        {
-            LogErrorAndFail(
-            $"The pull request 'source' branch syntax for branch '{branchTypeStr}' is invalid.",
-            "Invalid pull request branch syntax.");
-            return false;
-        }
-
-        var issueNumber = ExtractIssueNumber(branchType, branch);
-
-        if (issueNumber is -1)
-        {
-            LogErrorAndFail(
-                $"No issue number exists in the pull request 'source' branch name '{branchTypeStr}'.",
-                "Issue number does not exit in the branch name.");
-            return false;
-        }
-
-        var issueExists = GitHubClient.Issue.IssueExists(RepoOwner, RepoName, issueNumber).Result;
-
-        if (issueExists is false)
-        {
-            LogErrorAndFail(
-                $"The issue number '{issueNumber}' in the pull request 'source' branch named '{branchTypeStr}' does not exist.",
-                $"Issue with the number '{issueNumber}' in branch name does not exist.");
-            return false;
-        }
-
-        LogSuccess($"The pull request branch issue number '{issueNumber}' exists.");
-
-        return true;
-    }
-
-    private bool ThatPreviewFeatureIssueNumberExists()
+    /// <summary>
+    /// Returns a value indicating whether or not the source branch of a pull request contains an issue number
+    /// and that the issue number exists.
+    /// </summary>
+    /// <returns><c>true</c> if the issue exists.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">
+    ///     Occurs if the source branch type is out of range.
+    /// </exception>
+    private bool ThatThePRSourceBranchIssueNumberExists()
     {
         var sourceBranch = PullRequestService.SourceBranch;
 
-        nameof(ThatPreviewFeatureIssueNumberExists)
-            .LogRequirementTitle("Checking that the issue number in the preview feature branch exists.");
+        var branchType = sourceBranch.GetBranchType();
+        var branchTypeStr = branchType.ToString().ToSpaceDelimitedSections().ToLower();
+
+        nameof(ThatThePRSourceBranchIssueNumberExists)
+            .LogRequirementTitle($"Checking that the issue number in the '{branchTypeStr}' branch exists.");
+
+        var isNotIssueNumberBranch = branchType switch
+        {
+            BranchType.Master => true,
+            BranchType.Develop => true,
+            BranchType.Feature => false,
+            BranchType.PreviewFeature => false,
+            BranchType.Release => true,
+            BranchType.Preview => true,
+            BranchType.HotFix => false,
+            BranchType.Other => true,
+            _ => throw new ArgumentOutOfRangeException(nameof(branchType), branchType, null)
+        };
+
+        if (isNotIssueNumberBranch)
+        {
+            var issueNumBranches = $"'{BranchType.Feature.ToString().ToLower()}', ";
+            issueNumBranches += $"'{BranchType.PreviewFeature.ToString().ToSpaceDelimitedSections().ToLower()}', and ";
+            issueNumBranches += $"'{BranchType.HotFix.ToString().ToLower()}'.";
+
+            var errorMsg = $"The branch '{branchTypeStr}' must be a branch that contains an issue number.";
+            errorMsg += $"{Environment.NewLine}{ConsoleTab}Valid issue number branches are {issueNumBranches}";
+            Log.Error(errorMsg);
+            Assert.Fail("Invalid issue number branch.");
+            return false;
+        }
 
         var branchIssueNumber = ExtractIssueNumber(BranchType.PreviewFeature, sourceBranch);
         var issueExists = GitHubClient.Issue.IssueExists(RepoOwner, RepoName, branchIssueNumber).Result;
 
         if (issueExists is false)
         {
-            var errorMsg = $"The issue '{branchIssueNumber}' does not exist for preview feature branch '{sourceBranch}'.";
+            var errorMsg = $"The issue '{branchIssueNumber}' does not exist for the branch '{sourceBranch}'.";
             errorMsg += $"{Environment.NewLine}{ConsoleTab}The source branch '{sourceBranch}' must be recreated with the correct issue number.";
-            errorMsg += $"{Environment.NewLine}{ConsoleTab}The syntax requirements for a preview feature branch is 'preview/feature/#-*'.";
+
             Log.Error(errorMsg);
-            Assert.Fail("The preview feature branch issue number does not exist.");
+            Assert.Fail($"The branch issue number does not exist.");
             return false;
         }
 
-        Console.WriteLine($"{ConsoleTab}The preview feature branch '{sourceBranch}' is valid.");
+        Console.WriteLine($"{ConsoleTab}The issue number in the branch '{sourceBranch}' is valid.");
 
         return true;
     }

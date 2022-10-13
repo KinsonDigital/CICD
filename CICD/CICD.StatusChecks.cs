@@ -84,7 +84,7 @@ public partial class CICD // StatusChecks
             () => ThatThePRBranchIsValid(PRBranchContext.Source, BranchType.Feature),
             () => ThatThePRBranchIsValid(PRBranchContext.Target, BranchType.Develop),
             () => ThatThePRIsAssignedToMilestone(),
-            () => ThatPRBranchIssueNumberExists(BranchType.Feature),
+            () => ThatThePRSourceBranchIssueNumberExists(),
             () => ThatFeaturePRIssueHasLabel(BranchType.Feature),
             () => ThatThePRHasBeenAssigned(),
             () => ThatPRHasLabels());
@@ -99,7 +99,7 @@ public partial class CICD // StatusChecks
             () => ThatThePRBranchIsValid(PRBranchContext.Source, BranchType.PreviewFeature),
             () => ThatThePRBranchIsValid(PRBranchContext.Target, BranchType.Preview),
             () => ThatThePRIsAssignedToMilestone(),
-            () => ThatPRBranchIssueNumberExists(BranchType.PreviewFeature),
+            () => ThatThePRSourceBranchIssueNumberExists(),
             () => ThatFeaturePRIssueHasLabel(BranchType.PreviewFeature),
             () => ThatThePRHasBeenAssigned(),
             () => ThatPRHasLabels());
@@ -111,7 +111,7 @@ public partial class CICD // StatusChecks
             () => ThatThePRBranchIsValid(PRBranchContext.Source, BranchType.HotFix),
             () => ThatThePRBranchIsValid(PRBranchContext.Target, BranchType.Master),
             () => ThatThePRIsAssignedToMilestone(),
-            () => ThatPreviewFeatureIssueNumberExists(),
+            () => ThatThePRSourceBranchIssueNumberExists(),
             () => ThatFeaturePRIssueHasLabel(BranchType.HotFix),
             () => ThatThePRHasBeenAssigned(),
             () => ThatPRHasLabels());
