@@ -118,13 +118,14 @@ public partial class CICD // StatusChecks
             () => ThatThePRSourceBranchVersionSectionMatchesProjectVersion(ReleaseType.Production),
             () => ThatTheReleaseTagDoesNotAlreadyExist(ReleaseType.Production),
             () => ThatTheReleaseMilestoneExists(),
-            () => ThatTheReleaseMilestoneContainsIssues(),
-            () => ThatAllMilestoneIssuesHaveLabels(),
-            () => ThatMilestoneIssuesExistInReleaseNotes(ReleaseType.Production),
             () => ThatTheMilestoneContainsOnlySingleItemOfType(ItemType.Issue),
             () => ThatTheMilestoneContainsOnlySingleItemOfType(ItemType.PullRequest),
+            () => ThatAllMilestoneIssuesHaveLabels(),
+            () => ThatAllMilestoneItemsAreAssigned(ItemType.Issue),
+            () => ThatAllMilestoneItemsAreAssigned(ItemType.PullRequest),
             () => ThatTheReleaseNotesExist(ReleaseType.Production),
             () => ThatTheReleaseNotesTitleIsCorrect(ReleaseType.Production),
+            () => ThatMilestoneIssuesExistInReleaseNotes(ReleaseType.Production),
             () => ThatGitHubReleaseDoesNotExist(ReleaseType.Production),
             () => ThatTheNugetPackageDoesNotExist());
 
