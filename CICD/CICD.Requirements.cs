@@ -1280,7 +1280,7 @@ public partial class CICD // Requirements
             return true;
         }
 
-        errors.PrintErrors();
+        errors.PrintErrors("Preview releases not mentioned in production release notes.");
 
         return false;
     }
