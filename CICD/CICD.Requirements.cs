@@ -1139,8 +1139,16 @@ public partial class CICD // Requirements
 
         if (foundTitle.Length <= 0)
         {
+            var versionSyntax = releaseType switch
+            {
+                ReleaseType.Production => "v#.#.#",
+                ReleaseType.Preview => "v#.#.#-preview.#",
+                ReleaseType.HotFix => "v#.#.#",
+                _ => throw new ArgumentOutOfRangeException(nameof(releaseType), releaseType, $"{nameof(releaseType)} out of range.")
+            };
+
             var expectedReleaseNotesTitle = $"{RepoName} {releaseType} Release Notes - v{projectVersion}";
-            const string titleSyntax = "<project-name> <release-type> Release Notes - v#.#.#-preview.#";
+            var titleSyntax = $"<project-name> <release-type> Release Notes - {versionSyntax}";
 
             var errorMsg = $"A release notes title with the syntax '{titleSyntax}' could not be found.";
             errorMsg += $"{Environment.NewLine}{ConsoleTab}Expected Title: {expectedReleaseNotesTitle}";
