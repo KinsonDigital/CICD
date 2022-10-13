@@ -889,6 +889,13 @@ internal static class ExtensionMethods
         return updatedMilestone;
     }
 
+    /// <summary>
+    /// Returns a value indicating if a GitHub issue is a release to do issue.
+    /// </summary>
+    /// <param name="issue">The GitHub issue to check.</param>
+    /// <param name="releaseType">The type of release issue.</param>
+    /// <returns><c>true</c> if a release pull request.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown if the <paramref name="releaseType"/> is out of range.</exception>
     public static bool IsReleaseToDoIssue(this Issue issue, ReleaseType releaseType)
     {
         var releaseLabelOrTitle = releaseType switch
@@ -906,6 +913,13 @@ internal static class ExtensionMethods
         return isIssue && validTitle && validLabelType;
     }
 
+    /// <summary>
+    /// Returns a value indicating if a GitHub issue is a release pull request.
+    /// </summary>
+    /// <param name="issue">The GitHub issue to check.</param>
+    /// <param name="releaseType">The type of release pull request.</param>
+    /// <returns><c>true</c> if a release pull request.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown if the <paramref name="releaseType"/> is out of range.</exception>
     public static bool IsReleasePullRequest(this Issue issue, ReleaseType releaseType)
     {
         var releaseLabelOrTitle = releaseType switch
