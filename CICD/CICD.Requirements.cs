@@ -1290,7 +1290,7 @@ public partial class CICD // Requirements
         var project = SolutionService.GetProject(RepoName);
         var errors = new List<string>();
 
-        nameof(ThatTheProdReleaseNotesContainsPreviewReleaseSection)
+        nameof(ThatTheProdReleaseNotesContainsPreviewReleaseItems)
             .LogRequirementTitle($"Checking if the 'production' release notes contains a preview releases section if required.");
 
         if (project is null)
