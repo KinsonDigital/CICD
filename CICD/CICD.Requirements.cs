@@ -1003,7 +1003,7 @@ public partial class CICD // Requirements
     /// <returns><c>true</c> if assigned to a milestone.</returns>
     private bool ThatThePRIsAssignedToMilestone()
     {
-        nameof(ThatAllMilestonePullRequestsHaveLabels)
+        nameof(ThatThePRIsAssignedToMilestone)
             .LogRequirementTitle("Checking that the pull request is assigned to a milestone.");
 
         if (PullRequestNumber <= 0)
@@ -1017,7 +1017,7 @@ public partial class CICD // Requirements
         if (isAssigned)
         {
             var title = milestone?.Title ?? string.Empty;
-            Console.Write($"{Environment.NewLine}The pull request '{PullRequestNumber}' is assigned to milestone '{title}'.");
+            Console.WriteLine($"{Environment.NewLine}{ConsoleTab}The pull request '{PullRequestNumber}' is assigned to milestone '{title}'.");
             return true;
         }
 
