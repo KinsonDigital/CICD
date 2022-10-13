@@ -215,33 +215,49 @@ public partial class CICD // Requirements
         return true;
     }
 
-    private bool ThatThePRHasTheLabel(string labelName)
+    /// <summary>
+    /// Returns a value indicating if the pull request contains a label that matches the given <paramref name="labels"/>.
+    /// </summary>
+    /// <param name="labels">The name of the label.</param>
+    /// <returns><c>true</c> if the pull request has the label.</returns>
+    private bool ThatThePRHasTheLabel(params string[] labels)
     {
+        labels = labels.Select(l => l.Trim().Trim('\'')).ToArray();
+
         var prNumber = PullRequestService.PullRequestNumber;
 
         nameof(ThatThePRHasTheLabel)
-            .LogRequirementTitle($"Checking if the pull request has a preview release label.");
+            .LogRequirementTitle($"Checking if the pull request has the label '{labels}'.");
 
-        if (prNumber is -1)
+        if (prNumber <= 0)
         {
-            const string errorMsg = "The pull request number could not be found.  This must only run as a pull request in GitHub, not locally.";
+            var errorMsg = $"The pull request number '{prNumber}' is invalid.";
             Log.Error(errorMsg);
-            Assert.Fail("The workflow is not being executed as a pull request in the GitHub environment.");
+            Assert.Fail("The pull request number is invalid.");
+            return false;
         }
 
-        var labelExists = GitHubClient.PullRequest.LabelExists(RepoOwner, RepoName, prNumber, labelName).Result;
+        var prLabels = GitHubClient.PullRequest.Get(RepoOwner, RepoName, prNumber)
+            .Result
+            .Labels.Select(l => l.Name).ToArray();
 
-        if (labelExists)
+        var missingLabels = labels.Where(l => prLabels.All(pl => pl != l)).Select(l => l).ToArray();
+
+        if (missingLabels.Length <= 0)
         {
-            Console.WriteLine($"{ConsoleTab}The pull request '{prNumber}' has a preview label.");
+            Console.WriteLine($"{ConsoleTab}The pull request '{prNumber}' has the correct labels.");
         }
         else
         {
+            // Construct a string of comma delimited label names
+            var missingLabelsStr = string.Join(string.Empty, missingLabels.Select(l => $"{l}, ").ToArray()).TrimEnd().TrimEnd(',');
+
             var prLink = $"https://github.com/{RepoOwner}/{RepoName}/pull/{prNumber}";
-            var errorMsg = $"The pull request '{{Value1}}' does not have the preview release label '{labelName}'.";
+            var errorMsg = $"The pull request '{{Value1}}' is missing the labels '{missingLabelsStr}'.";
             errorMsg += $"{Environment.NewLine}{ConsoleTab}To add the label, go to 👉🏼 '{{Value2}}'.";
             Log.Error(errorMsg, prNumber, prLink);
             Assert.Fail("The pull request does not have a preview release label.");
+            return false;
         }
 
         return true;
