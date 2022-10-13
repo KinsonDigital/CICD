@@ -700,6 +700,76 @@ public partial class CICD // Requirements
         return false;
     }
 
+    /// <summary>
+    /// Returns a value indicating whether or not the milestone contains only a single item
+    /// that matches the given <paramref name="itemType"/>.
+    /// </summary>
+    /// <param name="itemType">The type of item to check.</param>
+    /// <returns><c>true</c> if there is only a single item.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">
+    ///     Thrown if the <paramref name="itemType"/> is out of range.
+    /// </exception>
+    private bool ThatTheMilestoneContainsOnlySingleItemOfType(ItemType itemType)
+    {
+        var project = SolutionService.GetProject(RepoName);
+        var errors = new List<string>();
+
+        var itemTypeStr = itemType.ToString().ToSpaceDelimitedSections().ToLower();
+
+        nameof(ThatTheMilestoneContainsOnlySingleItemOfType)
+            .LogRequirementTitle($"Checking that the release milestone for the current version contains only a single {itemTypeStr}.");
+
+        if (project is null)
+        {
+            errors.Add($"Could not find the project '{RepoName}'");
+        }
+
+        var projectVersion = project?.GetVersion() ?? string.Empty;
+        var milestoneClient = GitHubClient.Issue.Milestone;
+        var milestoneTitle = $"v{projectVersion}";
+
+        var milestone = milestoneClient.GetByTitle(RepoOwner, RepoName, milestoneTitle).Result;
+
+        if (milestone is null)
+        {
+            errors.Add($"Could not find a milestone with the title '{milestoneTitle}'");
+        }
+
+        var repoIssueRequest = new RepositoryIssueRequest()
+        {
+            State = ItemStateFilter.All,
+            Milestone = milestone?.Number.ToString() ?? string.Empty,
+        };
+
+        var milestoneItems = GitHubClient.Issue.GetAllForRepository(RepoOwner, RepoName, repoIssueRequest).Result;
+
+        var totalIssues = milestoneItems.Count(i => itemType switch
+        {
+            ItemType.Issue => i.IsIssue(),
+            ItemType.PullRequest => i.IsPullRequest(),
+            _ => throw new ArgumentOutOfRangeException(nameof(itemType), itemType, $"{nameof(ItemType)} is out of range.")
+        });
+
+        if (totalIssues != 1)
+        {
+            var errorMsg = $"The milestone '{milestoneTitle}' can only contain a single hot fix {itemTypeStr}.";
+            errors.Add(errorMsg);
+
+            return false;
+        }
+
+        if (errors.Count > 0)
+        {
+            errors.PrintErrors($"Hot fix release milestone does not have only a single {itemTypeStr}.");
+
+            return false;
+        }
+
+        Console.WriteLine($"{ConsoleTab}The milestone '{milestoneTitle}' is valid with only a single {itemTypeStr}.");
+
+        return true;
+    }
+
     private bool ThatTheReleaseMilestoneContainsIssues()
     {
         var project = SolutionService.GetProject(RepoName);
