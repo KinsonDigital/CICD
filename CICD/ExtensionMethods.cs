@@ -890,6 +890,20 @@ internal static class ExtensionMethods
     }
 
     /// <summary>
+    /// Returns a value indicating whether or not the GitHub issue is a standard issue.
+    /// </summary>
+    /// <param name="issue">The GitHub issue to check.</param>
+    /// <returns><c>true</c> if a standard issue.</returns>
+    public static bool IsIssue(this Issue issue) => issue.PullRequest is null;
+
+    /// <summary>
+    /// Returns a value indicating whether or not the GitHub issue is a pull request.
+    /// </summary>
+    /// <param name="issue">The GitHub issue to check.</param>
+    /// <returns><c>true</c> if a standard issue.</returns>
+    public static bool IsPullRequest(this Issue issue) => issue.PullRequest is not null;
+
+    /// <summary>
     /// Returns a value indicating if a GitHub issue is a release to do issue.
     /// </summary>
     /// <param name="issue">The GitHub issue to check.</param>
@@ -906,7 +920,7 @@ internal static class ExtensionMethods
             _ => throw new ArgumentOutOfRangeException(nameof(releaseType), releaseType, null),
         };
 
-        var isIssue = issue.PullRequest is null;
+        var isIssue = issue.IsPullRequest();
         var validTitle = issue.Title == releaseLabelOrTitle;
         var validLabelType = issue.Labels.Any(l => l.Name == releaseLabelOrTitle);
 
@@ -931,7 +945,7 @@ internal static class ExtensionMethods
 
         var hasValidTitle = issue.Title == releaseLabelOrTitle;
         var hasSingleLabel = issue.Labels.Count == 1;
-        var isPullRequest = issue.PullRequest is not null;
+        var isPullRequest = issue.IsPullRequest();
         var validLabelType = issue.Labels.Count == 1 && issue.Labels[0].Name == releaseLabelOrTitle;
 
         return hasValidTitle && hasSingleLabel && isPullRequest && validLabelType;
