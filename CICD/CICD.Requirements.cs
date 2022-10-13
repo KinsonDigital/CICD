@@ -776,7 +776,7 @@ public partial class CICD // Requirements
         var errors = new List<string>();
 
         nameof(ThatTheReleaseMilestoneContainsIssues)
-            .LogRequirementTitle($"Checking that the release milestone for the current version contains issues.");
+            .LogRequirementTitle("Checking that the release milestone for the current version contains issues.");
 
         if (project is null)
         {
@@ -1108,7 +1108,7 @@ public partial class CICD // Requirements
         var errors = new List<string>();
 
         nameof(ThatAllMilestonePullRequestsHaveLabels)
-            .LogRequirementTitle($"Checking that all pull requests in the milestone have a label.");
+            .LogRequirementTitle("Checking that all pull requests in the milestone have a label.");
 
         if (project is null)
         {
@@ -1364,7 +1364,7 @@ public partial class CICD // Requirements
         var errors = new List<string>();
 
         nameof(ThatTheProdReleaseNotesContainsPreviewReleaseSection)
-            .LogRequirementTitle($"Checking if the 'production' release notes contains a preview releases section if required.");
+            .LogRequirementTitle("Checking if the 'production' release notes contains a preview releases section if required.");
 
         if (project is null)
         {
@@ -1430,7 +1430,7 @@ public partial class CICD // Requirements
         var errors = new List<string>();
 
         nameof(ThatTheProdReleaseNotesContainsPreviewReleaseSection)
-            .LogRequirementTitle($"Checking if the 'production' release notes contains a preview releases section if required.");
+            .LogRequirementTitle("Checking if the 'production' release notes contains a preview releases section if required.");
 
         if (project is null)
         {
@@ -1589,7 +1589,7 @@ public partial class CICD // Requirements
     private bool ThatTheNugetPackageDoesNotExist()
     {
         nameof(ThatTheNugetPackageDoesNotExist)
-            .LogRequirementTitle($"Checking that the nuget package does not already exist.");
+            .LogRequirementTitle("Checking that the nuget package does not already exist.");
 
         var project = SolutionService.GetProject(RepoName);
         var errors = new List<string>();
