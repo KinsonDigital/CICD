@@ -71,6 +71,14 @@ public partial class CICD // Requirements
         return true;
     }
 
+    /// <summary>
+    /// Returns a value indicating whether or not the source branch of a pull request contains an issue number
+    /// and that the issue number exists.
+    /// </summary>
+    /// <returns><c>true</c> if the issue exists.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">
+    ///     Occurs if the source branch type is out of range.
+    /// </exception>
     private bool ThatThePRSourceBranchIssueNumberExists()
     {
         var sourceBranch = PullRequestService.SourceBranch;
