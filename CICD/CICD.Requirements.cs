@@ -1274,9 +1274,9 @@ public partial class CICD // Requirements
 
         if (errors.Count <= 0)
         {
-            var logMsg = $"The production release '{prodVersion}' does not have any previous preview releases.";
+            var logMsg = $"{ConsoleTab}The production release '{prodVersion}' does not have any previous preview releases.";
             logMsg += $"{Environment.NewLine}{ConsoleTab}Release notes check for preview release items complete.";
-            Log.Information(logMsg);
+            Console.WriteLine(logMsg);
             return true;
         }
 
