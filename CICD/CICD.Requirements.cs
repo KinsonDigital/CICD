@@ -1113,7 +1113,7 @@ public partial class CICD // Requirements
         if (isAssigned)
         {
             var title = milestone?.Title ?? string.Empty;
-            Console.Write($"{Environment.NewLine}The pull request '{PullRequestNumber}' is assigned to milestone '{title}'.");
+            Console.WriteLine($"{ConsoleTab}The pull request '{PullRequestNumber}' is assigned to milestone '{title}'.");
             return true;
         }
 

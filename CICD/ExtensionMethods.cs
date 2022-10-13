@@ -972,7 +972,7 @@ internal static class ExtensionMethods
         text += $"{Environment.NewLine}{indent}{prOrIssuePrefix} Title: {issue.Title}";
         text += $"{Environment.NewLine}{indent}{prOrIssuePrefix} State: {issue.State}";
         text += $"{Environment.NewLine}{indent}{prOrIssuePrefix} Url: {issue.HtmlUrl}";
-        text += $"{Environment.NewLine}{indent}Labels ({issue.Labels.Count}):";
+        text += $"{Environment.NewLine}{indent}Labels ({(issue.Labels.Count <= 0 ? "None" : issue.Labels.Count.ToString())}):";
         issue.Labels.ForEach(l => text += $"{Environment.NewLine}{indent}\t  - `{l.Name}`");
 
         return text;
@@ -986,7 +986,7 @@ internal static class ExtensionMethods
             spaces += " ";
         }
 
-        var errorMsg = "---------------------Issue(s)---------------------";
+        var errorMsg = $"{spaces}---------------------Issue(s)---------------------";
 
         for (var i = 0; i < issues.Count; i++)
         {
