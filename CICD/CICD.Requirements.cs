@@ -71,105 +71,64 @@ public partial class CICD // Requirements
         return true;
     }
 
-    private bool ThatPRBranchIssueNumberExists(BranchType branchType)
-    {
-        if (PullRequestNumber <= 0)
-        {
-            LogErrorAndFail(
-                "The pull request number must be set to run this requirement.",
-                "Pull request not set.");
-            return false;
-        }
-
-        var isNotIssueBranch = branchType != BranchType.Feature &&
-                               branchType != BranchType.PreviewFeature &&
-                               branchType != BranchType.HotFix;
-
-        var branchTypeStr = Enum.GetName(branchType)?.ToSpaceDelimitedSections().ToLower() ?? string.Empty;
-
-        if (isNotIssueBranch)
-        {
-            var featureBranchStr = Enum.GetName(BranchType.Feature)?.ToSpaceDelimitedSections().ToLower() ?? string.Empty;
-            var prevFeatureBranchStr = Enum.GetName(BranchType.PreviewFeature)?.ToSpaceDelimitedSections().ToLower() ?? string.Empty;
-            var hotfixBranchStr = Enum.GetName(BranchType.HotFix)?.ToSpaceDelimitedSections().ToLower() ?? string.Empty;
-
-            LogErrorAndFail(
-                $"The pull request 'source' branch must be a '{featureBranchStr}', '{prevFeatureBranchStr}', or '{hotfixBranchStr}'.",
-                "Branch is not an issue branch.");
-            return false;
-        }
-
-        var branch = PullRequestService.SourceBranch;
-
-        BranchValidator.Reset();
-
-        var isValidSyntax = branchType switch
-        {
-            BranchType.Master => BranchValidator.IsMasterBranch(branch).GetValue(),
-            BranchType.Develop => BranchValidator.IsDevelopBranch(branch).GetValue(),
-            BranchType.Feature => BranchValidator.IsFeatureBranch(branch).GetValue(),
-            BranchType.PreviewFeature => BranchValidator.IsPreviewFeatureBranch(branch).GetValue(),
-            BranchType.Release => BranchValidator.IsReleaseBranch(branch).GetValue(),
-            BranchType.Preview => BranchValidator.IsPreviewBranch(branch).GetValue(),
-            BranchType.HotFix => BranchValidator.IsHotFixBranch(branch).GetValue(),
-            BranchType.Other => false,
-            _ => throw new ArgumentOutOfRangeException(nameof(branchType), branchType, null)
-        };
-
-        if (isValidSyntax is false)
-        {
-            LogErrorAndFail(
-            $"The pull request 'source' branch syntax for branch '{branchTypeStr}' is invalid.",
-            "Invalid pull request branch syntax.");
-            return false;
-        }
-
-        var issueNumber = ExtractIssueNumber(branchType, branch);
-
-        if (issueNumber is -1)
-        {
-            LogErrorAndFail(
-                $"No issue number exists in the pull request 'source' branch name '{branchTypeStr}'.",
-                "Issue number does not exit in the branch name.");
-            return false;
-        }
-
-        var issueExists = GitHubClient.Issue.IssueExists(RepoOwner, RepoName, issueNumber).Result;
-
-        if (issueExists is false)
-        {
-            LogErrorAndFail(
-                $"The issue number '{issueNumber}' in the pull request 'source' branch named '{branchTypeStr}' does not exist.",
-                $"Issue with the number '{issueNumber}' in branch name does not exist.");
-            return false;
-        }
-
-        LogSuccess($"The pull request branch issue number '{issueNumber}' exists.");
-
-        return true;
-    }
-
-    private bool ThatPreviewFeatureIssueNumberExists()
+    /// <summary>
+    /// Returns a value indicating whether or not the source branch of a pull request contains an issue number
+    /// and that the issue number exists.
+    /// </summary>
+    /// <returns><c>true</c> if the issue exists.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">
+    ///     Occurs if the source branch type is out of range.
+    /// </exception>
+    private bool ThatThePRSourceBranchIssueNumberExists()
     {
         var sourceBranch = PullRequestService.SourceBranch;
 
-        nameof(ThatPreviewFeatureIssueNumberExists)
-            .LogRequirementTitle("Checking that the issue number in the preview feature branch exists.");
+        var branchType = sourceBranch.GetBranchType();
+        var branchTypeStr = branchType.ToString().ToSpaceDelimitedSections().ToLower();
 
-        var branchIssueNumber = ExtractIssueNumber(BranchType.PreviewFeature, sourceBranch);
+        nameof(ThatThePRSourceBranchIssueNumberExists)
+            .LogRequirementTitle($"Checking that the issue number in the '{branchTypeStr}' branch exists.");
+
+        var isNotIssueNumberBranch = branchType switch
+        {
+            BranchType.Master => true,
+            BranchType.Develop => true,
+            BranchType.Feature => false,
+            BranchType.PreviewFeature => false,
+            BranchType.Release => true,
+            BranchType.Preview => true,
+            BranchType.HotFix => false,
+            BranchType.Other => true,
+            _ => throw new ArgumentOutOfRangeException(nameof(branchType), branchType, null)
+        };
+
+        if (isNotIssueNumberBranch)
+        {
+            var issueNumBranches = $"'{BranchType.Feature.ToString().ToLower()}', ";
+            issueNumBranches += $"'{BranchType.PreviewFeature.ToString().ToSpaceDelimitedSections().ToLower()}', and ";
+            issueNumBranches += $"'{BranchType.HotFix.ToString().ToLower()}'.";
+
+            var errorMsg = $"The branch '{branchTypeStr}' must be a branch that contains an issue number.";
+            errorMsg += $"{Environment.NewLine}{ConsoleTab}Valid issue number branches are {issueNumBranches}";
+            Log.Error(errorMsg);
+            Assert.Fail("Invalid issue number branch.");
+            return false;
+        }
+
+        var branchIssueNumber = ExtractIssueNumber(branchType, sourceBranch);
         var issueExists = GitHubClient.Issue.IssueExists(RepoOwner, RepoName, branchIssueNumber).Result;
 
         if (issueExists is false)
         {
-            var errorMsg = $"The issue '{branchIssueNumber}' does not exist for preview feature branch '{sourceBranch}'.";
+            var errorMsg = $"The issue '{branchIssueNumber}' does not exist for the branch '{sourceBranch}'.";
             errorMsg += $"{Environment.NewLine}{ConsoleTab}The source branch '{sourceBranch}' must be recreated with the correct issue number.";
-            errorMsg += $"{Environment.NewLine}{ConsoleTab}The syntax requirements for a preview feature branch is 'preview/feature/#-*'.";
+
             Log.Error(errorMsg);
-            Assert.Fail("The preview feature branch issue number does not exist.");
+            Assert.Fail($"The branch issue number does not exist.");
             return false;
         }
 
-        Console.WriteLine($"{ConsoleTab}The preview feature branch '{sourceBranch}' is valid.");
+        Console.WriteLine($"{ConsoleTab}The issue number in the branch '{sourceBranch}' is valid.");
 
         return true;
     }
@@ -256,33 +215,49 @@ public partial class CICD // Requirements
         return true;
     }
 
-    private bool ThatThePRHasTheLabel(string labelName)
+    /// <summary>
+    /// Returns a value indicating whether or not the pull request contains a label that matches the given <paramref name="labels"/>.
+    /// </summary>
+    /// <param name="labels">The name of the label.</param>
+    /// <returns><c>true</c> if the pull request has the label.</returns>
+    private bool ThatThePRHasTheLabel(params string[] labels)
     {
+        labels = labels.Select(l => l.Trim().Trim('\'')).ToArray();
+
         var prNumber = PullRequestService.PullRequestNumber;
 
         nameof(ThatThePRHasTheLabel)
-            .LogRequirementTitle($"Checking if the pull request has a preview release label.");
+            .LogRequirementTitle($"Checking if the pull request has the label '{labels}'.");
 
-        if (prNumber is -1)
+        if (prNumber <= 0)
         {
-            const string errorMsg = "The pull request number could not be found.  This must only run as a pull request in GitHub, not locally.";
+            var errorMsg = $"The pull request number '{prNumber}' is invalid.";
             Log.Error(errorMsg);
-            Assert.Fail("The workflow is not being executed as a pull request in the GitHub environment.");
+            Assert.Fail("The pull request number is invalid.");
+            return false;
         }
 
-        var labelExists = GitHubClient.PullRequest.LabelExists(RepoOwner, RepoName, prNumber, labelName).Result;
+        var prLabels = GitHubClient.PullRequest.Get(RepoOwner, RepoName, prNumber)
+            .Result
+            .Labels.Select(l => l.Name).ToArray();
 
-        if (labelExists)
+        var missingLabels = labels.Where(l => prLabels.All(pl => pl != l)).Select(l => l).ToArray();
+
+        if (missingLabels.Length <= 0)
         {
-            Console.WriteLine($"{ConsoleTab}The pull request '{prNumber}' has a preview label.");
+            Console.WriteLine($"{ConsoleTab}The pull request '{prNumber}' has the correct labels.");
         }
         else
         {
+            // Construct a string of comma delimited label names
+            var missingLabelsStr = string.Join(string.Empty, missingLabels.Select(l => $"{l}, ").ToArray()).TrimEnd().TrimEnd(',');
+
             var prLink = $"https://github.com/{RepoOwner}/{RepoName}/pull/{prNumber}";
-            var errorMsg = $"The pull request '{{Value1}}' does not have the preview release label '{labelName}'.";
+            var errorMsg = $"The pull request '{{Value1}}' is missing the labels '{missingLabelsStr}'.";
             errorMsg += $"{Environment.NewLine}{ConsoleTab}To add the label, go to 👉🏼 '{{Value2}}'.";
             Log.Error(errorMsg, prNumber, prLink);
             Assert.Fail("The pull request does not have a preview release label.");
+            return false;
         }
 
         return true;
@@ -725,13 +700,83 @@ public partial class CICD // Requirements
         return false;
     }
 
+    /// <summary>
+    /// Returns a value indicating whether or not the milestone contains only a single item
+    /// that matches the given <paramref name="itemType"/>.
+    /// </summary>
+    /// <param name="itemType">The type of item to check.</param>
+    /// <returns><c>true</c> if there is only a single item.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">
+    ///     Thrown if the <paramref name="itemType"/> is out of range.
+    /// </exception>
+    private bool ThatTheMilestoneContainsOnlySingleItemOfType(ItemType itemType)
+    {
+        var project = SolutionService.GetProject(RepoName);
+        var errors = new List<string>();
+
+        var itemTypeStr = itemType.ToString().ToSpaceDelimitedSections().ToLower();
+
+        nameof(ThatTheMilestoneContainsOnlySingleItemOfType)
+            .LogRequirementTitle($"Checking that the release milestone for the current version contains only a single {itemTypeStr}.");
+
+        if (project is null)
+        {
+            errors.Add($"Could not find the project '{RepoName}'");
+        }
+
+        var projectVersion = project?.GetVersion() ?? string.Empty;
+        var milestoneClient = GitHubClient.Issue.Milestone;
+        var milestoneTitle = $"v{projectVersion}";
+
+        var milestone = milestoneClient.GetByTitle(RepoOwner, RepoName, milestoneTitle).Result;
+
+        if (milestone is null)
+        {
+            errors.Add($"Could not find a milestone with the title '{milestoneTitle}'");
+        }
+
+        var repoIssueRequest = new RepositoryIssueRequest()
+        {
+            State = ItemStateFilter.All,
+            Milestone = milestone?.Number.ToString() ?? string.Empty,
+        };
+
+        var milestoneItems = GitHubClient.Issue.GetAllForRepository(RepoOwner, RepoName, repoIssueRequest).Result;
+
+        var totalIssues = milestoneItems.Count(i => itemType switch
+        {
+            ItemType.Issue => i.IsIssue(),
+            ItemType.PullRequest => i.IsPullRequest(),
+            _ => throw new ArgumentOutOfRangeException(nameof(itemType), itemType, $"{nameof(ItemType)} is out of range.")
+        });
+
+        if (totalIssues != 1)
+        {
+            var errorMsg = $"The milestone '{milestoneTitle}' can only contain a single hot fix {itemTypeStr}.";
+            errors.Add(errorMsg);
+
+            return false;
+        }
+
+        if (errors.Count > 0)
+        {
+            errors.PrintErrors($"Hot fix release milestone does not have only a single {itemTypeStr}.");
+
+            return false;
+        }
+
+        Console.WriteLine($"{ConsoleTab}The milestone '{milestoneTitle}' is valid with only a single {itemTypeStr}.");
+
+        return true;
+    }
+
     private bool ThatTheReleaseMilestoneContainsIssues()
     {
         var project = SolutionService.GetProject(RepoName);
         var errors = new List<string>();
 
         nameof(ThatTheReleaseMilestoneContainsIssues)
-            .LogRequirementTitle($"Checking that the release milestone for the current version contains issues.");
+            .LogRequirementTitle("Checking that the release milestone for the current version contains issues.");
 
         if (project is null)
         {
@@ -770,7 +815,17 @@ public partial class CICD // Requirements
         return false;
     }
 
-    private bool ThatTheReleaseMilestoneOnlyContainsSingle(ReleaseType releaseType, ItemType itemType)
+    /// <summary>
+    /// Returns a value indicating whether or not a milestone only contains a single release item
+    /// of the given <paramref name="releaseType"/> and <paramref name="itemType"/>.
+    /// </summary>
+    /// <param name="releaseType">The release type of the item.</param>
+    /// <param name="itemType">The type of item.</param>
+    /// <returns><c>true</c> if only a single item exists in the milestone.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// Thrown if the <paramref name="releaseType"/> or <paramref name="itemType"/> is out of range.
+    /// </exception>
+    private bool ThatTheReleaseMilestoneOnlyContainsSingleReleaseItem(ReleaseType releaseType, ItemType itemType)
     {
         const int totalSpaces = 15;
         var project = SolutionService.GetProject(RepoName);
@@ -779,7 +834,7 @@ public partial class CICD // Requirements
 
         var introMsg = "Checking that the release milestone only contains a single release ";
         introMsg += $"{(itemType == ItemType.Issue ? "todo issue" : "pull request")} item.";
-        nameof(ThatTheReleaseMilestoneOnlyContainsSingle)
+        nameof(ThatTheReleaseMilestoneOnlyContainsSingleReleaseItem)
             .LogRequirementTitle(introMsg);
 
         if (project is null)
@@ -996,13 +1051,64 @@ public partial class CICD // Requirements
         return false;
     }
 
+    /// <summary>
+    /// Returns a value indicating whether or not all of the items of the given <paramref name="itemType"/> are assigned.
+    /// </summary>
+    /// <returns><c>true</c> if all of the items are assigned.</returns>
+    private bool ThatAllMilestoneItemsAreAssigned(ItemType itemType)
+    {
+        var project = SolutionService.GetProject(RepoName);
+        var errors = new List<string>();
+
+        var itemTypeStr = itemType.ToString().ToSpaceDelimitedSections().ToLower();
+
+        nameof(ThatAllMilestoneItemsAreAssigned)
+            .LogRequirementTitle($"Checking that all {itemTypeStr} in the milestone are assigned.");
+
+        if (project is null)
+        {
+            errors.Add($"Could not find the project '{RepoName}'");
+        }
+
+        var projectVersion = project?.GetVersion() ?? string.Empty;
+        var milestoneTitle = $"v{projectVersion}";
+        var issueClient = GitHubClient.Issue;
+
+        var items = issueClient.IssuesForMilestone(RepoOwner, RepoName, milestoneTitle)
+            .Result
+            .Where(i => itemType switch
+        {
+            ItemType.Issue => i.IsIssue(),
+            ItemType.PullRequest => i.IsPullRequest(),
+            _ => throw new ArgumentOutOfRangeException(nameof(itemType), itemType, $"{nameof(itemType)} is out of range.")
+        }).ToArray();
+
+        var unassignedIssues = items.Where(i => i.Assignee is null).Select(i => i).ToArray();
+
+        if (unassignedIssues.Length > 0)
+        {
+            var errorMsg = $"The milestone '{milestoneTitle}' contains issues that are not assigned.";
+            errorMsg += $"{Environment.NewLine}{unassignedIssues.GetLogText(15)}";
+            errors.Add(errorMsg);
+        }
+
+        if (errors.Count <= 0)
+        {
+            return true;
+        }
+
+        errors.PrintErrors("1 or more issues are not assigned.");
+
+        return false;
+    }
+
     private bool ThatAllMilestonePullRequestsHaveLabels()
     {
         var project = SolutionService.GetProject(RepoName);
         var errors = new List<string>();
 
         nameof(ThatAllMilestonePullRequestsHaveLabels)
-            .LogRequirementTitle($"Checking that all pull requests in the milestone have a label.");
+            .LogRequirementTitle("Checking that all pull requests in the milestone have a label.");
 
         if (project is null)
         {
@@ -1044,7 +1150,7 @@ public partial class CICD // Requirements
     /// <returns><c>true</c> if assigned to a milestone.</returns>
     private bool ThatThePRIsAssignedToMilestone()
     {
-        nameof(ThatAllMilestonePullRequestsHaveLabels)
+        nameof(ThatThePRIsAssignedToMilestone)
             .LogRequirementTitle("Checking that the pull request is assigned to a milestone.");
 
         if (PullRequestNumber <= 0)
@@ -1058,7 +1164,7 @@ public partial class CICD // Requirements
         if (isAssigned)
         {
             var title = milestone?.Title ?? string.Empty;
-            Console.Write($"{Environment.NewLine}The pull request '{PullRequestNumber}' is assigned to milestone '{title}'.");
+            Console.WriteLine($"{Environment.NewLine}{ConsoleTab}The pull request '{PullRequestNumber}' is assigned to milestone '{title}'.");
             return true;
         }
 
@@ -1180,8 +1286,16 @@ public partial class CICD // Requirements
 
         if (foundTitle.Length <= 0)
         {
+            var versionSyntax = releaseType switch
+            {
+                ReleaseType.Production => "v#.#.#",
+                ReleaseType.Preview => "v#.#.#-preview.#",
+                ReleaseType.HotFix => "v#.#.#",
+                _ => throw new ArgumentOutOfRangeException(nameof(releaseType), releaseType, $"{nameof(releaseType)} out of range.")
+            };
+
             var expectedReleaseNotesTitle = $"{RepoName} {releaseType} Release Notes - v{projectVersion}";
-            const string titleSyntax = "<project-name> <release-type> Release Notes - v#.#.#-preview.#";
+            var titleSyntax = $"<project-name> <release-type> Release Notes - {versionSyntax}";
 
             var errorMsg = $"A release notes title with the syntax '{titleSyntax}' could not be found.";
             errorMsg += $"{Environment.NewLine}{ConsoleTab}Expected Title: {expectedReleaseNotesTitle}";
@@ -1258,7 +1372,7 @@ public partial class CICD // Requirements
         var errors = new List<string>();
 
         nameof(ThatTheProdReleaseNotesContainsPreviewReleaseSection)
-            .LogRequirementTitle($"Checking if the 'production' release notes contains a preview releases section if required.");
+            .LogRequirementTitle("Checking if the 'production' release notes contains a preview releases section if required.");
 
         if (project is null)
         {
@@ -1307,13 +1421,13 @@ public partial class CICD // Requirements
 
         if (errors.Count <= 0)
         {
-            var logMsg = $"The production release '{prodVersion}' does not have any previous preview releases.";
+            var logMsg = $"{ConsoleTab}The production release '{prodVersion}' does not have any previous preview releases.";
             logMsg += $"{Environment.NewLine}{ConsoleTab}Release notes check for preview release items complete.";
-            Log.Information(logMsg);
+            Console.WriteLine(logMsg);
             return true;
         }
 
-        errors.PrintErrors();
+        errors.PrintErrors("Preview releases not mentioned in production release notes.");
 
         return false;
     }
@@ -1323,7 +1437,7 @@ public partial class CICD // Requirements
         var project = SolutionService.GetProject(RepoName);
         var errors = new List<string>();
 
-        nameof(ThatTheProdReleaseNotesContainsPreviewReleaseSection)
+        nameof(ThatTheProdReleaseNotesContainsPreviewReleaseItems)
             .LogRequirementTitle($"Checking if the 'production' release notes contains a preview releases section if required.");
 
         if (project is null)
@@ -1483,7 +1597,7 @@ public partial class CICD // Requirements
     private bool ThatTheNugetPackageDoesNotExist()
     {
         nameof(ThatTheNugetPackageDoesNotExist)
-            .LogRequirementTitle($"Checking that the nuget package does not already exist.");
+            .LogRequirementTitle("Checking that the nuget package does not already exist.");
 
         var project = SolutionService.GetProject(RepoName);
         var errors = new List<string>();
