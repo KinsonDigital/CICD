@@ -1150,7 +1150,7 @@ public partial class CICD // Requirements
     /// <returns><c>true</c> if assigned to a milestone.</returns>
     private bool ThatThePRIsAssignedToMilestone()
     {
-        nameof(ThatAllMilestonePullRequestsHaveLabels)
+        nameof(ThatThePRIsAssignedToMilestone)
             .LogRequirementTitle("Checking that the pull request is assigned to a milestone.");
 
         if (PullRequestNumber <= 0)
@@ -1164,7 +1164,7 @@ public partial class CICD // Requirements
         if (isAssigned)
         {
             var title = milestone?.Title ?? string.Empty;
-            Console.WriteLine($"{ConsoleTab}The pull request '{PullRequestNumber}' is assigned to milestone '{title}'.");
+            Console.WriteLine($"{Environment.NewLine}{ConsoleTab}The pull request '{PullRequestNumber}' is assigned to milestone '{title}'.");
             return true;
         }
 
@@ -1286,8 +1286,16 @@ public partial class CICD // Requirements
 
         if (foundTitle.Length <= 0)
         {
+            var versionSyntax = releaseType switch
+            {
+                ReleaseType.Production => "v#.#.#",
+                ReleaseType.Preview => "v#.#.#-preview.#",
+                ReleaseType.HotFix => "v#.#.#",
+                _ => throw new ArgumentOutOfRangeException(nameof(releaseType), releaseType, $"{nameof(releaseType)} out of range.")
+            };
+
             var expectedReleaseNotesTitle = $"{RepoName} {releaseType} Release Notes - v{projectVersion}";
-            const string titleSyntax = "<project-name> <release-type> Release Notes - v#.#.#-preview.#";
+            var titleSyntax = $"<project-name> <release-type> Release Notes - {versionSyntax}";
 
             var errorMsg = $"A release notes title with the syntax '{titleSyntax}' could not be found.";
             errorMsg += $"{Environment.NewLine}{ConsoleTab}Expected Title: {expectedReleaseNotesTitle}";
@@ -1413,13 +1421,13 @@ public partial class CICD // Requirements
 
         if (errors.Count <= 0)
         {
-            var logMsg = $"The production release '{prodVersion}' does not have any previous preview releases.";
+            var logMsg = $"{ConsoleTab}The production release '{prodVersion}' does not have any previous preview releases.";
             logMsg += $"{Environment.NewLine}{ConsoleTab}Release notes check for preview release items complete.";
-            Log.Information(logMsg);
+            Console.WriteLine(logMsg);
             return true;
         }
 
-        errors.PrintErrors();
+        errors.PrintErrors("Preview releases not mentioned in production release notes.");
 
         return false;
     }
@@ -1429,8 +1437,8 @@ public partial class CICD // Requirements
         var project = SolutionService.GetProject(RepoName);
         var errors = new List<string>();
 
-        nameof(ThatTheProdReleaseNotesContainsPreviewReleaseSection)
-            .LogRequirementTitle("Checking if the 'production' release notes contains a preview releases section if required.");
+        nameof(ThatTheProdReleaseNotesContainsPreviewReleaseItems)
+            .LogRequirementTitle($"Checking if the 'production' release notes contains a preview releases section if required.");
 
         if (project is null)
         {
