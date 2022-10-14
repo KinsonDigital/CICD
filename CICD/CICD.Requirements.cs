@@ -115,7 +115,7 @@ public partial class CICD // Requirements
             return false;
         }
 
-        var branchIssueNumber = ExtractIssueNumber(BranchType.PreviewFeature, sourceBranch);
+        var branchIssueNumber = ExtractIssueNumber(branchType, sourceBranch);
         var issueExists = GitHubClient.Issue.IssueExists(RepoOwner, RepoName, branchIssueNumber).Result;
 
         if (issueExists is false)
@@ -215,33 +215,49 @@ public partial class CICD // Requirements
         return true;
     }
 
-    private bool ThatThePRHasTheLabel(string labelName)
+    /// <summary>
+    /// Returns a value indicating whether or not the pull request contains a label that matches the given <paramref name="labels"/>.
+    /// </summary>
+    /// <param name="labels">The name of the label.</param>
+    /// <returns><c>true</c> if the pull request has the label.</returns>
+    private bool ThatThePRHasTheLabel(params string[] labels)
     {
+        labels = labels.Select(l => l.Trim().Trim('\'')).ToArray();
+
         var prNumber = PullRequestService.PullRequestNumber;
 
         nameof(ThatThePRHasTheLabel)
-            .LogRequirementTitle($"Checking if the pull request has a preview release label.");
+            .LogRequirementTitle($"Checking if the pull request has the label '{labels}'.");
 
-        if (prNumber is -1)
+        if (prNumber <= 0)
         {
-            const string errorMsg = "The pull request number could not be found.  This must only run as a pull request in GitHub, not locally.";
+            var errorMsg = $"The pull request number '{prNumber}' is invalid.";
             Log.Error(errorMsg);
-            Assert.Fail("The workflow is not being executed as a pull request in the GitHub environment.");
+            Assert.Fail("The pull request number is invalid.");
+            return false;
         }
 
-        var labelExists = GitHubClient.PullRequest.LabelExists(RepoOwner, RepoName, prNumber, labelName).Result;
+        var prLabels = GitHubClient.PullRequest.Get(RepoOwner, RepoName, prNumber)
+            .Result
+            .Labels.Select(l => l.Name).ToArray();
 
-        if (labelExists)
+        var missingLabels = labels.Where(l => prLabels.All(pl => pl != l)).Select(l => l).ToArray();
+
+        if (missingLabels.Length <= 0)
         {
-            Console.WriteLine($"{ConsoleTab}The pull request '{prNumber}' has a preview label.");
+            Console.WriteLine($"{ConsoleTab}The pull request '{prNumber}' has the correct labels.");
         }
         else
         {
+            // Construct a string of comma delimited label names
+            var missingLabelsStr = string.Join(string.Empty, missingLabels.Select(l => $"{l}, ").ToArray()).TrimEnd().TrimEnd(',');
+
             var prLink = $"https://github.com/{RepoOwner}/{RepoName}/pull/{prNumber}";
-            var errorMsg = $"The pull request '{{Value1}}' does not have the preview release label '{labelName}'.";
+            var errorMsg = $"The pull request '{{Value1}}' is missing the labels '{missingLabelsStr}'.";
             errorMsg += $"{Environment.NewLine}{ConsoleTab}To add the label, go to 👉🏼 '{{Value2}}'.";
             Log.Error(errorMsg, prNumber, prLink);
             Assert.Fail("The pull request does not have a preview release label.");
+            return false;
         }
 
         return true;
@@ -684,13 +700,83 @@ public partial class CICD // Requirements
         return false;
     }
 
+    /// <summary>
+    /// Returns a value indicating whether or not the milestone contains only a single item
+    /// that matches the given <paramref name="itemType"/>.
+    /// </summary>
+    /// <param name="itemType">The type of item to check.</param>
+    /// <returns><c>true</c> if there is only a single item.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">
+    ///     Thrown if the <paramref name="itemType"/> is out of range.
+    /// </exception>
+    private bool ThatTheMilestoneContainsOnlySingleItemOfType(ItemType itemType)
+    {
+        var project = SolutionService.GetProject(RepoName);
+        var errors = new List<string>();
+
+        var itemTypeStr = itemType.ToString().ToSpaceDelimitedSections().ToLower();
+
+        nameof(ThatTheMilestoneContainsOnlySingleItemOfType)
+            .LogRequirementTitle($"Checking that the release milestone for the current version contains only a single {itemTypeStr}.");
+
+        if (project is null)
+        {
+            errors.Add($"Could not find the project '{RepoName}'");
+        }
+
+        var projectVersion = project?.GetVersion() ?? string.Empty;
+        var milestoneClient = GitHubClient.Issue.Milestone;
+        var milestoneTitle = $"v{projectVersion}";
+
+        var milestone = milestoneClient.GetByTitle(RepoOwner, RepoName, milestoneTitle).Result;
+
+        if (milestone is null)
+        {
+            errors.Add($"Could not find a milestone with the title '{milestoneTitle}'");
+        }
+
+        var repoIssueRequest = new RepositoryIssueRequest()
+        {
+            State = ItemStateFilter.All,
+            Milestone = milestone?.Number.ToString() ?? string.Empty,
+        };
+
+        var milestoneItems = GitHubClient.Issue.GetAllForRepository(RepoOwner, RepoName, repoIssueRequest).Result;
+
+        var totalIssues = milestoneItems.Count(i => itemType switch
+        {
+            ItemType.Issue => i.IsIssue(),
+            ItemType.PullRequest => i.IsPullRequest(),
+            _ => throw new ArgumentOutOfRangeException(nameof(itemType), itemType, $"{nameof(ItemType)} is out of range.")
+        });
+
+        if (totalIssues != 1)
+        {
+            var errorMsg = $"The milestone '{milestoneTitle}' can only contain a single hot fix {itemTypeStr}.";
+            errors.Add(errorMsg);
+
+            return false;
+        }
+
+        if (errors.Count > 0)
+        {
+            errors.PrintErrors($"Hot fix release milestone does not have only a single {itemTypeStr}.");
+
+            return false;
+        }
+
+        Console.WriteLine($"{ConsoleTab}The milestone '{milestoneTitle}' is valid with only a single {itemTypeStr}.");
+
+        return true;
+    }
+
     private bool ThatTheReleaseMilestoneContainsIssues()
     {
         var project = SolutionService.GetProject(RepoName);
         var errors = new List<string>();
 
         nameof(ThatTheReleaseMilestoneContainsIssues)
-            .LogRequirementTitle($"Checking that the release milestone for the current version contains issues.");
+            .LogRequirementTitle("Checking that the release milestone for the current version contains issues.");
 
         if (project is null)
         {
@@ -729,7 +815,17 @@ public partial class CICD // Requirements
         return false;
     }
 
-    private bool ThatTheReleaseMilestoneOnlyContainsSingle(ReleaseType releaseType, ItemType itemType)
+    /// <summary>
+    /// Returns a value indicating whether or not a milestone only contains a single release item
+    /// of the given <paramref name="releaseType"/> and <paramref name="itemType"/>.
+    /// </summary>
+    /// <param name="releaseType">The release type of the item.</param>
+    /// <param name="itemType">The type of item.</param>
+    /// <returns><c>true</c> if only a single item exists in the milestone.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// Thrown if the <paramref name="releaseType"/> or <paramref name="itemType"/> is out of range.
+    /// </exception>
+    private bool ThatTheReleaseMilestoneOnlyContainsSingleReleaseItem(ReleaseType releaseType, ItemType itemType)
     {
         const int totalSpaces = 15;
         var project = SolutionService.GetProject(RepoName);
@@ -738,7 +834,7 @@ public partial class CICD // Requirements
 
         var introMsg = "Checking that the release milestone only contains a single release ";
         introMsg += $"{(itemType == ItemType.Issue ? "todo issue" : "pull request")} item.";
-        nameof(ThatTheReleaseMilestoneOnlyContainsSingle)
+        nameof(ThatTheReleaseMilestoneOnlyContainsSingleReleaseItem)
             .LogRequirementTitle(introMsg);
 
         if (project is null)
@@ -955,13 +1051,64 @@ public partial class CICD // Requirements
         return false;
     }
 
+    /// <summary>
+    /// Returns a value indicating whether or not all of the items of the given <paramref name="itemType"/> are assigned.
+    /// </summary>
+    /// <returns><c>true</c> if all of the items are assigned.</returns>
+    private bool ThatAllMilestoneItemsAreAssigned(ItemType itemType)
+    {
+        var project = SolutionService.GetProject(RepoName);
+        var errors = new List<string>();
+
+        var itemTypeStr = itemType.ToString().ToSpaceDelimitedSections().ToLower();
+
+        nameof(ThatAllMilestoneItemsAreAssigned)
+            .LogRequirementTitle($"Checking that all {itemTypeStr} in the milestone are assigned.");
+
+        if (project is null)
+        {
+            errors.Add($"Could not find the project '{RepoName}'");
+        }
+
+        var projectVersion = project?.GetVersion() ?? string.Empty;
+        var milestoneTitle = $"v{projectVersion}";
+        var issueClient = GitHubClient.Issue;
+
+        var items = issueClient.IssuesForMilestone(RepoOwner, RepoName, milestoneTitle)
+            .Result
+            .Where(i => itemType switch
+        {
+            ItemType.Issue => i.IsIssue(),
+            ItemType.PullRequest => i.IsPullRequest(),
+            _ => throw new ArgumentOutOfRangeException(nameof(itemType), itemType, $"{nameof(itemType)} is out of range.")
+        }).ToArray();
+
+        var unassignedIssues = items.Where(i => i.Assignee is null).Select(i => i).ToArray();
+
+        if (unassignedIssues.Length > 0)
+        {
+            var errorMsg = $"The milestone '{milestoneTitle}' contains issues that are not assigned.";
+            errorMsg += $"{Environment.NewLine}{unassignedIssues.GetLogText(15)}";
+            errors.Add(errorMsg);
+        }
+
+        if (errors.Count <= 0)
+        {
+            return true;
+        }
+
+        errors.PrintErrors("1 or more issues are not assigned.");
+
+        return false;
+    }
+
     private bool ThatAllMilestonePullRequestsHaveLabels()
     {
         var project = SolutionService.GetProject(RepoName);
         var errors = new List<string>();
 
         nameof(ThatAllMilestonePullRequestsHaveLabels)
-            .LogRequirementTitle($"Checking that all pull requests in the milestone have a label.");
+            .LogRequirementTitle("Checking that all pull requests in the milestone have a label.");
 
         if (project is null)
         {
@@ -1225,7 +1372,7 @@ public partial class CICD // Requirements
         var errors = new List<string>();
 
         nameof(ThatTheProdReleaseNotesContainsPreviewReleaseSection)
-            .LogRequirementTitle($"Checking if the 'production' release notes contains a preview releases section if required.");
+            .LogRequirementTitle("Checking if the 'production' release notes contains a preview releases section if required.");
 
         if (project is null)
         {
@@ -1450,7 +1597,7 @@ public partial class CICD // Requirements
     private bool ThatTheNugetPackageDoesNotExist()
     {
         nameof(ThatTheNugetPackageDoesNotExist)
-            .LogRequirementTitle($"Checking that the nuget package does not already exist.");
+            .LogRequirementTitle("Checking that the nuget package does not already exist.");
 
         var project = SolutionService.GetProject(RepoName);
         var errors = new List<string>();

@@ -889,6 +889,27 @@ internal static class ExtensionMethods
         return updatedMilestone;
     }
 
+    /// <summary>
+    /// Returns a value indicating whether or not the GitHub issue is a standard issue.
+    /// </summary>
+    /// <param name="issue">The GitHub issue to check.</param>
+    /// <returns><c>true</c> if the issue is standard.</returns>
+    public static bool IsIssue(this Issue issue) => issue.PullRequest is null;
+
+    /// <summary>
+    /// Returns a value indicating whether or not the GitHub issue is a pull request.
+    /// </summary>
+    /// <param name="issue">The GitHub issue to check.</param>
+    /// <returns><c>true</c> if a standard issue.</returns>
+    public static bool IsPullRequest(this Issue issue) => issue.PullRequest is not null;
+
+    /// <summary>
+    /// Returns a value indicating whether or not a GitHub issue is a release to do issue.
+    /// </summary>
+    /// <param name="issue">The GitHub issue to check.</param>
+    /// <param name="releaseType">The type of release issue.</param>
+    /// <returns><c>true</c> if it's a release pull request.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown if the <paramref name="releaseType"/> is out of range.</exception>
     public static bool IsReleaseToDoIssue(this Issue issue, ReleaseType releaseType)
     {
         var releaseLabelOrTitle = releaseType switch
@@ -899,13 +920,20 @@ internal static class ExtensionMethods
             _ => throw new ArgumentOutOfRangeException(nameof(releaseType), releaseType, null),
         };
 
-        var isIssue = issue.PullRequest is null;
+        var isIssue = issue.IsPullRequest();
         var validTitle = issue.Title == releaseLabelOrTitle;
         var validLabelType = issue.Labels.Any(l => l.Name == releaseLabelOrTitle);
 
         return isIssue && validTitle && validLabelType;
     }
 
+    /// <summary>
+    /// Returns a value indicating whether or not a GitHub issue is a release pull request.
+    /// </summary>
+    /// <param name="issue">The GitHub issue to check.</param>
+    /// <param name="releaseType">The type of release pull request.</param>
+    /// <returns><c>true</c> if a release pull request.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown if the <paramref name="releaseType"/> is out of range.</exception>
     public static bool IsReleasePullRequest(this Issue issue, ReleaseType releaseType)
     {
         var releaseLabelOrTitle = releaseType switch
@@ -917,7 +945,7 @@ internal static class ExtensionMethods
 
         var hasValidTitle = issue.Title == releaseLabelOrTitle;
         var hasSingleLabel = issue.Labels.Count == 1;
-        var isPullRequest = issue.PullRequest is not null;
+        var isPullRequest = issue.IsPullRequest();
         var validLabelType = issue.Labels.Count == 1 && issue.Labels[0].Name == releaseLabelOrTitle;
 
         return hasValidTitle && hasSingleLabel && isPullRequest && validLabelType;
@@ -944,7 +972,7 @@ internal static class ExtensionMethods
         text += $"{Environment.NewLine}{indent}{prOrIssuePrefix} Title: {issue.Title}";
         text += $"{Environment.NewLine}{indent}{prOrIssuePrefix} State: {issue.State}";
         text += $"{Environment.NewLine}{indent}{prOrIssuePrefix} Url: {issue.HtmlUrl}";
-        text += $"{Environment.NewLine}{indent}Labels ({issue.Labels.Count}):";
+        text += $"{Environment.NewLine}{indent}Labels ({(issue.Labels.Count <= 0 ? "None" : issue.Labels.Count.ToString())}):";
         issue.Labels.ForEach(l => text += $"{Environment.NewLine}{indent}\t  - `{l.Name}`");
 
         return text;
@@ -958,7 +986,7 @@ internal static class ExtensionMethods
             spaces += " ";
         }
 
-        var errorMsg = "---------------------Issue(s)---------------------";
+        var errorMsg = $"{spaces}---------------------Issue(s)---------------------";
 
         for (var i = 0; i < issues.Count; i++)
         {
