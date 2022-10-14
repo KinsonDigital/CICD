@@ -819,9 +819,9 @@ public partial class CICD // Requirements
     /// Returns a value indicating whether or not a milestone only contains a single release item
     /// of the given <paramref name="releaseType"/> and <paramref name="itemType"/>.
     /// </summary>
-    /// <param name="releaseType">The type of release of the item.</param>
+    /// <param name="releaseType">The release type of the item.</param>
     /// <param name="itemType">The type of item.</param>
-    /// <returns><c>true</c> if only single item exists in the milestone.</returns>
+    /// <returns><c>true</c> if only a single item exists in the milestone.</returns>
     /// <exception cref="ArgumentOutOfRangeException">
     /// Thrown if the <paramref name="releaseType"/> or <paramref name="itemType"/> is out of range.
     /// </exception>

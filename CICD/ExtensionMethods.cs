@@ -893,7 +893,7 @@ internal static class ExtensionMethods
     /// Returns a value indicating whether or not the GitHub issue is a standard issue.
     /// </summary>
     /// <param name="issue">The GitHub issue to check.</param>
-    /// <returns><c>true</c> if a standard issue.</returns>
+    /// <returns><c>true</c> if the issue is standard.</returns>
     public static bool IsIssue(this Issue issue) => issue.PullRequest is null;
 
     /// <summary>
@@ -908,7 +908,7 @@ internal static class ExtensionMethods
     /// </summary>
     /// <param name="issue">The GitHub issue to check.</param>
     /// <param name="releaseType">The type of release issue.</param>
-    /// <returns><c>true</c> if a release pull request.</returns>
+    /// <returns><c>true</c> if it's a release pull request.</returns>
     /// <exception cref="ArgumentOutOfRangeException">Thrown if the <paramref name="releaseType"/> is out of range.</exception>
     public static bool IsReleaseToDoIssue(this Issue issue, ReleaseType releaseType)
     {
