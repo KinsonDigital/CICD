@@ -46,7 +46,7 @@ As with all software, there is always a chance for issues and bugs, especially f
 <h2 style="font-weight:bold" align="center">Bug Fixes 🐛</h2>
 
 1. [#95](https://github.com/KinsonDigital/CICD/issues/95) - Fixed a bug where the **_Hot Fix PR Status Check_** target was checking if the preview feature issue number existed.
-   - A hotfix uses a hot-fix branch, not a preview feature branch.  This is why this was a bug.
+   - A hotfix uses a hot-fix branch, not a preview feature branch, which is why this was a bug.
 
 ---
 
