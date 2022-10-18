@@ -11,10 +11,10 @@
     <NukeTelemetryVersion>1</NukeTelemetryVersion>
 
     <!--Update this for production and preview releases-->
-    <Version>1.0.0-preview.11</Version>
+    <Version>1.0.0-preview.12</Version>
 
     <!--Update this for production and preview releases-->
-    <FileVersion>1.0.0-preview.11</FileVersion>
+    <FileVersion>1.0.0-preview.12</FileVersion>
 
     <!--
         DO NOT UPDATE THIS FOR PREVIEW RELEASES!!
@@ -42,7 +42,7 @@
     <InternalsVisibleTo Include="$(AssemblyName)Tests" />
     <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
   </ItemGroup>
-    
+
   <ItemGroup>
     <PackageReference Include="Nuke.Common" Version="6.2.1" />
     <PackageReference Include="Octokit" Version="3.0.0" />

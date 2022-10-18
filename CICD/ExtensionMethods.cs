@@ -920,7 +920,7 @@ internal static class ExtensionMethods
             _ => throw new ArgumentOutOfRangeException(nameof(releaseType), releaseType, null),
         };
 
-        var isIssue = issue.IsPullRequest();
+        var isIssue = issue.IsPullRequest() is false;
         var validTitle = issue.Title == releaseLabelOrTitle;
         var validLabelType = issue.Labels.Any(l => l.Name == releaseLabelOrTitle);
 
