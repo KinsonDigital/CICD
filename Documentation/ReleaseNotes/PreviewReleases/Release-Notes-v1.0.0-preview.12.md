@@ -13,4 +13,4 @@ As with all software, there is always a chance for issues and bugs, especially f
 
 <h2 style="font-weight:bold" align="center">Bug Fixes 🐛</h2>
 
-1. [#113](https://github.com/KinsonDigital/CICD/issues/113) - Fixed a bug where **Preview** and **Production** PR status checks were incorrectly reporting milestone state.
+1. [#113](https://github.com/KinsonDigital/CICD/issues/113) - Fixed a bug where **Preview** and **Production** PR status checks were reporting the incorrect state of the milestone.
