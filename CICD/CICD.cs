@@ -5,7 +5,7 @@
 // ReSharper disable InconsistentNaming
 using CICDSystem.Factories;
 using CICDSystem.Reactables.Core;
-using CICDSystem.Services;
+using CICDSystem.Services.Interfaces;
 using Nuke.Common;
 using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;

@@ -5,7 +5,7 @@
 using System.Collections.Generic;
 using Nuke.Common.ProjectModel;
 
-namespace CICDSystem.Services;
+namespace CICDSystem.Services.Interfaces;
 
 /// <summary>
 /// Provides functionality for a <c>C#</c> solution.

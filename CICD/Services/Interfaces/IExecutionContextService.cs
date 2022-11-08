@@ -2,7 +2,7 @@
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
-namespace CICDSystem.Services;
+namespace CICDSystem.Services.Interfaces;
 
 /// <summary>
 /// Returns values indicating the execution context of the CICD system.

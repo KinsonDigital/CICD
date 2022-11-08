@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using CICDSystem.Guards;
+using CICDSystem.Services.Interfaces;
 using Nuke.Common.ProjectModel;
 using Nuke.Common.Utilities;
 

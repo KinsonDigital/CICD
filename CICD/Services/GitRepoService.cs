@@ -4,6 +4,7 @@
 
 // ReSharper disable InconsistentNaming
 using System.IO;
+using CICDSystem.Services.Interfaces;
 using Nuke.Common.Git;
 
 namespace CICDSystem.Services;

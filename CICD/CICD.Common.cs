@@ -9,7 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using CICDSystem.Services;
+using CICDSystem.Services.Interfaces;
 using GlobExpressions;
 using Nuke.Common;
 using Nuke.Common.Tools.DotNet;

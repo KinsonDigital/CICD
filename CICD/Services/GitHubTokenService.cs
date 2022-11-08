@@ -3,6 +3,7 @@
 // </copyright>
 
 using CICDSystem.Guards;
+using CICDSystem.Services.Interfaces;
 using Nuke.Common.CI.GitHubActions;
 
 // ReSharper disable InconsistentNaming

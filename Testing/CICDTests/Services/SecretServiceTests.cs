@@ -4,6 +4,7 @@
 
 using System.IO.Abstractions;
 using CICDSystem.Services;
+using CICDSystem.Services.Interfaces;
 using FluentAssertions;
 using Moq;
 using Xunit;
