@@ -42,6 +42,9 @@ internal sealed class SolutionService : ISolutionService
     public IReadOnlyCollection<Project> AllProjects => this.solutionWrapper.AllProjects;
 
     /// <inheritdoc/>
+    public string Directory => this.solutionWrapper.Directory;
+
+    /// <inheritdoc/>
     public Project? GetProject(string nameOrFullPath) => this.solutionWrapper.GetProject(nameOrFullPath);
 
     /// <inheritdoc/>

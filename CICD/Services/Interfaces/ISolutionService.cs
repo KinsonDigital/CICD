@@ -18,6 +18,11 @@ internal interface ISolutionService
     IReadOnlyCollection<Project> AllProjects { get; }
 
     /// <summary>
+    /// Gets the root directory of the solution.
+    /// </summary>
+    string Directory { get; }
+
+    /// <summary>
     /// Gets a project that matches the given project name or fully qualified path.
     /// </summary>
     /// <param name="nameOrFullPath">The name of the project or the fully qualified project file path to the <c>csproj</c> file.</param>
