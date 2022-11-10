@@ -11,13 +11,11 @@ using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Nuke.Common;
-using Nuke.Common.CI.GitHubActions;
 using Nuke.Common.Git;
 using Nuke.Common.ProjectModel;
 using Nuke.Common.Utilities.Collections;
 using Octokit;
 using Serilog;
-using static Nuke.Common.NukeBuild;
 using Project = Nuke.Common.ProjectModel.Project;
 
 namespace CICDSystem;
@@ -351,7 +349,7 @@ internal static class ExtensionMethods
     public static string TotalTimeToComplete(this IEnumerable<Issue> issues)
     {
         var enumeratedIssues = issues.ToArray();
-        var oldest = enumeratedIssues.Min(i => issues.Count() <= 1 ? i.CreatedAt : i.ClosedAt);
+        var oldest = enumeratedIssues.Min(i => enumeratedIssues.Length <= 1 ? i.CreatedAt : i.ClosedAt);
         var newest = enumeratedIssues.Max(i => i.ClosedAt);
 
         var timeToComplete = newest - oldest;
@@ -596,7 +594,7 @@ internal static class ExtensionMethods
                 ? pr.Milestone is not null && pr.Milestone.State == ItemState.Open
                 : pr.Milestone is not null && pr.Milestone.State == ItemState.Closed;
 
-            return (isAssigned, pr?.Milestone ?? null);
+            return (isAssigned, pr.Milestone ?? null);
         }
         catch (NotFoundException)
         {
