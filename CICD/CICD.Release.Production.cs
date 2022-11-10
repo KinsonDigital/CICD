@@ -2,6 +2,8 @@
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
+using CICDSystem.Services.Interfaces;
+
 namespace CICDSystem;
 
 using System;
@@ -41,12 +43,8 @@ public partial class CICD // Release.Production
         .DependsOn(BuildAllProjects, RunAllUnitTests)
         .Executes(async () =>
         {
-            var tweetTemplatePath = RootDirectory / ".github" / "ReleaseTweetTemplate.txt";
-            var version = SolutionService.GetProject(RepoName)?.GetVersion() ?? string.Empty;
-
-            version = version.StartsWith("v")
-                ? version
-                : $"v{version}";
+            var projectService = App.Container.GetInstance<IProjectService>();
+            var version = projectService.GetVersion();
 
             if (string.IsNullOrEmpty(version))
             {
@@ -98,12 +96,11 @@ public partial class CICD // Release.Production
                 Log.Information(nugetReleaseLog);
 
                 // Tweet about release
-                if (SkipTwitterAnnouncement is false)
-                {
-                    Log.Information("✅Announcing release on twitter . . .");
-                    SendReleaseTweet(tweetTemplatePath, version);
-                    Log.Information($"Twitter announcement complete!!{Environment.NewLine}");
-                }
+                var tweetService = App.Container.GetInstance<ITweetService>();
+
+                Log.Information("✅Announcing release on twitter . . .");
+                tweetService.SendReleaseTweet();
+                Log.Information($"Twitter announcement complete!!{Environment.NewLine}");
 
                 // Merge the master branch into the develop branch
                 Log.Information("✅Merging 'master' branch into the 'develop' branch . . .");
