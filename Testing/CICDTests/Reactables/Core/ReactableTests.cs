@@ -5,6 +5,7 @@
 using CICDSystem.Reactables.Core;
 using CICDSystemTests.Fakes;
 using CICDSystemTests.Helpers;
+using FluentAssertions;
 using Moq;
 using Xunit;
 
@@ -75,6 +76,22 @@ public class ReactableTests
 
         // Assert
         mockReactorA.Verify(m => m.OnCompleted(), Times.Once);
+    }
+
+    [Fact]
+    public void UnsubscribeAll_WhenInvoked_UnsubscribesFromAllReactors()
+    {
+        // Arrange
+        var mockReactor = new Mock<IReactor<bool>>();
+        var reactable = CreateReactable<bool>();
+
+        reactable.Subscribe(mockReactor.Object);
+
+        // Act
+        reactable.UnsubscribeAll();
+
+        // Assert
+        reactable.Reactors.Should().BeEmpty();
     }
 
     [Fact]
