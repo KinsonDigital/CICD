@@ -40,90 +40,6 @@ internal static class ExtensionMethods
         'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
     };
 
-    public static string AddIndents(this string value, int count, bool addBefore = true)
-    {
-        var tabs = string.Empty;
-
-        for (var i = 0; i < count; i++)
-        {
-            tabs += "  ";
-        }
-
-        return addBefore ? $"{tabs}{value}" : $"{value}{tabs}";
-    }
-
-    public static string AddNewLine(this string value, int count, bool addAfter = true)
-    {
-        var newLines = string.Empty;
-
-        for (var i = 0; i < count; i++)
-        {
-            newLines += Environment.NewLine;
-        }
-
-        return addAfter ? $"{value}{newLines}" : $"{newLines}{value}";
-    }
-
-    public static string ToSnakeCase(this string value)
-    {
-        var allUpperCase = value.All(c => UpperCaseLetters.Contains(c));
-        var allLowerCase = value.All(c => LowerCaseLetters.Contains(c));
-        var noSpaces = value.All(c => c != ' ');
-        if (string.IsNullOrEmpty(value) ||
-            (noSpaces && (allUpperCase || allLowerCase)))
-        {
-            return value;
-        }
-
-        value = value.Trim();
-        return value.Replace(" ", "_").Replace("-", "_").ToLower();
-    }
-
-    public static string ToPascalCase(this string value)
-    {
-        /*
-         * Build Project
-         * BuildProject
-         * Build-Project
-         * Build_Project
-         * build project
-         */
-        var allUpperCase = value.All(c => UpperCaseLetters.Contains(c));
-        var allLowerCase = value.All(c => LowerCaseLetters.Contains(c));
-        var noSpaces = value.All(c => c != ' ');
-        if (string.IsNullOrEmpty(value) ||
-            (noSpaces && (allUpperCase || allLowerCase)))
-        {
-            return value;
-        }
-
-        var characters = value.ToArray();
-
-        for (var i = 0; i < characters.Length; i++)
-        {
-            if (i == 0)
-            {
-                characters[i] = LowerCaseLetters.Contains(characters[i])
-                    ? characters[i].ToString().ToUpper()[0]
-                    : characters[i];
-                continue;
-            }
-
-            var current = characters[i];
-            var previous = characters[i >= 1 ? i - 1 : i];
-
-            if (LowerCaseLetters.Contains(current) && previous == ' ')
-            {
-                characters[i] = current.ToString().ToUpper()[0];
-            }
-        }
-
-        return string.Join(string.Empty, characters)
-            .Replace("-", " ")
-            .Replace("_", " ")
-            .ToSpaceDelimitedSections();
-    }
-
     public static string ToKebabCase(this string value)
     {
         var allUpperCase = value.All(c => UpperCaseLetters.Contains(c));
@@ -586,18 +502,6 @@ internal static class ExtensionMethods
         return pr is not null;
     }
 
-    public static async Task<bool> LabelExists(
-        this IPullRequestsClient client,
-        string repoOwner,
-        string repoName,
-        int prNumber,
-        string labelName)
-    {
-        var pr = await client.Get(repoOwner, repoName, prNumber);
-
-        return pr.Labels.Any(l => l.Name == labelName);
-    }
-
     public static async Task<bool> HasAssignees(
         this IPullRequestsClient client,
         string owner,
@@ -1045,32 +949,6 @@ internal static class ExtensionMethods
             : (string.IsNullOrEmpty(pattern) && string.IsNullOrEmpty(value)) || pattern == value;
 
         return isEqual;
-    }
-
-    /// <summary>
-    /// Returns the name of the repository.
-    /// </summary>
-    /// <param name="actions">GitHub Actions related functionality.</param>
-    /// <returns>The name of the repository.</returns>
-    public static string RepositoryName(this GitHubActions actions)
-    {
-        if (IsLocalBuild)
-        {
-            var projectFileSections = BuildProjectFile?
-                .ToString()
-                .Replace('\\', '/')
-                .Split('/') ?? Array.Empty<string>();
-
-            var file = projectFileSections.FirstOrDefault(s => s.StartsWith('.') is false && s.Contains(".csproj"));
-
-            return file?.Split('.')[0] ?? string.Empty;
-        }
-
-        var sections = actions.Repository.Split('/');
-
-        return sections.Length >= 2
-            ? sections[1]
-            : string.Empty;
     }
 
     /// <summary>
