@@ -193,6 +193,7 @@ public partial class CICD : NukeBuild
     [Secret]
     private string TwitterConsumerApiKey
     {
+        get => this.twitterSecrets.TwitterConsumerApiKey;
         set
         {
             EnsureThat.StringParamIsNotNullOrEmpty(value, nameof(TwitterConsumerApiKey));
@@ -219,6 +220,7 @@ public partial class CICD : NukeBuild
     [Secret]
     private string TwitterConsumerApiSecret
     {
+        get => this.twitterSecrets.TwitterConsumerApiSecret;
         set
         {
             EnsureThat.StringParamIsNotNullOrEmpty(value, nameof(TwitterConsumerApiSecret));
@@ -245,6 +247,7 @@ public partial class CICD : NukeBuild
     [Secret]
     private string TwitterAccessToken
     {
+        get => this.twitterSecrets.TwitterAccessToken;
         set
         {
             EnsureThat.StringParamIsNotNullOrEmpty(value, nameof(TwitterAccessToken));
@@ -271,6 +274,7 @@ public partial class CICD : NukeBuild
     [Secret]
     private string TwitterAccessTokenSecret
     {
+        get => this.twitterSecrets.TwitterAccessTokenSecret;
         set
         {
             EnsureThat.StringParamIsNotNullOrEmpty(value, nameof(TwitterAccessTokenSecret));
