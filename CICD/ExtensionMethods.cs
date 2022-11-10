@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -908,6 +909,12 @@ internal static class ExtensionMethods
     public static void LogAsInfo(this IReadOnlyList<Issue> issues, int totalIndentSpaces = 0)
         => Log.Information(issues.GetLogText(totalIndentSpaces));
 
+    /// <summary>
+    /// Prints all of the given <paramref name="errors"/> and fails the build with the given <paramref name="failMsg"/>.
+    /// </summary>
+    /// <param name="errors">The list of error messages to print.</param>
+    /// <param name="failMsg">The message to print when failing the build.</param>
+    [ExcludeFromCodeCoverage]
     public static void PrintErrors(this IEnumerable<string>? errors, string? failMsg = null)
     {
         var errorList = errors is null
@@ -930,10 +937,9 @@ internal static class ExtensionMethods
     }
 
     /// <summary>
-    /// Returns a value indicating whether or not a branch with the given branch name
-    /// matches the given <paramref name="pattern"/>.
+    /// Returns a value indicating whether or not the current <c>string</c> matches the given <paramref name="pattern"/>.
     /// </summary>
-    /// <param name="value">The value to check against the branch name.</param>
+    /// <param name="value">The value to check.</param>
     /// <param name="pattern">The pattern to check against the <c>string</c> <paramref name="value"/>.</param>
     /// <returns><c>true</c> if the <paramref name="pattern"/> is equal to the branch name.</returns>
     /// <remarks>

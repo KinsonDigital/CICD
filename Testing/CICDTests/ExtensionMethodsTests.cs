@@ -332,6 +332,51 @@ public class ExtensionMethodsTests
         // Assert
         actual.Should().Be(expected);
     }
+
+    [Fact]
+    public void IsPullRequest_WithPullRequestNotSet_ReturnsFalse()
+    {
+        // Arrange
+        var issue = CreateIssueObj();
+
+        // Act
+        var actual = issue.IsPullRequest();
+
+        // Assert
+        actual.Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsPullRequest_WithSetPullRequest_ReturnsTrue()
+    {
+        // Arrange
+        var issue = CreateIssueObj(CreatePullRequestObj());
+
+        // Act
+        var actual = issue.IsPullRequest();
+
+        // Assert
+        actual.Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData("preview/v1.2.3-preview.4", "preview/v#.#.#-preview.#", true)]
+    [InlineData("feature/123-my-branch", "feature/123-my-branch", true)]
+    [InlineData("", "", true)]
+    [InlineData("", null, true)]
+    [InlineData(null, "", true)]
+    [InlineData(null, null, true)]
+    public void EqualTo_WithCorrectPatternMatch_ReturnsTrue(
+        string value,
+        string pattern,
+        bool expected)
+    {
+        // Act
+        var act = value.EqualTo(pattern);
+
+        // Assert
+        act.Should().Be(expected);
+    }
     #endregion
 
     /// <summary>
@@ -386,6 +431,88 @@ public class ExtensionMethodsTests
             dueOn: DateTimeOffset.Now, // DateTimeOffset?
             closedAt: DateTimeOffset.Now, // DateTimeOffset?
             updatedAt: DateTimeOffset.Now); // DateTimeOffset?
+    }
+
+    /// <summary>
+    /// Creates a new issue object for the purpose of testing.
+    /// </summary>
+    /// <param name="pr">The pull request to link to the issue.</param>
+    /// <returns>The issue to test.</returns>
+    private static Issue CreateIssueObj(PullRequest pr = null)
+    {
+        return new Issue(
+            url: string.Empty, // string
+            htmlUrl: string.Empty, // string
+            commentsUrl: string.Empty, // string
+            eventsUrl: string.Empty, // string
+            number: 10, // int
+            state: ItemState.Open, // ItemState
+            title: string.Empty, // string
+            body: string.Empty, // string
+            closedBy: null, // User
+            user: null, // User
+            labels: null, // IReadOnlyList
+            assignee: null, // User
+            assignees: null, // IReadOnlyList
+            milestone: null, // Milestone
+            comments: 20, // int
+            pullRequest: pr, // PullRequest
+            closedAt: DateTimeOffset.Now, // DateTimeOffset
+            createdAt: DateTimeOffset.Now, // DateTimeOffset
+            updatedAt: DateTimeOffset.Now, // DateTimeOffset
+            id: 30, // int
+            nodeId: string.Empty, // string
+            locked: false, // bool
+            repository: null, // Repository
+            reactions: null, // ReactionSummary
+            activeLockReason: LockReason.OffTopic); // LockReason
+    }
+
+    /// <summary>
+    /// Creates a new pull request object for the purpose of testing.
+    /// </summary>
+    /// <returns>The pull request to test.</returns>
+    private static PullRequest CreatePullRequestObj()
+    {
+        return new PullRequest(
+            id: 123456, // long
+            nodeId: string.Empty, // string
+            url: string.Empty, // string
+            htmlUrl: string.Empty, // string
+            diffUrl: string.Empty, // string
+            patchUrl: string.Empty, // string
+            issueUrl: string.Empty, // string
+            statusesUrl: string.Empty, // string
+            number: 10, // int
+            state: ItemState.Open, // ItemState
+            title: string.Empty, // string
+            body: string.Empty, // string
+            createdAt: DateTimeOffset.Now, // DateTimeOffset
+            updatedAt: DateTimeOffset.Now, // DateTimeOffset
+            closedAt: null, // DateTimeOffset?
+            mergedAt: null, // DateTimeOffset?
+            head: null, // GitReference
+            @base: null, // GitReference
+            user: null, // User
+            assignee: null, // User
+            assignees: null, // IReadOnlyList<User>
+            draft: false, // bool
+            mergeable: null, // bool?
+            mergeableState: null, // MergeableState?
+            mergedBy: null, // User
+            mergeCommitSha: string.Empty, // string
+            comments: 20, // int
+            commits: 30, // int
+            additions: 40, // int
+            deletions: 50, // int
+            changedFiles: 60, // int
+            milestone: null, // Milestone
+            locked: false, // bool
+            maintainerCanModify: null, // bool?
+            requestedReviewers: null, // IReadOnlyList<User>
+            requestedTeams: null, // IReadOnlyList<Team>
+            labels: null, // IReadOnlyList<Label>
+            activeLockReason: null); // LockReason?
     }
 
     /// <summary>
