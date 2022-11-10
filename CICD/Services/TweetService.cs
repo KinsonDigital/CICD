@@ -105,8 +105,8 @@ internal sealed class TweetService : ITweetService
 
         const string leftBracket = "{";
         const string rightBracket = "}";
-        const string projNameInjectionPoint = $"{leftBracket}PROJECT_NAME{rightBracket}";
         const string repoOwnerInjectionPoint = $"{leftBracket}REPO_OWNER{rightBracket}";
+        const string projNameInjectionPoint = $"{leftBracket}PROJECT_NAME{rightBracket}";
         const string versionInjectionPoint = $"{leftBracket}VERSION{rightBracket}";
 
         var version = this.projectService.GetVersion();
@@ -115,8 +115,8 @@ internal sealed class TweetService : ITweetService
             ? version.Remove(0, 1)
             : version;
 
-        tweetContent = tweetContent.Replace(projNameInjectionPoint, this.repoOwner);
-        tweetContent = tweetContent.Replace(repoOwnerInjectionPoint, this.repoName);
+        tweetContent = tweetContent.Replace(repoOwnerInjectionPoint, this.repoOwner);
+        tweetContent = tweetContent.Replace(projNameInjectionPoint, this.repoName);
         tweetContent = tweetContent.Replace(versionInjectionPoint, version);
 
         this.twitterService.SendTweet(tweetContent);
