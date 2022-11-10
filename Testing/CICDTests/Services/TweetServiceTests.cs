@@ -309,8 +309,8 @@ public class TweetServiceTests
         const string projName = "test-project";
         const string repoName = "test-repo";
         const string version = "v1.2.3";
-        var tweetTemplate = "{PROJECT_NAME}";
-        tweetTemplate += $"{Environment.NewLine}{{REPO_OWNER}}";
+        var tweetTemplate = "{REPO_OWNER}";
+        tweetTemplate += $"{Environment.NewLine}{{PROJECT_NAME}}";
         tweetTemplate += $"{Environment.NewLine}{{VERSION}}";
 
         var expected = projName;
