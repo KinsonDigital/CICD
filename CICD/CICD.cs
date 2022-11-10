@@ -67,7 +67,7 @@ public partial class CICD : NukeBuild
 
     private Configuration Configuration => GetBuildConfig();
 
-    private IGitRepoService Repo => App.Container.GetInstance<IGitRepoService>();
+    private IGitRepoWrapper Repo => App.Container.GetInstance<IGitRepoWrapper>();
 
     [Parameter("The output directory of where the template workflows should be generated.")]
     private string? WorkflowTemplateOutput { get; set; }
