@@ -2,11 +2,11 @@
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
+// ReSharper disable InconsistentNaming
 using CICDSystem.Guards;
 using CICDSystem.Services.Interfaces;
 using Nuke.Common.CI.GitHubActions;
 
-// ReSharper disable InconsistentNaming
 namespace CICDSystem.Services;
 
 /// <inheritdoc/>

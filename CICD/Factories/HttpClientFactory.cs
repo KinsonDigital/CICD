@@ -2,6 +2,7 @@
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
+// ReSharper disable InconsistentNaming
 using System;
 using System.Diagnostics.CodeAnalysis;
 using CICDSystem.Guards;
@@ -10,7 +11,6 @@ using CICDSystem.Services.Interfaces;
 using Octokit;
 using Octokit.Internal;
 
-// ReSharper disable InconsistentNaming
 namespace CICDSystem.Factories;
 
 /// <inheritdoc/>
