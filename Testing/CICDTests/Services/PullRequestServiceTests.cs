@@ -105,7 +105,27 @@ public class PullRequestServiceTests
     }
 
     [Fact]
-    public void Ctor_WhenInvoked_SetsUpUnsubscriberDisposal()
+    public void Ctor_WhenRepoInfoReactableEndsNotifications_UnsubscribesFromReactable()
+    {
+        // Arrange
+        IReactor<(string, string)>? reactor = null;
+        var mockUnsubscriber = new Mock<IDisposable>();
+
+        this.mockRepoInfoReactable.Setup(m => m.Subscribe(It.IsAny<IReactor<(string, string)>>()))
+            .Returns<IReactor<(string, string)>>(_ => mockUnsubscriber.Object)
+            .Callback<IReactor<(string, string)>>(reactorObj => reactor = reactorObj);
+
+        _ = CreateService();
+
+        // Act
+        reactor.OnCompleted();
+
+        // Assert
+        mockUnsubscriber.Verify(m => m.Dispose(), Times.Once);
+    }
+
+    [Fact]
+    public void Ctor_WhenPRNumberReactableEndsNotifications_UnsubscribesFromReactable()
     {
         // Arrange
         IReactor<int>? reactor = null;
