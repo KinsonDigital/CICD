@@ -98,7 +98,7 @@ public partial class CICD // Release.Production
                 // Tweet about release
                 var releaseTweetService = App.Container.GetInstance<IReleaseTweetService>();
 
-                Log.Information("✅Announcing release on twitter . . .");
+                Log.Information("✅Announcing release on Twitter . . .");
                 releaseTweetService.SendReleaseTweet();
                 Log.Information($"Twitter announcement complete!!{Environment.NewLine}");
 

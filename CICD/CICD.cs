@@ -75,7 +75,7 @@ public partial class CICD : NukeBuild
     [Parameter("The output directory of where the template workflows should be generated.")]
     private string? WorkflowTemplateOutput { get; set; }
 
-    [Parameter("If true, will skip the twitter announcement of a release.")]
+    [Parameter("If true, will skip the Twitter announcement of a release.")]
     private bool SkipTwitterAnnouncement
     {
         set

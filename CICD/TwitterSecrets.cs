@@ -29,22 +29,22 @@ public struct TwitterSecrets
     }
 
     /// <summary>
-    /// Gets or sets the twitter consumer API key.
+    /// Gets or sets the Twitter consumer API key.
     /// </summary>
     public string TwitterConsumerApiKey { get; set; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets the twitter consumer API secret.
+    /// Gets or sets the Twitter consumer API secret.
     /// </summary>
     public string TwitterConsumerApiSecret { get; set; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets the twitter access token.
+    /// Gets or sets the Twitter access token.
     /// </summary>
     public string TwitterAccessToken { get; set; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets the twitter access token secret.
+    /// Gets or sets the Twitter access token secret.
     /// </summary>
     public string TwitterAccessTokenSecret { get; set; } = string.Empty;
 

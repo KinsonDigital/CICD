@@ -21,7 +21,7 @@ internal sealed class TwitterService : ITwitterService
     /// <summary>
     /// Initializes a new instance of the <see cref="TwitterService"/> class.
     /// </summary>
-    /// <param name="secretsReactable">Provides push notifications of twitter secrets.</param>
+    /// <param name="secretsReactable">Provides push notifications of Twitter secrets.</param>
     public TwitterService(IReactable<TwitterSecrets> secretsReactable)
     {
         EnsureThat.ParamIsNotNull(secretsReactable, nameof(secretsReactable));
@@ -53,7 +53,7 @@ internal sealed class TwitterService : ITwitterService
                 // If any of the secrets are null or empty, throw an exception
                 if (this.secrets.AnyNullOrEmpty())
                 {
-                    throw new Exception("The twitter API keys and/or secrets are null or empty.");
+                    throw new Exception("The Twitter API keys and/or secrets are null or empty.");
                 }
 
                 this.unsubscriber?.Dispose();

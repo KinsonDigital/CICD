@@ -5,7 +5,7 @@
 namespace CICDSystem.Services.Interfaces;
 
 /// <summary>
-/// Provides information about the current build pull request.
+/// Provides information about the current build's pull request.
 /// </summary>
 public interface IPullRequestService
 {

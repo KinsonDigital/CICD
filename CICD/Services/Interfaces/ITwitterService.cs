@@ -5,7 +5,7 @@
 namespace CICDSystem.Services.Interfaces;
 
 /// <summary>
-/// Provides twitter functionality.
+/// Provides Twitter functionality.
 /// </summary>
 public interface ITwitterService
 {

@@ -80,7 +80,7 @@ public class TwitterServiceTests
 
         // Assert
         act.Should().Throw<Exception>()
-            .WithMessage("The twitter API keys and/or secrets are null or empty.");
+            .WithMessage("The Twitter API keys and/or secrets are null or empty.");
     }
 
     [Theory]
@@ -109,7 +109,7 @@ public class TwitterServiceTests
 
         // Assert
         act.Should().Throw<Exception>()
-            .WithMessage("The twitter API keys and/or secrets are null or empty.");
+            .WithMessage("The Twitter API keys and/or secrets are null or empty.");
     }
 
     [Theory]
@@ -138,7 +138,7 @@ public class TwitterServiceTests
 
         // Assert
         act.Should().Throw<Exception>()
-            .WithMessage("The twitter API keys and/or secrets are null or empty.");
+            .WithMessage("The Twitter API keys and/or secrets are null or empty.");
     }
 
     [Theory]
@@ -167,7 +167,7 @@ public class TwitterServiceTests
 
         // Assert
         act.Should().Throw<Exception>()
-            .WithMessage("The twitter API keys and/or secrets are null or empty.");
+            .WithMessage("The Twitter API keys and/or secrets are null or empty.");
     }
 
     [Fact]

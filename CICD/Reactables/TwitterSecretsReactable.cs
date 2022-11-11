@@ -7,7 +7,7 @@ using CICDSystem.Reactables.Core;
 namespace CICDSystem.Reactables;
 
 /// <summary>
-/// Provides push notifications of twitter secrets.
+/// Provides push notifications of Twitter secrets.
 /// </summary>
 internal sealed class TwitterSecretsReactable : Reactable<TwitterSecrets>
 {
