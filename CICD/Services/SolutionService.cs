@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using CICDSystem.Guards;
+using CICDSystem.Services.Interfaces;
 using Nuke.Common.ProjectModel;
 using Nuke.Common.Utilities;
 
@@ -39,6 +40,9 @@ internal sealed class SolutionService : ISolutionService
 
     /// <inheritdoc/>
     public IReadOnlyCollection<Project> AllProjects => this.solutionWrapper.AllProjects;
+
+    /// <inheritdoc/>
+    public string Directory => this.solutionWrapper.Directory;
 
     /// <inheritdoc/>
     public Project? GetProject(string nameOrFullPath) => this.solutionWrapper.GetProject(nameOrFullPath);

@@ -324,13 +324,138 @@ public class ExtensionMethodsTests
         var labelA = CreateLabelObj("label-a");
         var labelB = CreateLabelObj("label-b");
         var labels = new ReadOnlyCollection<Label>(new[] { labelA, labelB });
-        var issue = CreateIssueObj("test-issue", 123, ItemState.Open, "test-url", labels);
+        var issue = CreateIssueObj(
+            title: "test-issue",
+            number: 123,
+            state: ItemState.Open,
+            htmlUrl: "test-url",
+            labels: labels);
 
         // Act
         var actual = issue.GetLogText(2);
 
         // Assert
         actual.Should().Be(expected);
+    }
+
+    [Fact]
+    public void IsPullRequest_WithPullRequestNotSet_ReturnsFalse()
+    {
+        // Arrange
+        var issue = CreateIssueObj();
+
+        // Act
+        var actual = issue.IsPullRequest();
+
+        // Assert
+        actual.Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsPullRequest_WithSetPullRequest_ReturnsTrue()
+    {
+        // Arrange
+        var issue = CreateIssueObj(pr: CreatePullRequestObj());
+
+        // Act
+        var actual = issue.IsPullRequest();
+
+        // Assert
+        actual.Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData("🧪qa testing", true)]
+    [InlineData("invalid-label", false)]
+    public void IsQATestingIssue_WithDifferentLabelStates_ReturnsCorrectResult(string labelName, bool expected)
+    {
+        // Arrange
+        var labels = new ReadOnlyCollection<Label>(new[] { CreateLabelObj(labelName) });
+
+        var sut = CreateIssueObj(labels: labels);
+
+        // Act
+        var actual = sut.IsQATestingIssue();
+
+        // Assert
+        actual.Should().Be(expected);
+    }
+
+    [Fact]
+    public void IsQATestingIssue_WithNoLabels_ReturnsFalse()
+    {
+        // Arrange
+        var labels = new ReadOnlyCollection<Label>(Array.Empty<Label>());
+
+        var sut = CreateIssueObj(labels: labels);
+
+        // Act
+        var actual = sut.IsQATestingIssue();
+
+        // Assert
+        actual.Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsQATestingIssue_WithMoreThanOneLabel_ReturnsFalse()
+    {
+        // Arrange
+        var correctLabel = CreateLabelObj("🧪qa testing");
+        var otherLabel = CreateLabelObj("other-label");
+        var labels = new ReadOnlyCollection<Label>(new[] { correctLabel, otherLabel });
+
+        var sut = CreateIssueObj(labels: labels);
+
+        // Act
+        var actual = sut.IsQATestingIssue();
+
+        // Assert
+        actual.Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsQATestingIssue_WithNullLabels_ReturnsFalse()
+    {
+        // Arrange
+        var sut = CreateIssueObj();
+
+        // Act
+        var actual = sut.IsQATestingIssue();
+
+        // Assert
+        actual.Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsQATestingIssue_WhenIssueIsAPullRequest_ReturnsFalse()
+    {
+        // Arrange
+        var sut = CreateIssueObj(pr: CreatePullRequestObj());
+
+        // Act
+        var actual = sut.IsQATestingIssue();
+
+        // Assert
+        actual.Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData("preview/v1.2.3-preview.4", "preview/v#.#.#-preview.#", true)]
+    [InlineData("feature/123-my-branch", "feature/123-my-branch", true)]
+    [InlineData("", "", true)]
+    [InlineData("", null, true)]
+    [InlineData(null, "", true)]
+    [InlineData(null, null, true)]
+    public void EqualTo_WithCorrectPatternMatch_ReturnsTrue(
+        string value,
+        string pattern,
+        bool expected)
+    {
+        // Act
+        var act = value.EqualTo(pattern);
+
+        // Assert
+        act.Should().Be(expected);
     }
     #endregion
 
@@ -389,10 +514,63 @@ public class ExtensionMethodsTests
     }
 
     /// <summary>
+    /// Creates a new pull request object for the purpose of testing.
+    /// </summary>
+    /// <returns>The pull request to test.</returns>
+    private static PullRequest CreatePullRequestObj()
+    {
+        return new PullRequest(
+            id: 123456, // long
+            nodeId: string.Empty, // string
+            url: string.Empty, // string
+            htmlUrl: string.Empty, // string
+            diffUrl: string.Empty, // string
+            patchUrl: string.Empty, // string
+            issueUrl: string.Empty, // string
+            statusesUrl: string.Empty, // string
+            number: 10, // int
+            state: ItemState.Open, // ItemState
+            title: string.Empty, // string
+            body: string.Empty, // string
+            createdAt: DateTimeOffset.Now, // DateTimeOffset
+            updatedAt: DateTimeOffset.Now, // DateTimeOffset
+            closedAt: null, // DateTimeOffset?
+            mergedAt: null, // DateTimeOffset?
+            head: null, // GitReference
+            @base: null, // GitReference
+            user: null, // User
+            assignee: null, // User
+            assignees: null, // IReadOnlyList<User>
+            draft: false, // bool
+            mergeable: null, // bool?
+            mergeableState: null, // MergeableState?
+            mergedBy: null, // User
+            mergeCommitSha: string.Empty, // string
+            comments: 20, // int
+            commits: 30, // int
+            additions: 40, // int
+            deletions: 50, // int
+            changedFiles: 60, // int
+            milestone: null, // Milestone
+            locked: false, // bool
+            maintainerCanModify: null, // bool?
+            requestedReviewers: null, // IReadOnlyList<User>
+            requestedTeams: null, // IReadOnlyList<Team>
+            labels: null, // IReadOnlyList<Label>
+            activeLockReason: null); // LockReason?
+    }
+
+    /// <summary>
     /// Creates a new issue object that contains the given parameters.
     /// </summary>
     /// <returns>The instance to use for testing.</returns>
-    private static Issue CreateIssueObj(string title, int number, ItemState state, string htmlUrl, IReadOnlyList<Label> labels)
+    private static Issue CreateIssueObj(
+        string title = "",
+        int number = 0,
+        ItemState state = ItemState.Open,
+        string htmlUrl = "",
+        IReadOnlyList<Label> labels = null,
+        PullRequest pr = null)
     {
         return new Issue(
             id: 1, // int
@@ -412,7 +590,7 @@ public class ExtensionMethodsTests
             assignees: null, // IReadOnlyList<User>
             milestone: null, // Milestone
             comments: 55, // int
-            pullRequest: null, // PullRequest
+            pullRequest: pr, // PullRequest
             closedAt: DateTimeOffset.Now, // DateTimeOffsetDateTimeOffset?
             createdAt: DateTimeOffset.Now, // DateTimeOffset
             updatedAt: DateTimeOffset.Now, // DateTimeOffset?

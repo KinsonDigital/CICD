@@ -7,6 +7,7 @@ using CICDSystem;
 using CICDSystem.Factories;
 using CICDSystem.Reactables.Core;
 using CICDSystem.Services;
+using CICDSystem.Services.Interfaces;
 using CICDSystemTests.Helpers;
 using FluentAssertions;
 using Moq;
@@ -26,7 +27,7 @@ public class BranchValidatorServiceTests
     private readonly Mock<IPullRequestsClient> mockPRClient;
     private readonly Mock<IHttpClientFactory> mockHttpClientFactory;
     private readonly Mock<IReactable<(string, string)>> mockRepoInfoReactable;
-    private readonly Mock<IGitRepoService> mockGitRepoService;
+    private readonly Mock<IGitRepoWrapper> mockGitRepoWrapper;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="BranchValidatorServiceTests"/> class.
@@ -45,7 +46,7 @@ public class BranchValidatorServiceTests
         this.mockHttpClientFactory = new Mock<IHttpClientFactory>();
         this.mockHttpClientFactory.Setup(m => m.CreateGitHubClient()).Returns(mockGitHubClient.Object);
 
-        this.mockGitRepoService = new Mock<IGitRepoService>();
+        this.mockGitRepoWrapper = new Mock<IGitRepoWrapper>();
     }
 
     #region Constructor Tests
@@ -57,7 +58,7 @@ public class BranchValidatorServiceTests
         {
             _ = new BranchValidatorService(
                 null,
-                this.mockGitRepoService.Object,
+                this.mockGitRepoWrapper.Object,
                 this.mockRepoInfoReactable.Object);
         };
 
@@ -68,7 +69,7 @@ public class BranchValidatorServiceTests
     }
 
     [Fact]
-    public void Ctor_WithNullGitRepoServiceParam_ThrowsException()
+    public void Ctor_WithNullGitRepoWrapperParam_ThrowsException()
     {
         // Arrange & Act
         var act = () =>
@@ -82,7 +83,7 @@ public class BranchValidatorServiceTests
         // Assert
         act.Should()
             .Throw<ArgumentNullException>()
-            .WithMessage("The parameter must not be null. (Parameter 'gitRepoService')");
+            .WithMessage("The parameter must not be null. (Parameter 'gitRepoWrapper')");
     }
 
     [Fact]
@@ -93,7 +94,7 @@ public class BranchValidatorServiceTests
         {
             _ = new BranchValidatorService(
                 this.mockHttpClientFactory.Object,
-                this.mockGitRepoService.Object,
+                this.mockGitRepoWrapper.Object,
                 null);
         };
 
@@ -1564,7 +1565,7 @@ public class BranchValidatorServiceTests
     public void CurrentBranchIsValid_WithBranchSyntaxAndWhenRepoBranchAsNull_ThrowsException(string branch)
     {
         // Arrange
-        this.mockGitRepoService.SetupGet(p => p.Branch).Returns(branch);
+        this.mockGitRepoWrapper.SetupGet(p => p.Branch).Returns(branch);
         var service = CreateService();
 
         // Act
@@ -1590,7 +1591,7 @@ public class BranchValidatorServiceTests
         bool expected)
     {
         // Arrange
-        this.mockGitRepoService.SetupGet(p => p.Branch).Returns(branch);
+        this.mockGitRepoWrapper.SetupGet(p => p.Branch).Returns(branch);
 
         var service = CreateService();
 
@@ -1607,7 +1608,7 @@ public class BranchValidatorServiceTests
     public void CurrentBranchIsValid_WithBranchTypeAndWhenRepoBranchAsNull_ThrowsException(string branch)
     {
         // Arrange
-        this.mockGitRepoService.SetupGet(p => p.Branch).Returns(branch);
+        this.mockGitRepoWrapper.SetupGet(p => p.Branch).Returns(branch);
         var service = CreateService();
 
         // Act
@@ -1633,7 +1634,7 @@ public class BranchValidatorServiceTests
         bool expected)
     {
         // Arrange
-        this.mockGitRepoService.SetupGet(p => p.Branch).Returns(branch);
+        this.mockGitRepoWrapper.SetupGet(p => p.Branch).Returns(branch);
 
         var service = CreateService();
 
@@ -1652,6 +1653,6 @@ public class BranchValidatorServiceTests
     /// <returns>The instance to test.</returns>
     private BranchValidatorService CreateService()
         => new (this.mockHttpClientFactory.Object,
-                this.mockGitRepoService.Object,
+                this.mockGitRepoWrapper.Object,
                 this.mockRepoInfoReactable.Object);
 }

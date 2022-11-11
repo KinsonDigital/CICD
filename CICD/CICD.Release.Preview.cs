@@ -3,6 +3,7 @@
 // </copyright>
 
 using System;
+using CICDSystem.Services.Interfaces;
 using Nuke.Common;
 using Serilog;
 
@@ -40,12 +41,8 @@ public partial class CICD // Release.Preview
         .DependsOn(BuildAllProjects, RunAllUnitTests)
         .Executes(async () =>
         {
-            var tweetTemplatePath = RootDirectory / ".github" / "ReleaseTweetTemplate.txt";
-            var version = SolutionService.GetProject(RepoName)?.GetVersion() ?? string.Empty;
-
-            version = version.StartsWith("v")
-                ? version
-                : $"v{version}";
+            var projectService = App.Container.GetInstance<IProjectService>();
+            var version = projectService.GetVersion();
 
             if (string.IsNullOrEmpty(version))
             {
@@ -66,8 +63,9 @@ public partial class CICD // Release.Preview
                 Log.Information($"✅Closing GitHub milestone '{version}' . . .");
                 var milestoneClient = GitHubClient.Issue.Milestone;
                 var milestoneResult = await milestoneClient.CloseMilestone(RepoOwner, RepoName, version);
-                var milestoneMsg = $"The GitHub milestone '{version}' as been closed.";
-                milestoneMsg += $"{Environment.NewLine}{ConsoleTab}To view the milestone, go here 👉🏼 {milestoneResult.HtmlUrl}{Environment.NewLine}";
+                var milestoneMsg = $"The GitHub milestone '{version}' has been closed.";
+                milestoneMsg +=
+                    $"{Environment.NewLine}{ConsoleTab}To view the milestone, go here 👉🏼 {milestoneResult.HtmlUrl}{Environment.NewLine}";
                 Log.Information(milestoneMsg);
 
                 // Update the milestone description
@@ -75,7 +73,8 @@ public partial class CICD // Release.Preview
                 var description = await CreateMilestoneDescription(version, ReleaseType.Preview);
                 var updatedMilestone = await milestoneClient.UpdateMilestoneDescription(RepoOwner, RepoName, version, description);
                 var updateMsg = $"The GitHub Milestone '{version}' description has been updated.";
-                updateMsg += $"{Environment.NewLine}{ConsoleTab}To view the milestone, go here 👉🏼 {updatedMilestone.HtmlUrl}{Environment.NewLine}";
+                updateMsg +=
+                    $"{Environment.NewLine}{ConsoleTab}To view the milestone, go here 👉🏼 {updatedMilestone.HtmlUrl}{Environment.NewLine}";
                 Log.Information(updateMsg);
 
                 // Create the nuget package to deploy
@@ -95,13 +94,11 @@ public partial class CICD // Release.Preview
                 nugetReleaseLog += $"To view the nuget package, go here 👉🏼 {nugetUrl}";
                 Log.Information(nugetReleaseLog);
 
-                // Tweet about release if enabled
-                if (SkipTwitterAnnouncement is false)
-                {
-                    Log.Information("✅Announcing release on twitter . . .");
-                    SendReleaseTweet(tweetTemplatePath, version);
-                    Log.Information($"Twitter announcement complete!!{Environment.NewLine}");
-                }
+                var releaseTweetService = App.Container.GetInstance<IReleaseTweetService>();
+
+                Log.Information("✅Announcing release on Twitter . . .");
+                releaseTweetService.SendReleaseTweet();
+                Log.Information($"Twitter announcement complete!!{Environment.NewLine}");
             }
             catch (Exception e)
             {

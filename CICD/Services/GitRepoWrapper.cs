@@ -1,22 +1,25 @@
-﻿// <copyright file="GitRepoService.cs" company="KinsonDigital">
+﻿// <copyright file="GitRepoWrapper.cs" company="KinsonDigital">
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
 // ReSharper disable InconsistentNaming
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using CICDSystem.Services.Interfaces;
 using Nuke.Common.Git;
 
 namespace CICDSystem.Services;
 
 /// <inheritdoc/>
-internal sealed class GitRepoService : IGitRepoService
+[ExcludeFromCodeCoverage]
+internal sealed class GitRepoWrapper : IGitRepoWrapper
 {
     private readonly GitRepository gitRepository;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="GitRepoService"/> class.
+    /// Initializes a new instance of the <see cref="GitRepoWrapper"/> class.
     /// </summary>
-    public GitRepoService() => this.gitRepository = GitRepository.FromLocalDirectory(Directory.GetCurrentDirectory());
+    public GitRepoWrapper() => this.gitRepository = GitRepository.FromLocalDirectory(Directory.GetCurrentDirectory());
 
     /// <inheritdoc/>
     public string? Commit => this.gitRepository.Commit;

@@ -9,6 +9,7 @@ using System.Linq;
 using CICDSystem.Factories;
 using CICDSystem.Guards;
 using CICDSystem.Reactables.Core;
+using CICDSystem.Services.Interfaces;
 using Octokit;
 
 namespace CICDSystem.Services;
@@ -18,7 +19,7 @@ internal sealed class BranchValidatorService : IBranchValidatorService
 {
     private readonly IHttpClientFactory clientFactory;
     private readonly IDisposable unsubscriber;
-    private readonly IGitRepoService gitRepoService;
+    private readonly IGitRepoWrapper gitRepoWrapper;
     private readonly List<bool> andValues = new ();
     private readonly List<List<bool>> orValues = new ();
     private string repoOwner = string.Empty;
@@ -28,20 +29,20 @@ internal sealed class BranchValidatorService : IBranchValidatorService
     /// Initializes a new instance of the <see cref="BranchValidatorService"/> class.
     /// </summary>
     /// <param name="clientFactory">Creates HTTP clients.</param>
-    /// <param name="gitRepoService">Provides GIT repository information.</param>
+    /// <param name="gitRepoWrapper">Provides GIT repository information.</param>
     /// <param name="repoInfoReactable">Provides push notifications about repository information.</param>
     public BranchValidatorService(
         IHttpClientFactory clientFactory,
-        IGitRepoService gitRepoService,
+        IGitRepoWrapper gitRepoWrapper,
         IReactable<(string, string)> repoInfoReactable)
     {
         EnsureThat.ParamIsNotNull(clientFactory, nameof(clientFactory));
-        EnsureThat.ParamIsNotNull(gitRepoService, nameof(gitRepoService));
+        EnsureThat.ParamIsNotNull(gitRepoWrapper, nameof(gitRepoWrapper));
         EnsureThat.ParamIsNotNull(repoInfoReactable, nameof(repoInfoReactable));
 
         this.clientFactory = clientFactory;
 
-        this.gitRepoService = gitRepoService;
+        this.gitRepoWrapper = gitRepoWrapper;
 
         this.unsubscriber = repoInfoReactable.Subscribe(new Reactor<(string repoOwner, string repoName)>(
             onNext: data =>
@@ -603,7 +604,7 @@ internal sealed class BranchValidatorService : IBranchValidatorService
     /// <exception cref="Exception">Thrown if the currently checked out GIT branch is null or empty.</exception>
     public bool CurrentBranchIsValid(string branchPattern)
     {
-        var branch = this.gitRepoService.Branch;
+        var branch = this.gitRepoWrapper.Branch;
 
         if (string.IsNullOrEmpty(branch))
         {
@@ -618,7 +619,7 @@ internal sealed class BranchValidatorService : IBranchValidatorService
     /// <exception cref="ArgumentOutOfRangeException">Thrown if the <paramref name="branchType"/> is an invalid value.</exception>
     public bool CurrentBranchIsValid(BranchType branchType)
     {
-        var branch = this.gitRepoService.Branch;
+        var branch = this.gitRepoWrapper.Branch;
 
         if (string.IsNullOrEmpty(branch))
         {

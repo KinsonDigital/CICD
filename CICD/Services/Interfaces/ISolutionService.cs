@@ -5,7 +5,7 @@
 using System.Collections.Generic;
 using Nuke.Common.ProjectModel;
 
-namespace CICDSystem.Services;
+namespace CICDSystem.Services.Interfaces;
 
 /// <summary>
 /// Provides functionality for a <c>C#</c> solution.
@@ -16,6 +16,11 @@ internal interface ISolutionService
     /// Gets the list of all the projects contained in a solution.
     /// </summary>
     IReadOnlyCollection<Project> AllProjects { get; }
+
+    /// <summary>
+    /// Gets the root directory of the solution.
+    /// </summary>
+    string Directory { get; }
 
     /// <summary>
     /// Gets a project that matches the given project name or fully qualified path.

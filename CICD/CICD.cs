@@ -4,8 +4,9 @@
 
 // ReSharper disable InconsistentNaming
 using CICDSystem.Factories;
+using CICDSystem.Guards;
 using CICDSystem.Reactables.Core;
-using CICDSystem.Services;
+using CICDSystem.Services.Interfaces;
 using Nuke.Common;
 using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
@@ -24,6 +25,8 @@ public partial class CICD : NukeBuild
     private string repoOwner = string.Empty;
     private string repoName = string.Empty;
     private string projectName = string.Empty;
+    private TwitterSecrets twitterSecrets;
+
     private int pullRequestNumber;
 
     /// <summary>
@@ -67,15 +70,29 @@ public partial class CICD : NukeBuild
 
     private Configuration Configuration => GetBuildConfig();
 
-    private IGitRepoService Repo => App.Container.GetInstance<IGitRepoService>();
+    private IGitRepoWrapper Repo => App.Container.GetInstance<IGitRepoWrapper>();
 
     [Parameter("The output directory of where the template workflows should be generated.")]
     private string? WorkflowTemplateOutput { get; set; }
 
-    [Parameter("If true, will skip the twitter announcement of a release.")]
-    private bool SkipTwitterAnnouncement { get; set; }
+    [Parameter("If true, will skip the Twitter announcement of a release.")]
+    private bool SkipTwitterAnnouncement
+    {
+        set
+        {
+            var skipReactable = App.Container.GetInstance<IReactable<bool>>();
 
-    [Parameter("The owner of the GitHub repo.  This can also be the GitHub organization that owns the repository.")]
+            if (skipReactable.NotificationsEnded)
+            {
+                return;
+            }
+
+            skipReactable.PushNotification(value);
+            skipReactable.EndNotifications();
+        }
+    }
+
+    [Parameter("The owner of the GitHub repository.  This can also be the GitHub organization that owns the repository.")]
     private string RepoOwner
     {
         get => this.repoOwner;
@@ -174,19 +191,111 @@ public partial class CICD : NukeBuild
 
     [Parameter("The Twitter consumer API key.  Essentially the Twitter username.")]
     [Secret]
-    private string TwitterConsumerApiKey { get; set; } = string.Empty;
+    private string TwitterConsumerApiKey
+    {
+        get => this.twitterSecrets.TwitterConsumerApiKey;
+        set
+        {
+            EnsureThat.StringParamIsNotNullOrEmpty(value, nameof(TwitterConsumerApiKey));
+
+            this.twitterSecrets.TwitterConsumerApiKey = value;
+
+            var twitterSecretsReactable = App.Container.GetInstance<IReactable<TwitterSecrets>>();
+
+            if (twitterSecretsReactable.NotificationsEnded)
+            {
+                return;
+            }
+
+            twitterSecretsReactable.PushNotification(this.twitterSecrets);
+
+            if (this.twitterSecrets.AllSecretsSet())
+            {
+                twitterSecretsReactable.EndNotifications();
+            }
+        }
+    }
 
     [Parameter("The Twitter consumer API secret.  Essentially the Twitter password.")]
     [Secret]
-    private string TwitterConsumerApiSecret { get; set; } = string.Empty;
+    private string TwitterConsumerApiSecret
+    {
+        get => this.twitterSecrets.TwitterConsumerApiSecret;
+        set
+        {
+            EnsureThat.StringParamIsNotNullOrEmpty(value, nameof(TwitterConsumerApiSecret));
+
+            this.twitterSecrets.TwitterConsumerApiSecret = value;
+
+            var twitterSecretsReactable = App.Container.GetInstance<IReactable<TwitterSecrets>>();
+
+            if (twitterSecretsReactable.NotificationsEnded)
+            {
+                return;
+            }
+
+            twitterSecretsReactable.PushNotification(this.twitterSecrets);
+
+            if (this.twitterSecrets.AllSecretsSet())
+            {
+                twitterSecretsReactable.EndNotifications();
+            }
+        }
+    }
 
     [Parameter("The Twitter access token.")]
     [Secret]
-    private string TwitterAccessToken { get; set; } = string.Empty;
+    private string TwitterAccessToken
+    {
+        get => this.twitterSecrets.TwitterAccessToken;
+        set
+        {
+            EnsureThat.StringParamIsNotNullOrEmpty(value, nameof(TwitterAccessToken));
+
+            this.twitterSecrets.TwitterAccessToken = value;
+
+            var twitterSecretsReactable = App.Container.GetInstance<IReactable<TwitterSecrets>>();
+
+            if (twitterSecretsReactable.NotificationsEnded)
+            {
+                return;
+            }
+
+            twitterSecretsReactable.PushNotification(this.twitterSecrets);
+
+            if (this.twitterSecrets.AllSecretsSet())
+            {
+                twitterSecretsReactable.EndNotifications();
+            }
+        }
+    }
 
     [Parameter("The Twitter access token secret.")]
     [Secret]
-    private string TwitterAccessTokenSecret { get; set; } = string.Empty;
+    private string TwitterAccessTokenSecret
+    {
+        get => this.twitterSecrets.TwitterAccessTokenSecret;
+        set
+        {
+            EnsureThat.StringParamIsNotNullOrEmpty(value, nameof(TwitterAccessTokenSecret));
+
+            this.twitterSecrets.TwitterAccessTokenSecret = value;
+
+            var twitterSecretsReactable = App.Container.GetInstance<IReactable<TwitterSecrets>>();
+
+            if (twitterSecretsReactable.NotificationsEnded)
+            {
+                return;
+            }
+
+            twitterSecretsReactable.PushNotification(this.twitterSecrets);
+
+            if (this.twitterSecrets.AllSecretsSet())
+            {
+                twitterSecretsReactable.EndNotifications();
+            }
+        }
+    }
 
     private IGitHubClient GitHubClient => App.Container.GetInstance<IHttpClientFactory>().CreateGitHubClient();
 

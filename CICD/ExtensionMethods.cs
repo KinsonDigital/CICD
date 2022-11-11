@@ -4,19 +4,18 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Nuke.Common;
-using Nuke.Common.CI.GitHubActions;
 using Nuke.Common.Git;
 using Nuke.Common.ProjectModel;
 using Nuke.Common.Utilities.Collections;
 using Octokit;
 using Serilog;
-using static Nuke.Common.NukeBuild;
 using Project = Nuke.Common.ProjectModel.Project;
 
 namespace CICDSystem;
@@ -39,90 +38,6 @@ internal static class ExtensionMethods
         'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
         'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
     };
-
-    public static string AddIndents(this string value, int count, bool addBefore = true)
-    {
-        var tabs = string.Empty;
-
-        for (var i = 0; i < count; i++)
-        {
-            tabs += "  ";
-        }
-
-        return addBefore ? $"{tabs}{value}" : $"{value}{tabs}";
-    }
-
-    public static string AddNewLine(this string value, int count, bool addAfter = true)
-    {
-        var newLines = string.Empty;
-
-        for (var i = 0; i < count; i++)
-        {
-            newLines += Environment.NewLine;
-        }
-
-        return addAfter ? $"{value}{newLines}" : $"{newLines}{value}";
-    }
-
-    public static string ToSnakeCase(this string value)
-    {
-        var allUpperCase = value.All(c => UpperCaseLetters.Contains(c));
-        var allLowerCase = value.All(c => LowerCaseLetters.Contains(c));
-        var noSpaces = value.All(c => c != ' ');
-        if (string.IsNullOrEmpty(value) ||
-            (noSpaces && (allUpperCase || allLowerCase)))
-        {
-            return value;
-        }
-
-        value = value.Trim();
-        return value.Replace(" ", "_").Replace("-", "_").ToLower();
-    }
-
-    public static string ToPascalCase(this string value)
-    {
-        /*
-         * Build Project
-         * BuildProject
-         * Build-Project
-         * Build_Project
-         * build project
-         */
-        var allUpperCase = value.All(c => UpperCaseLetters.Contains(c));
-        var allLowerCase = value.All(c => LowerCaseLetters.Contains(c));
-        var noSpaces = value.All(c => c != ' ');
-        if (string.IsNullOrEmpty(value) ||
-            (noSpaces && (allUpperCase || allLowerCase)))
-        {
-            return value;
-        }
-
-        var characters = value.ToArray();
-
-        for (var i = 0; i < characters.Length; i++)
-        {
-            if (i == 0)
-            {
-                characters[i] = LowerCaseLetters.Contains(characters[i])
-                    ? characters[i].ToString().ToUpper()[0]
-                    : characters[i];
-                continue;
-            }
-
-            var current = characters[i];
-            var previous = characters[i >= 1 ? i - 1 : i];
-
-            if (LowerCaseLetters.Contains(current) && previous == ' ')
-            {
-                characters[i] = current.ToString().ToUpper()[0];
-            }
-        }
-
-        return string.Join(string.Empty, characters)
-            .Replace("-", " ")
-            .Replace("_", " ")
-            .ToSpaceDelimitedSections();
-    }
 
     public static string ToKebabCase(this string value)
     {
@@ -434,7 +349,7 @@ internal static class ExtensionMethods
     public static string TotalTimeToComplete(this IEnumerable<Issue> issues)
     {
         var enumeratedIssues = issues.ToArray();
-        var oldest = enumeratedIssues.Min(i => issues.Count() <= 1 ? i.CreatedAt : i.ClosedAt);
+        var oldest = enumeratedIssues.Min(i => enumeratedIssues.Length <= 1 ? i.CreatedAt : i.ClosedAt);
         var newest = enumeratedIssues.Max(i => i.ClosedAt);
 
         var timeToComplete = newest - oldest;
@@ -586,18 +501,6 @@ internal static class ExtensionMethods
         return pr is not null;
     }
 
-    public static async Task<bool> LabelExists(
-        this IPullRequestsClient client,
-        string repoOwner,
-        string repoName,
-        int prNumber,
-        string labelName)
-    {
-        var pr = await client.Get(repoOwner, repoName, prNumber);
-
-        return pr.Labels.Any(l => l.Name == labelName);
-    }
-
     public static async Task<bool> HasAssignees(
         this IPullRequestsClient client,
         string owner,
@@ -691,7 +594,7 @@ internal static class ExtensionMethods
                 ? pr.Milestone is not null && pr.Milestone.State == ItemState.Open
                 : pr.Milestone is not null && pr.Milestone.State == ItemState.Closed;
 
-            return (isAssigned, pr?.Milestone ?? null);
+            return (isAssigned, pr.Milestone ?? null);
         }
         catch (NotFoundException)
         {
@@ -928,6 +831,21 @@ internal static class ExtensionMethods
     }
 
     /// <summary>
+    /// Returns a value indicating whether or not a GitHub issue is a QA testing issue.
+    /// </summary>
+    /// <param name="issue">The GitHub issue to check.</param>
+    /// <returns><c>true</c> if a QA testing issue.</returns>
+    public static bool IsQATestingIssue(this Issue issue)
+    {
+        const string qaTestingLabel = "🧪qa testing";
+        var isIssue = issue.PullRequest is null;
+        var validLabelState = (issue.Labels?.Any(l => l.Name == qaTestingLabel) ?? false)
+                              && issue.Labels.Count == 1;
+
+        return isIssue && validLabelState;
+    }
+
+    /// <summary>
     /// Returns a value indicating whether or not a GitHub issue is a release pull request.
     /// </summary>
     /// <param name="issue">The GitHub issue to check.</param>
@@ -1004,6 +922,12 @@ internal static class ExtensionMethods
     public static void LogAsInfo(this IReadOnlyList<Issue> issues, int totalIndentSpaces = 0)
         => Log.Information(issues.GetLogText(totalIndentSpaces));
 
+    /// <summary>
+    /// Prints all of the given <paramref name="errors"/> and fails the build with the given <paramref name="failMsg"/>.
+    /// </summary>
+    /// <param name="errors">The list of error messages to print.</param>
+    /// <param name="failMsg">The message to print when failing the build.</param>
+    [ExcludeFromCodeCoverage]
     public static void PrintErrors(this IEnumerable<string>? errors, string? failMsg = null)
     {
         var errorList = errors is null
@@ -1026,10 +950,9 @@ internal static class ExtensionMethods
     }
 
     /// <summary>
-    /// Returns a value indicating whether or not a branch with the given branch name
-    /// matches the given <paramref name="pattern"/>.
+    /// Returns a value indicating whether or not the current <c>string</c> matches the given <paramref name="pattern"/>.
     /// </summary>
-    /// <param name="value">The value to check against the branch name.</param>
+    /// <param name="value">The value to check.</param>
     /// <param name="pattern">The pattern to check against the <c>string</c> <paramref name="value"/>.</param>
     /// <returns><c>true</c> if the <paramref name="pattern"/> is equal to the branch name.</returns>
     /// <remarks>
@@ -1045,32 +968,6 @@ internal static class ExtensionMethods
             : (string.IsNullOrEmpty(pattern) && string.IsNullOrEmpty(value)) || pattern == value;
 
         return isEqual;
-    }
-
-    /// <summary>
-    /// Returns the name of the repository.
-    /// </summary>
-    /// <param name="actions">GitHub Actions related functionality.</param>
-    /// <returns>The name of the repository.</returns>
-    public static string RepositoryName(this GitHubActions actions)
-    {
-        if (IsLocalBuild)
-        {
-            var projectFileSections = BuildProjectFile?
-                .ToString()
-                .Replace('\\', '/')
-                .Split('/') ?? Array.Empty<string>();
-
-            var file = projectFileSections.FirstOrDefault(s => s.StartsWith('.') is false && s.Contains(".csproj"));
-
-            return file?.Split('.')[0] ?? string.Empty;
-        }
-
-        var sections = actions.Repository.Split('/');
-
-        return sections.Length >= 2
-            ? sections[1]
-            : string.Empty;
     }
 
     /// <summary>
