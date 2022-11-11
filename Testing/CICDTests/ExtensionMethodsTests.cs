@@ -365,6 +365,81 @@ public class ExtensionMethodsTests
     }
 
     [Theory]
+    [InlineData("🧪qa testing", true)]
+    [InlineData("invalid-label", false)]
+    public void IsQATestingIssue_WithDifferentLabelStates_ReturnsCorrectResult(string labelName, bool expected)
+    {
+        // Arrange
+        var labels = new ReadOnlyCollection<Label>(new[] { CreateLabelObj(labelName) });
+
+        var sut = CreateIssueObj(labels: labels);
+
+        // Act
+        var actual = sut.IsQATestingIssue();
+
+        // Assert
+        actual.Should().Be(expected);
+    }
+
+    [Fact]
+    public void IsQATestingIssue_WithNoLabels_ReturnsFalse()
+    {
+        // Arrange
+        var labels = new ReadOnlyCollection<Label>(Array.Empty<Label>());
+
+        var sut = CreateIssueObj(labels: labels);
+
+        // Act
+        var actual = sut.IsQATestingIssue();
+
+        // Assert
+        actual.Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsQATestingIssue_WithMoreThanOneLabel_ReturnsFalse()
+    {
+        // Arrange
+        var correctLabel = CreateLabelObj("🧪qa testing");
+        var otherLabel = CreateLabelObj("other-label");
+        var labels = new ReadOnlyCollection<Label>(new[] { correctLabel, otherLabel });
+
+        var sut = CreateIssueObj(labels: labels);
+
+        // Act
+        var actual = sut.IsQATestingIssue();
+
+        // Assert
+        actual.Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsQATestingIssue_WithNullLabels_ReturnsFalse()
+    {
+        // Arrange
+        var sut = CreateIssueObj();
+
+        // Act
+        var actual = sut.IsQATestingIssue();
+
+        // Assert
+        actual.Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsQATestingIssue_WhenIssueIsAPullRequest_ReturnsFalse()
+    {
+        // Arrange
+        var sut = CreateIssueObj(pr: CreatePullRequestObj());
+
+        // Act
+        var actual = sut.IsQATestingIssue();
+
+        // Assert
+        actual.Should().BeFalse();
+    }
+
+    [Theory]
     [InlineData("preview/v1.2.3-preview.4", "preview/v#.#.#-preview.#", true)]
     [InlineData("feature/123-my-branch", "feature/123-my-branch", true)]
     [InlineData("", "", true)]
