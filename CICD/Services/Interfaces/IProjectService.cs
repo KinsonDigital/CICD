@@ -5,7 +5,7 @@
 namespace CICDSystem.Services.Interfaces;
 
 /// <summary>
-/// Provides ability to get information about a project.
+/// Provides the ability to get information about a project.
 /// </summary>
 public interface IProjectService
 {

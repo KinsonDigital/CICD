@@ -92,7 +92,7 @@ public partial class CICD : NukeBuild
         }
     }
 
-    [Parameter("The owner of the GitHub repo.  This can also be the GitHub organization that owns the repository.")]
+    [Parameter("The owner of the GitHub repository.  This can also be the GitHub organization that owns the repository.")]
     private string RepoOwner
     {
         get => this.repoOwner;

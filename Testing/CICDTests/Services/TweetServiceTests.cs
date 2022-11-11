@@ -14,7 +14,7 @@ using Xunit;
 namespace CICDSystemTests.Services;
 
 /// <summary>
-/// Tests the <see cref="TweetService"/> class.
+/// Tests the <see cref="ReleaseTweetService"/> class.
 /// </summary>
 public class TweetServiceTests
 {
@@ -52,14 +52,13 @@ public class TweetServiceTests
     }
 
     #region Constructor Tests
-
     [Fact]
     public void Ctor_WithNullSolutionServiceParam_ThrowsException()
     {
         // Arrange & Act
         var act = () =>
         {
-            _ = new TweetService(
+            _ = new ReleaseTweetService(
                 null,
                 this.mockTwitterService.Object,
                 this.mockConsoleLoggerService.Object,
@@ -81,7 +80,7 @@ public class TweetServiceTests
         // Arrange & Act
         var act = () =>
         {
-            _ = new TweetService(
+            _ = new ReleaseTweetService(
                 this.mockSolutionService.Object,
                 null,
                 this.mockConsoleLoggerService.Object,
@@ -103,7 +102,7 @@ public class TweetServiceTests
         // Arrange & Act
         var act = () =>
         {
-            _ = new TweetService(
+            _ = new ReleaseTweetService(
                 this.mockSolutionService.Object,
                 this.mockTwitterService.Object,
                 null,
@@ -125,7 +124,7 @@ public class TweetServiceTests
         // Arrange & Act
         var act = () =>
         {
-            _ = new TweetService(
+            _ = new ReleaseTweetService(
                 this.mockSolutionService.Object,
                 this.mockTwitterService.Object,
                 this.mockConsoleLoggerService.Object,
@@ -147,7 +146,7 @@ public class TweetServiceTests
         // Arrange & Act
         var act = () =>
         {
-            _ = new TweetService(
+            _ = new ReleaseTweetService(
                 this.mockSolutionService.Object,
                 this.mockTwitterService.Object,
                 this.mockConsoleLoggerService.Object,
@@ -169,7 +168,7 @@ public class TweetServiceTests
         // Arrange & Act
         var act = () =>
         {
-            _ = new TweetService(
+            _ = new ReleaseTweetService(
                 this.mockSolutionService.Object,
                 this.mockTwitterService.Object,
                 this.mockConsoleLoggerService.Object,
@@ -191,7 +190,7 @@ public class TweetServiceTests
         // Arrange & Act
         var act = () =>
         {
-            _ = new TweetService(
+            _ = new ReleaseTweetService(
                 this.mockSolutionService.Object,
                 this.mockTwitterService.Object,
                 this.mockConsoleLoggerService.Object,
@@ -343,10 +342,10 @@ public class TweetServiceTests
     #endregion
 
     /// <summary>
-    /// Creates a new instance of <see cref="TweetService"/> for the purpose of testing.
+    /// Creates a new instance of <see cref="ReleaseTweetService"/> for the purpose of testing.
     /// </summary>
     /// <returns>The instance to test.</returns>
-    private TweetService CreateService()
+    private ReleaseTweetService CreateService()
         => new (this.mockSolutionService.Object,
             this.mockTwitterService.Object,
             this.mockConsoleLoggerService.Object,

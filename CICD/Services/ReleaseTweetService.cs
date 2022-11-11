@@ -1,4 +1,4 @@
-﻿// <copyright file="TweetService.cs" company="KinsonDigital">
+﻿// <copyright file="ReleaseTweetService.cs" company="KinsonDigital">
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
@@ -13,7 +13,7 @@ using Serilog;
 namespace CICDSystem.Services;
 
 /// <inheritdoc/>
-internal sealed class TweetService : ITweetService
+internal sealed class ReleaseTweetService : IReleaseTweetService
 {
     private const string TemplateFileName = "ReleaseTweetTemplate.txt";
     private readonly ISolutionService solutionService;
@@ -28,7 +28,7 @@ internal sealed class TweetService : ITweetService
     private string repoName = string.Empty;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="TweetService"/> class.
+    /// Initializes a new instance of the <see cref="ReleaseTweetService"/> class.
     /// </summary>
     /// <param name="solutionService">Provides information about a solution.</param>
     /// <param name="twitterService">Provides functionality with Twitter.</param>
@@ -37,7 +37,7 @@ internal sealed class TweetService : ITweetService
     /// <param name="file">Manages files.</param>
     /// <param name="repoInfoReactable">Provides push notifications about repository information.</param>
     /// <param name="skipReleaseTweetReactable">Provides push notifications if release tweets should be skipped.</param>
-    public TweetService(
+    public ReleaseTweetService(
         ISolutionService solutionService,
         ITwitterService twitterService,
         IConsoleLoggerService loggerService,

@@ -63,7 +63,7 @@ public partial class CICD // Release.Preview
                 Log.Information($"✅Closing GitHub milestone '{version}' . . .");
                 var milestoneClient = GitHubClient.Issue.Milestone;
                 var milestoneResult = await milestoneClient.CloseMilestone(RepoOwner, RepoName, version);
-                var milestoneMsg = $"The GitHub milestone '{version}' as been closed.";
+                var milestoneMsg = $"The GitHub milestone '{version}' has been closed.";
                 milestoneMsg +=
                     $"{Environment.NewLine}{ConsoleTab}To view the milestone, go here 👉🏼 {milestoneResult.HtmlUrl}{Environment.NewLine}";
                 Log.Information(milestoneMsg);
@@ -94,10 +94,10 @@ public partial class CICD // Release.Preview
                 nugetReleaseLog += $"To view the nuget package, go here 👉🏼 {nugetUrl}";
                 Log.Information(nugetReleaseLog);
 
-                var tweetService = App.Container.GetInstance<ITweetService>();
+                var releaseTweetService = App.Container.GetInstance<IReleaseTweetService>();
 
                 Log.Information("✅Announcing release on twitter . . .");
-                tweetService.SendReleaseTweet();
+                releaseTweetService.SendReleaseTweet();
                 Log.Information($"Twitter announcement complete!!{Environment.NewLine}");
             }
             catch (Exception e)

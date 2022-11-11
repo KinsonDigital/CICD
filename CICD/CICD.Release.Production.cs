@@ -96,10 +96,10 @@ public partial class CICD // Release.Production
                 Log.Information(nugetReleaseLog);
 
                 // Tweet about release
-                var tweetService = App.Container.GetInstance<ITweetService>();
+                var releaseTweetService = App.Container.GetInstance<IReleaseTweetService>();
 
                 Log.Information("✅Announcing release on twitter . . .");
-                tweetService.SendReleaseTweet();
+                releaseTweetService.SendReleaseTweet();
                 Log.Information($"Twitter announcement complete!!{Environment.NewLine}");
 
                 // Merge the master branch into the develop branch

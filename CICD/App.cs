@@ -57,7 +57,7 @@ internal static class App
         IoCContainer.Register<IProjectService, ProjectService>(Lifestyle.Singleton);
         IoCContainer.Register<IReactable<bool>, SkipReleaseTweetReactable>(Lifestyle.Singleton);
         IoCContainer.Register<ISolutionWrapper, SolutionWrapper>(Lifestyle.Singleton);
-        IoCContainer.Register<ITweetService, TweetService>(Lifestyle.Singleton);
+        IoCContainer.Register<IReleaseTweetService, ReleaseTweetService>(Lifestyle.Singleton);
         IoCContainer.Register<ITwitterService, TwitterService>(Lifestyle.Singleton);
         IoCContainer.Register<IConsoleLoggerService, ConsoleLoggerService>(Lifestyle.Singleton);
         IoCContainer.Register<ISolutionService, SolutionService>(Lifestyle.Singleton);
