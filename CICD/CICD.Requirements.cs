@@ -1345,7 +1345,7 @@ public partial class CICD // Requirements
             : milestoneIssues.Where(i =>
             {
                 var issueNote = $"[#{i.Number}]({baseUrl}/{RepoOwner}/{RepoName}/issues/{i.Number})";
-                return !i.IsReleaseToDoIssue(releaseType) &&
+                return !i.IsReleaseToDoIssue(releaseType) && !i.IsQATestingIssue() &&
                        !releaseNotes.Contains(issueNote);
             }).ToArray();
 

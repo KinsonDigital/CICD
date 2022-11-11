@@ -831,6 +831,21 @@ internal static class ExtensionMethods
     }
 
     /// <summary>
+    /// Returns a value indicating whether or not a GitHub issue is a QA testing issue.
+    /// </summary>
+    /// <param name="issue">The GitHub issue to check.</param>
+    /// <returns><c>true</c> if a QA testing issue.</returns>
+    public static bool IsQATestingIssue(this Issue issue)
+    {
+        const string qaTestingLabel = "🧪qa testing";
+        var isIssue = issue.PullRequest is null;
+        var validLabelState = (issue.Labels?.Any(l => l.Name == qaTestingLabel) ?? false)
+                              && issue.Labels.Count == 1;
+
+        return isIssue && validLabelState;
+    }
+
+    /// <summary>
     /// Returns a value indicating whether or not a GitHub issue is a release pull request.
     /// </summary>
     /// <param name="issue">The GitHub issue to check.</param>
