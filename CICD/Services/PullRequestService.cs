@@ -7,6 +7,7 @@ using System;
 using CICDSystem.Factories;
 using CICDSystem.Guards;
 using CICDSystem.Reactables.Core;
+using CICDSystem.Services.Interfaces;
 using Octokit;
 
 namespace CICDSystem.Services;

@@ -91,6 +91,21 @@ public class SolutionServiceTests
         // Assert
         actual.Should().BeEquivalentTo(expected);
     }
+
+    [Fact]
+    public void Directory_WhenGettingValue_ReturnsCorrectResult()
+    {
+        // Arrange
+        this.mockSolutionWrapper.SetupGet(p => p.Directory).Returns("test-dir-path");
+
+        var sut = CreateService();
+
+        // Act
+        var act = sut.Directory;
+
+        // Assert
+        act.Should().Be("test-dir-path");
+    }
     #endregion
 
     #region Method Tests

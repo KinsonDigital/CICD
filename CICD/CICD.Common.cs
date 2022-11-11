@@ -9,11 +9,10 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using CICDSystem.Services;
+using CICDSystem.Services.Interfaces;
 using GlobExpressions;
 using Nuke.Common;
 using Nuke.Common.Tools.DotNet;
-using Nuke.Common.Tools.Twitter;
 using Octokit;
 using Serilog;
 
@@ -123,28 +122,6 @@ public partial class CICD // Common
         {
             throw new FileNotFoundException("The nuget package could not be found.", fullPackagePath);
         }
-    }
-
-    private void SendReleaseTweet(string templateFilePath, string releaseVersion)
-    {
-        const string leftBracket = "{";
-        const string rightBracket = "}";
-        const string projLocation = $"{leftBracket}PROJECT_NAME{rightBracket}";
-        const string repoOwnerInjectionPoint = $"{leftBracket}REPO_OWNER{rightBracket}";
-        const string version = $"{leftBracket}VERSION{rightBracket}";
-
-        if (File.Exists(templateFilePath) is false)
-        {
-            return;
-        }
-
-        var tweetTemplate = File.ReadAllText(templateFilePath);
-
-        tweetTemplate = tweetTemplate.Replace(projLocation, RepoName);
-        tweetTemplate = tweetTemplate.Replace(repoOwnerInjectionPoint, RepoOwner);
-        tweetTemplate = tweetTemplate.Replace(version, releaseVersion);
-
-        TwitterTasks.SendTweet(tweetTemplate, TwitterConsumerApiKey, TwitterConsumerApiSecret, TwitterAccessToken, TwitterAccessTokenSecret);
     }
 
     private bool ReleaseNotesExist(ReleaseType releaseType, string version)

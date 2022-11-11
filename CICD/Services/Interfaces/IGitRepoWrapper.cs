@@ -1,13 +1,13 @@
-﻿// <copyright file="IGitRepoService.cs" company="KinsonDigital">
+﻿// <copyright file="IGitRepoWrapper.cs" company="KinsonDigital">
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
-namespace CICDSystem.Services;
+namespace CICDSystem.Services.Interfaces;
 
 /// <summary>
 /// Provides GIT repository related services.
 /// </summary>
-internal interface IGitRepoService
+internal interface IGitRepoWrapper
 {
     /// <summary>
     /// Gets the current commit.

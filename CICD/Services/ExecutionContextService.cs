@@ -3,6 +3,7 @@
 // </copyright>
 
 using System.Diagnostics.CodeAnalysis;
+using CICDSystem.Services.Interfaces;
 
 namespace CICDSystem.Services;
 

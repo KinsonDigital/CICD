@@ -4,7 +4,7 @@
 
 using System;
 
-namespace CICDSystem.Services;
+namespace CICDSystem.Services.Interfaces;
 
 /// <summary>
 /// Validates GIT branches using a <c>Fluent API</c>.

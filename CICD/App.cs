@@ -9,6 +9,7 @@ using CICDSystem.Factories;
 using CICDSystem.Reactables;
 using CICDSystem.Reactables.Core;
 using CICDSystem.Services;
+using CICDSystem.Services.Interfaces;
 using Nuke.Common.ProjectModel;
 using SimpleInjector;
 
@@ -25,7 +26,7 @@ internal static class App
     private static bool isInitialized;
 
     /// <summary>
-    /// Gets the inversion of control container used to get instances of objects.
+    /// Gets the inversion of control container used to produce instances of objects.
     /// </summary>
     public static Container Container
     {
@@ -51,10 +52,16 @@ internal static class App
         IoCContainer.Register<IReactable<(string, string)>, RepoInfoReactable>(Lifestyle.Singleton);
         IoCContainer.Register<IReactable<string>, ProductNameReactable>(Lifestyle.Singleton);
         IoCContainer.Register<IReactable<int>, PRNumberReactable>(Lifestyle.Singleton);
+        IoCContainer.Register<IReactable<TwitterSecrets>, TwitterSecretsReactable>(Lifestyle.Singleton);
         IoCContainer.Register<IReactable<Solution>, SolutionReactable>(Lifestyle.Singleton);
+        IoCContainer.Register<IProjectService, ProjectService>(Lifestyle.Singleton);
+        IoCContainer.Register<IReactable<bool>, SkipReleaseTweetReactable>(Lifestyle.Singleton);
         IoCContainer.Register<ISolutionWrapper, SolutionWrapper>(Lifestyle.Singleton);
+        IoCContainer.Register<IReleaseTweetService, ReleaseTweetService>(Lifestyle.Singleton);
+        IoCContainer.Register<ITwitterService, TwitterService>(Lifestyle.Singleton);
+        IoCContainer.Register<IConsoleLoggerService, ConsoleLoggerService>(Lifestyle.Singleton);
         IoCContainer.Register<ISolutionService, SolutionService>(Lifestyle.Singleton);
-        IoCContainer.Register<IGitRepoService, GitRepoService>(Lifestyle.Singleton);
+        IoCContainer.Register<IGitRepoWrapper, GitRepoWrapper>(Lifestyle.Singleton);
         IoCContainer.Register<IPullRequestService, PullRequestService>(Lifestyle.Singleton);
         IoCContainer.Register<IExecutionContextService, ExecutionContextService>(Lifestyle.Singleton);
         IoCContainer.Register<IGitHubTokenService, GitHubTokenService>(Lifestyle.Singleton);

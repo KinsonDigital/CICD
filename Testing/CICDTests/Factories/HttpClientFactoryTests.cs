@@ -4,7 +4,7 @@
 
 using CICDSystem.Factories;
 using CICDSystem.Reactables.Core;
-using CICDSystem.Services;
+using CICDSystem.Services.Interfaces;
 using FluentAssertions;
 using Moq;
 using Xunit;
