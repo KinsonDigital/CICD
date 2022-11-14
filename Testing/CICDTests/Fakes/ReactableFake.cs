@@ -12,5 +12,4 @@ namespace CICDSystemTests.Fakes;
 /// <typeparam name="T">The type of notification to set.</typeparam>
 internal sealed class ReactableFake<T> : Reactable<T>
 {
-    public override void PushNotification(T data) => throw new NotImplementedException();
 }
