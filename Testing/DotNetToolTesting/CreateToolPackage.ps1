@@ -6,7 +6,7 @@ $toolTestingDirPath = $PSScriptRoot;
 $nugetPackageOutputDirPath = "$toolTestingDirPath/packages";
 
 if (Test-Path -Path $nugetPackageOutputDirPath) {
-    # Delete all nuget packages
+    # Delete all NuGet packages
     Remove-Item -Path "$nugetPackageOutputDirPath" -Recurse -Confirm:$false;
 }
 
@@ -28,5 +28,5 @@ $toolProjectPath = "$repoRootDirPath/$toolProjName/$projectFile";
 # Build the project
 dotnet build "$toolProjectPath" -c "Debug";
 
-# Create the nuget package
+# Create the NuGet package
 dotnet pack $toolProjectPath -c "Debug" -o $nugetPackageOutputDirPath;;

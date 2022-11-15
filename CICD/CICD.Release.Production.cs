@@ -78,21 +78,29 @@ public partial class CICD // Release.Production
                 updateMsg += $"{Environment.NewLine}{ConsoleTab}To view the milestone, go here 👉🏼 {updatedMilestone.HtmlUrl}{Environment.NewLine}";
                 Log.Information(updateMsg);
 
-                // Create the nuget package to deploy
+                // If README pre-processing should be performed, process README before packaging
+                if (PreProcessReadMe)
+                {
+                    var readmeService = App.Container.GetInstance<IReadmeService>();
+
+                    readmeService.RunPreProcessing();
+                }
+
+                // Create the NuGet package to deploy
                 var fileName = $"{RepoName}.{version.TrimStart('v')}.nupkg";
                 var nugetPath = $"{NugetOutputPath}/{fileName}"
                     .Replace(RootDirectory, "./")
                     .Replace(@"\", "/");
-                Log.Information("✅Creating a nuget package . . .");
+                Log.Information("✅Creating a NuGet package . . .");
                 CreateNugetPackage();
                 Log.Information($"Nuget package created at location '{nugetPath}'{Environment.NewLine}");
 
-                // Publish nuget package to nuget.org
-                Log.Information("✅Publishing nuget package to nuget.org . . .");
+                // Publish NuGet package to nuget.org
+                Log.Information("✅Publishing NuGet package to nuget.org . . .");
                 var nugetUrl = $"https://www.nuget.org/packages/{RepoOwner}.{RepoName}/{version.TrimStart('v')}";
                 PublishNugetPackage();
                 var nugetReleaseLog = "Nuget package published!!🚀";
-                nugetReleaseLog += $"To view the nuget package, go here 👉🏼 {nugetUrl}";
+                nugetReleaseLog += $"To view the NuGet package, go here 👉🏼 {nugetUrl}";
                 Log.Information(nugetReleaseLog);
 
                 // Tweet about release

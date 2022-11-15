@@ -52,6 +52,10 @@
           "type": "boolean",
           "description": "Shows the execution plan (HTML)"
         },
+        "PreProcessReadMe": {
+          "type": "boolean",
+          "description": "If true, will perform pre-processing on the project README file before NuGet packaging"
+        },
         "PreviewReleaseNotesDirName": {
           "type": "string",
           "description": "The name of the preview release notes directory name.  This will be located in the 'ReleaseNotesBaseDirPath'"

@@ -3,5 +3,6 @@
   "Solution": "CICD.sln",
   "RepoOwner": "KinsonDigital",
   "RepoName": "CICD",
-  "ProjectName": "CICD"
+  "ProjectName": "CICD",
+  "PreProcessReadMe": true
 }

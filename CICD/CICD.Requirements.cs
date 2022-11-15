@@ -1597,7 +1597,7 @@ public partial class CICD // Requirements
     private bool ThatTheNugetPackageDoesNotExist()
     {
         nameof(ThatTheNugetPackageDoesNotExist)
-            .LogRequirementTitle("Checking that the nuget package does not already exist.");
+            .LogRequirementTitle("Checking that the NuGet package does not already exist.");
 
         var project = SolutionService.GetProject(RepoName);
         var errors = new List<string>();
@@ -1630,7 +1630,7 @@ public partial class CICD // Requirements
 
         if (nugetPackageExists)
         {
-            errors.Add($"The nuget package '{RepoName}' version 'v{projectVersion}' already exists.");
+            errors.Add($"The NuGet package '{RepoName}' version 'v{projectVersion}' already exists.");
         }
 
         if (errors.Count <= 0)

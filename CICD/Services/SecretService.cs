@@ -18,9 +18,7 @@ internal sealed class SecretService : ISecretService
     private const string GitHubDirName = ".github";
     private const string SecretFileName = "local-secrets.json";
     private readonly string rootRepoDirPath;
-    private readonly IDirectory directory;
     private readonly IFile file;
-    private readonly IPath path;
     private readonly IJsonService jsonService;
 
     /// <summary>
@@ -29,6 +27,7 @@ internal sealed class SecretService : ISecretService
     /// <param name="directory">Manages directories.</param>
     /// <param name="file">Manages files.</param>
     /// <param name="path">Manages paths.</param>
+    /// <param name="findDirService">Searches for directories.</param>
     /// <param name="jsonService">Serializes and deserializes JSON data.</param>
     /// <exception cref="ArgumentNullException">
     /// Occurs when the following parameters are null:
@@ -43,21 +42,21 @@ internal sealed class SecretService : ISecretService
         IDirectory directory,
         IFile file,
         IPath path,
+        IFindDirService findDirService,
         IJsonService jsonService)
     {
         EnsureThat.ParamIsNotNull(directory, nameof(directory));
         EnsureThat.ParamIsNotNull(file, nameof(file));
         EnsureThat.ParamIsNotNull(path, nameof(path));
+        EnsureThat.ParamIsNotNull(findDirService, nameof(findDirService));
         EnsureThat.ParamIsNotNull(jsonService, nameof(jsonService));
 
-        this.directory = directory;
         this.file = file;
-        this.path = path;
         this.jsonService = jsonService;
 
         var startPath = directory.GetCurrentDirectory().Replace('\\', '/').TrimEnd('/');
 
-        this.rootRepoDirPath = FindDescendentDir(startPath, GitHubDirName);
+        this.rootRepoDirPath = findDirService.FindDescendentDir(startPath, GitHubDirName);
 
         if (string.IsNullOrEmpty(this.rootRepoDirPath))
         {
@@ -98,46 +97,5 @@ internal sealed class SecretService : ISecretService
             select s.Value).FirstOrDefault();
 
         return foundSecret ?? string.Empty;
-    }
-
-    private string FindDescendentDir(string? startPath, string dirNameToFind)
-    {
-        if (string.IsNullOrEmpty(startPath))
-        {
-            return string.Empty;
-        }
-
-        var dirsToSearch = new List<string>();
-        var siblingDirs = this.directory.GetDirectories(startPath);
-
-        dirsToSearch.AddRange(siblingDirs);
-
-        var foundPath = string.Empty;
-
-        while (string.IsNullOrEmpty(foundPath))
-        {
-            foundPath = dirsToSearch.FirstOrDefault(d => d.EndsWith(dirNameToFind));
-
-            if (string.IsNullOrEmpty(foundPath) is false)
-            {
-                break;
-            }
-
-            // Remove the directory from the end
-            startPath = this.path.GetDirectoryName(startPath);
-
-            // If the string is null or empty, every descendant has been checked.
-            if (string.IsNullOrEmpty(startPath))
-            {
-                break;
-            }
-
-            var moreDirs = this.directory.GetDirectories(startPath);
-
-            dirsToSearch.Clear();
-            dirsToSearch.AddRange(moreDirs);
-        }
-
-        return foundPath is null ? string.Empty : foundPath.Replace('\\', '/');
     }
 }

@@ -33,7 +33,7 @@ public sealed class NugetDataService : IDisposable
     public NugetDataService() => this.client = new RestClient(BaseUrl);
 
     /// <summary>
-    /// Returns a list of nuget versions that exist in nuget.org for a nuget package that matches the given <paramref name="packageName"/>.
+    /// Returns a list of NuGet versions that exist in nuget.org for a NuGet package that matches the given <paramref name="packageName"/>.
     /// </summary>
     /// <param name="packageName">The name of the package.</param>
     /// <remarks>
@@ -46,7 +46,7 @@ public sealed class NugetDataService : IDisposable
     /// <exception cref="HttpRequestException">
     ///     Thrown if any HTTP based error occurs.
     /// </exception>
-    /// <returns>The asynchronous result of the exiting nuget package versions.</returns>
+    /// <returns>The asynchronous result of the exiting NuGet package versions.</returns>
     public async Task<string[]> GetNugetVersions(string packageName)
     {
         if (string.IsNullOrEmpty(packageName))
