@@ -31,6 +31,7 @@
     <Product>CICD</Product>
     <Description>CICD application for running builds, tests, and status checks for the KinsonDigital organization projects.</Description>
     <Copyright>Copyright ©2022 Kinson Digital</Copyright>
+    <PackageTags>cicd ci cd status-checks build</PackageTags>
     <Configurations>Debug;Release</Configurations>
     <PackageIcon>cicd-logo-dark-mode.png</PackageIcon>
     <PackAsTool>true</PackAsTool>
