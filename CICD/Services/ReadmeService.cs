@@ -19,10 +19,10 @@ internal sealed class ReadmeService : IReadmeService
     private const string MultiCommentStop = "-->";
     private const string GitHubDirName = ".github";
     private const string ReadMeFileName = "README.md";
-    private const string ProcessingCommentStart = "<!--PRE-PROCESSING-COMMENT-START-->"; // TODO: setup and str interpolation
-    private const string ProcessingCommentStop = "<!--PRE-PROCESSING-COMMENT-STOP-->";
-    private const string ProcessingUncommentStart = "<!--PRE-PROCESSING-UNCOMMENT-START-->";
-    private const string ProcessingUncommentStop = "<!--PRE-PROCESSING-UNCOMMENT-STOP-->";
+    private const string ProcessingCommentStart = $"{MultiCommentStart}PRE-PROCESSING-COMMENT-START{MultiCommentStop}";
+    private const string ProcessingCommentStop = $"{MultiCommentStart}PRE-PROCESSING-COMMENT-STOP{MultiCommentStop}";
+    private const string ProcessingUncommentStart = $"{MultiCommentStart}PRE-PROCESSING-UNCOMMENT-START{MultiCommentStop}";
+    private const string ProcessingUncommentStop = $"{MultiCommentStart}PRE-PROCESSING-UNCOMMENT-STOP{MultiCommentStop}";
     private readonly IFile file;
     private readonly string baseDirPath;
 
@@ -55,10 +55,10 @@ internal sealed class ReadmeService : IReadmeService
 
     /// <inheritdoc/>
     /// <exception cref="FileNotFoundException">
-    ///     Thrown when the readme file is not found.
+    ///     Thrown when the README file is not found.
     /// </exception>
     /// <exception cref="ReadmeProcessingException">
-    ///     Thrown when there is an issue with processing the file.
+    ///     Thrown when there is an issue processing the file.
     /// </exception>
     public void RunPreProcessing()
     {
@@ -66,7 +66,7 @@ internal sealed class ReadmeService : IReadmeService
 
         if (this.file.Exists(filePath) is false)
         {
-            throw new FileNotFoundException($"The readme file '{filePath}' does not exist.");
+            throw new FileNotFoundException($"The README file '{filePath}' does not exist.");
         }
 
         var fileLines = this.file.ReadAllLines(filePath).ToList();

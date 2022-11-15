@@ -166,7 +166,7 @@ public class ReadmeServiceTests
 
         // Assert
         act.Should().ThrowExactly<FileNotFoundException>()
-            .WithMessage($"The readme file '{ReadMeFilePath}' does not exist.");
+            .WithMessage($"The README file '{ReadMeFilePath}' does not exist.");
     }
 
     [Theory]
@@ -196,7 +196,6 @@ public class ReadmeServiceTests
         var act = () => sut.RunPreProcessing();
 
         // Assert
-        // TODO: need to use different exception
         act.Should().ThrowExactly<ReadmeProcessingException>()
             .WithMessage("Readme file processing must have equal comment block starts and stops.");
     }
@@ -228,7 +227,6 @@ public class ReadmeServiceTests
         var act = () => sut.RunPreProcessing();
 
         // Assert
-        // TODO: need to use different exception
         act.Should().ThrowExactly<ReadmeProcessingException>()
             .WithMessage("Readme file processing must have equal uncomment block starts and stops.");
     }

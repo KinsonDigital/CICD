@@ -32,7 +32,7 @@ public class FindDirServiceTests
         this.mockDirectory = new Mock<IDirectory>();
         this.mockDirectory.Setup(m => m.GetCurrentDirectory()).Returns(DebugDir);
 
-        // Starting at the execution dir
+        // Starting at the execution directory
         this.mockDirectory.Setup(m => m.GetDirectories(DebugDir))
             .Returns(new[]
             {

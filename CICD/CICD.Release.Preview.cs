@@ -77,7 +77,7 @@ public partial class CICD // Release.Preview
                     $"{Environment.NewLine}{ConsoleTab}To view the milestone, go here 👉🏼 {updatedMilestone.HtmlUrl}{Environment.NewLine}";
                 Log.Information(updateMsg);
 
-                // If README pre-processing should be performed, process readme before packaging
+                // If README pre-processing should be performed, process README before packaging
                 if (PreProcessReadMe)
                 {
                     var readmeService = App.Container.GetInstance<IReadmeService>();
@@ -85,21 +85,21 @@ public partial class CICD // Release.Preview
                     readmeService.RunPreProcessing();
                 }
 
-                // Create the nuget package to deploy
+                // Create the NuGet package to deploy
                 var fileName = $"{RepoName}.{version.TrimStart('v')}.nupkg";
                 var nugetPath = $"{NugetOutputPath}/{fileName}"
                     .Replace(RootDirectory, "./")
                     .Replace(@"\", "/");
-                Log.Information("✅Creating a nuget package . . .");
+                Log.Information("✅Creating a NuGet package . . .");
                 CreateNugetPackage();
                 Log.Information($"Nuget package created at location '{nugetPath}'{Environment.NewLine}");
 
-                // Publish nuget package to nuget.org
-                Log.Information("✅Publishing nuget package to nuget.org . . .");
+                // Publish NuGet package to nuget.org
+                Log.Information("✅Publishing NuGet package to nuget.org . . .");
                 var nugetUrl = $"https://www.nuget.org/packages/{RepoOwner}.{RepoName}/{version.TrimStart('v')}";
                 PublishNugetPackage();
                 var nugetReleaseLog = "Nuget package published!!🚀";
-                nugetReleaseLog += $"To view the nuget package, go here 👉🏼 {nugetUrl}";
+                nugetReleaseLog += $"To view the NuGet package, go here 👉🏼 {nugetUrl}";
                 Log.Information(nugetReleaseLog);
 
                 var releaseTweetService = App.Container.GetInstance<IReleaseTweetService>();
