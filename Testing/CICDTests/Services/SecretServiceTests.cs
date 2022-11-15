@@ -38,7 +38,7 @@ public class SecretServiceTests
         this.mockDirectory = new Mock<IDirectory>();
         this.mockDirectory.Setup(m => m.GetCurrentDirectory()).Returns(DebugDir);
 
-        // Starting at the execution dir
+        // Starting at the execution  directory
         this.mockDirectory.Setup(m => m.GetDirectories(DebugDir))
             .Returns(new[]
             {
@@ -75,15 +75,15 @@ public class SecretServiceTests
 
         this.mockPath = new Mock<IPath>();
 
-        // If getting the dir name of the debug dir
+        // If getting the  directory name of the debug  directory
         this.mockPath.Setup(m => m.GetDirectoryName(DebugDir))
             .Returns(BinDir);
 
-        // If getting the dir name of the bin dir
+        // If getting the  directory name of the bin  directory
         this.mockPath.Setup(m => m.GetDirectoryName(BinDir))
             .Returns(ProjectDir);
 
-        // If getting the dir name of the project dir
+        // If getting the  directory name of the project  directory
         this.mockPath.Setup(m => m.GetDirectoryName(ProjectDir))
             .Returns(SolutionDir);
 

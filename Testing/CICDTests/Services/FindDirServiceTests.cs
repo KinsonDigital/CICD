@@ -69,15 +69,15 @@ public class FindDirServiceTests
 
         this.mockPath = new Mock<IPath>();
 
-        // If getting the dir name of the debug dir
+        // If getting the  directory name of the debug  directory
         this.mockPath.Setup(m => m.GetDirectoryName(DebugDir))
             .Returns(BinDir);
 
-        // If getting the dir name of the bin dir
+        // If getting the  directory name of the bin  directory
         this.mockPath.Setup(m => m.GetDirectoryName(BinDir))
             .Returns(ProjectDir);
 
-        // If getting the dir name of the project dir
+        // If getting the  directory name of the project  directory
         this.mockPath.Setup(m => m.GetDirectoryName(ProjectDir))
             .Returns(SolutionDir);
     }
