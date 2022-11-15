@@ -77,6 +77,14 @@ public partial class CICD // Release.Preview
                     $"{Environment.NewLine}{ConsoleTab}To view the milestone, go here 👉🏼 {updatedMilestone.HtmlUrl}{Environment.NewLine}";
                 Log.Information(updateMsg);
 
+                // If README pre-processing should be performed, process readme before packaging
+                if (PreProcessReadMe)
+                {
+                    var readmeService = App.Container.GetInstance<IReadmeService>();
+
+                    readmeService.RunPreProcessing();
+                }
+
                 // Create the nuget package to deploy
                 var fileName = $"{RepoName}.{version.TrimStart('v')}.nupkg";
                 var nugetPath = $"{NugetOutputPath}/{fileName}"
