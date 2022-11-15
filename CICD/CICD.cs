@@ -92,6 +92,9 @@ public partial class CICD : NukeBuild
         }
     }
 
+    [Parameter("If true, will perform pre-processing on the project README file before NuGet packaging.")]
+    private bool PreProcessReadMe { get; set; }
+
     [Parameter("The owner of the GitHub repository.  This can also be the GitHub organization that owns the repository.")]
     private string RepoOwner
     {

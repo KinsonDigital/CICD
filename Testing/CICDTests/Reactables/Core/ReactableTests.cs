@@ -60,6 +60,23 @@ public class ReactableTests
     }
 
     [Fact]
+    public void PushNotification_WhenInvoked_SendsPushNotification()
+    {
+        // Arrange
+        var reactor = new Mock<IReactor<int>>();
+        const int expected = 123;
+
+        var reactable = CreateReactable<int>();
+        reactable.Subscribe(reactor.Object);
+
+        // Act
+        reactable.PushNotification(expected);
+
+        // Assert
+        reactor.Verify(m => m.OnNext(expected), Times.Once());
+    }
+
+    [Fact]
     public void EndNotifications_WhenInvoked_CompletesAllReactors()
     {
         // Arrange

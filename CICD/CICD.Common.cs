@@ -78,7 +78,7 @@ public partial class CICD // Common
     // ReSharper restore UnusedMember.Local
 
     /// <summary>
-    /// Creates a nuget package.
+    /// Creates a NuGet package.
     /// </summary>
     /// <exception cref="Exception">Thrown if the project is null.</exception>
     private void CreateNugetPackage()
@@ -106,7 +106,7 @@ public partial class CICD // Common
 
         if (packages.Length <= 0)
         {
-            Assert.Fail($"Could not find a nuget package in path '{NugetOutputPath}' to publish to nuget.org");
+            Assert.Fail($"Could not find a NuGet package in path '{NugetOutputPath}' to publish to nuget.org");
         }
 
         var fullPackagePath = $"{NugetOutputPath}/{packages[0]}";
@@ -120,7 +120,7 @@ public partial class CICD // Common
         }
         else
         {
-            throw new FileNotFoundException("The nuget package could not be found.", fullPackagePath);
+            throw new FileNotFoundException("The NuGet package could not be found.", fullPackagePath);
         }
     }
 
