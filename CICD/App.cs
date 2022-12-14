@@ -57,6 +57,7 @@ internal static class App
         IoCContainer.Register<IReactable<bool>, SkipReleaseTweetReactable>(Lifestyle.Singleton);
         IoCContainer.Register<ISolutionWrapper, SolutionWrapper>(Lifestyle.Singleton);
         IoCContainer.Register<IHttpClientFactory, HttpClientFactory>(Lifestyle.Singleton);
+        IoCContainer.Register<IGitRepoWrapper, GitRepoWrapper>(Lifestyle.Singleton);
         IoCContainer.Register<IFindDirService, FindDirService>(Lifestyle.Singleton);
         IoCContainer.Register<IReadmeService, ReadmeService>(Lifestyle.Singleton);
         IoCContainer.Register<IProjectService, ProjectService>(Lifestyle.Singleton);
@@ -64,7 +65,6 @@ internal static class App
         IoCContainer.Register<ITwitterService, TwitterService>(Lifestyle.Singleton);
         IoCContainer.Register<IConsoleLoggerService, ConsoleLoggerService>(Lifestyle.Singleton);
         IoCContainer.Register<ISolutionService, SolutionService>(Lifestyle.Singleton);
-        IoCContainer.Register<IGitRepoWrapper, GitRepoWrapper>(Lifestyle.Singleton);
         IoCContainer.Register<IPullRequestService, PullRequestService>(Lifestyle.Singleton);
         IoCContainer.Register<IExecutionContextService, ExecutionContextService>(Lifestyle.Singleton);
         IoCContainer.Register<IGitHubTokenService, GitHubTokenService>(Lifestyle.Singleton);

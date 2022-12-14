@@ -67,10 +67,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Models" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Remove="stylecop.json" />
     <AdditionalFiles Include="stylecop.json" />
     <None Update="WorkflowTemplates\build-pr-status-check.yml">
