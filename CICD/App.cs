@@ -71,6 +71,7 @@ internal static class App
         IoCContainer.Register<IWorkflowService, WorkflowService>(Lifestyle.Singleton);
         IoCContainer.Register<ISecretService, SecretService>(Lifestyle.Singleton);
         IoCContainer.Register<IJsonService, JsonService>(Lifestyle.Singleton);
+        IoCContainer.Register<INugetDataService, NugetDataService>(Lifestyle.Singleton);
         IoCContainer.Register<IBranchValidatorService, BranchValidatorService>(Lifestyle.Singleton);
 
         isInitialized = true;
