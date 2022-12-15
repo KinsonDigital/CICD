@@ -8,6 +8,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Nuke.Common;
@@ -968,6 +969,36 @@ internal static class ExtensionMethods
             : (string.IsNullOrEmpty(pattern) && string.IsNullOrEmpty(value)) || pattern == value;
 
         return isEqual;
+    }
+
+    /// <summary>
+    /// Converts the given <see cref="ApiValidationException"/> to a string with
+    /// all of the internal error details.
+    /// </summary>
+    /// <param name="exception">The exception.</param>
+    /// <returns>The detailed exception message.</returns>
+    [ExcludeFromCodeCoverage]
+    public static string ToLogMessage(this ApiValidationException exception)
+    {
+        var errorsInfo = new StringBuilder();
+
+        errorsInfo.AppendLine($"\t{exception.ApiError.Message}");
+
+        foreach (ApiErrorDetail errorDetail in exception.ApiError.Errors)
+        {
+            errorsInfo.AppendLine($"\t{errorDetail.Message}");
+            errorsInfo.AppendLine($"\t{errorDetail.Code}");
+            errorsInfo.AppendLine($"\t{errorDetail.Field}");
+            errorsInfo.AppendLine($"\t{errorDetail.Resource}");
+        }
+
+        var msgBuilder = new StringBuilder();
+
+        msgBuilder.AppendLine($"Message: {exception.Message}");
+        msgBuilder.AppendLine($"Status Code: {exception.StatusCode}");
+        msgBuilder.AppendLine($"Error Details: {errorsInfo.ToString()}");
+
+        return msgBuilder.ToString();
     }
 
     /// <summary>
