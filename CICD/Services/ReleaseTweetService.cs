@@ -95,7 +95,7 @@ internal sealed class ReleaseTweetService : IReleaseTweetService
             return;
         }
 
-        var tweetContent = this.file.ReadAllText(templateFilePath) ?? string.Empty;
+        var tweetContent = this.file.ReadAllText(templateFilePath);
 
         if (string.IsNullOrEmpty(tweetContent))
         {
