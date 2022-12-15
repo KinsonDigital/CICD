@@ -19,7 +19,6 @@ namespace CICDSystemTests.Services;
 public class ProjectServiceTests
 {
     private const string RepoName = "MyProject";
-    private readonly Mock<ISolutionWrapper> mockSolutionWrapper;
     private readonly Mock<IReactable<(string, string)>> mockRepoInfoReactable;
     private readonly Mock<IFindDirService> mockFindDirService;
     private readonly Mock<IDirectory> mockDirectory;
@@ -31,8 +30,6 @@ public class ProjectServiceTests
     /// </summary>
     public ProjectServiceTests()
     {
-        this.mockSolutionWrapper = new Mock<ISolutionWrapper>();
-
         this.mockRepoInfoReactable = new Mock<IReactable<(string, string)>>();
         this.mockFindDirService = new Mock<IFindDirService>();
         this.mockDirectory = new Mock<IDirectory>();
@@ -49,7 +46,6 @@ public class ProjectServiceTests
         {
             _ = new ProjectService(
                 null,
-                this.mockSolutionWrapper.Object,
                 this.mockFindDirService.Object,
                 this.mockDirectory.Object,
                 this.mockPath.Object,
@@ -63,27 +59,6 @@ public class ProjectServiceTests
     }
 
     [Fact]
-    public void Ctor_WithNullSolutionWrapperParam_ThrowsException()
-    {
-        // Arrange & Act
-        var act = () =>
-        {
-            _ = new ProjectService(
-                this.mockRepoInfoReactable.Object,
-                null,
-                this.mockFindDirService.Object,
-                this.mockDirectory.Object,
-                this.mockPath.Object,
-                this.mockXmlService.Object);
-        };
-
-        // Assert
-        act.Should()
-            .Throw<ArgumentNullException>()
-            .WithMessage("The parameter must not be null. (Parameter 'solutionWrapper')");
-    }
-
-    [Fact]
     public void Ctor_WithNullFindDirServiceParam_ThrowsException()
     {
         // Arrange & Act
@@ -91,7 +66,6 @@ public class ProjectServiceTests
         {
             _ = new ProjectService(
                 this.mockRepoInfoReactable.Object,
-                this.mockSolutionWrapper.Object,
                 null,
                 this.mockDirectory.Object,
                 this.mockPath.Object,
@@ -112,7 +86,6 @@ public class ProjectServiceTests
         {
             _ = new ProjectService(
                 this.mockRepoInfoReactable.Object,
-                this.mockSolutionWrapper.Object,
                 this.mockFindDirService.Object,
                 null,
                 this.mockPath.Object,
@@ -133,7 +106,6 @@ public class ProjectServiceTests
         {
             _ = new ProjectService(
                 this.mockRepoInfoReactable.Object,
-                this.mockSolutionWrapper.Object,
                 this.mockFindDirService.Object,
                 this.mockDirectory.Object,
                 null,
@@ -154,7 +126,6 @@ public class ProjectServiceTests
         {
             _ = new ProjectService(
                 this.mockRepoInfoReactable.Object,
-                this.mockSolutionWrapper.Object,
                 this.mockFindDirService.Object,
                 this.mockDirectory.Object,
                 this.mockPath.Object,
@@ -294,7 +265,6 @@ public class ProjectServiceTests
     /// <returns>The instance to test.</returns>
     private ProjectService CreateSystemUnderTest()
         => new (this.mockRepoInfoReactable.Object,
-            this.mockSolutionWrapper.Object,
             this.mockFindDirService.Object,
             this.mockDirectory.Object,
             this.mockPath.Object,

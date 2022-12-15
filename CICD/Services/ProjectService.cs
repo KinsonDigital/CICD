@@ -23,7 +23,6 @@ internal sealed class ProjectService : IProjectService
     private const string GitHubDirName = ".github";
     private const char PosixDirSeparator = '/';
     private readonly IDisposable unsubscriber;
-    private readonly ISolutionWrapper solutionWrapper;
     private readonly IFindDirService findDirService;
     private readonly IDirectory directory;
     private readonly IPath path;
@@ -33,11 +32,6 @@ internal sealed class ProjectService : IProjectService
     /// <summary>
     /// Initializes a new instance of the <see cref="ProjectService"/> class.
     /// </summary>
-    /// <param name="solutionWrapper">
-    ///     Wraps the <see cref="Nuke.Common"/>.
-    ///     <see cref="Nuke.Common.ProjectModel"/>.
-    ///     <see cref="Nuke.Common.ProjectModel.Solution"/> functionality.
-    /// </param>
     /// <param name="repoInfoReactable">Provides push notifications about repository information.</param>
     /// <param name="findDirService">Searches for directories.</param>
     /// <param name="directory">Manages directories.</param>
@@ -45,14 +39,12 @@ internal sealed class ProjectService : IProjectService
     /// <param name="xmlService">Pulls data from XML.</param>
     public ProjectService(
         IReactable<(string, string)> repoInfoReactable,
-        ISolutionWrapper solutionWrapper,
         IFindDirService findDirService,
         IDirectory directory,
         IPath path,
         IXmlService xmlService)
     {
         EnsureThat.ParamIsNotNull(repoInfoReactable, nameof(repoInfoReactable));
-        EnsureThat.ParamIsNotNull(solutionWrapper, nameof(solutionWrapper));
         EnsureThat.ParamIsNotNull(findDirService, nameof(findDirService));
         EnsureThat.ParamIsNotNull(directory, nameof(directory));
         EnsureThat.ParamIsNotNull(path, nameof(path));
@@ -63,7 +55,6 @@ internal sealed class ProjectService : IProjectService
             {
                 this.projectName = repoInfoData.repoName;
             }, () => this.unsubscriber?.Dispose()));
-        this.solutionWrapper = solutionWrapper;
         this.findDirService = findDirService;
         this.directory = directory;
         this.path = path;
