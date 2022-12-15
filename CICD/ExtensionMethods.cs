@@ -25,6 +25,8 @@ namespace CICDSystem;
 /// </summary>
 internal static class ExtensionMethods
 {
+    private const char WinDirSeparator = '\\';
+    private const char PosixDirSeparator = '/';
     private const char MatchNumbers = '#';
     private const char MatchAnything = '*';
     private static readonly char[] Digits = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', };
@@ -250,6 +252,26 @@ internal static class ExtensionMethods
         }
 
         return BranchType.Other;
+    }
+
+    public static string ToCrossPlatPath(this string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return string.Empty;
+        }
+
+        return value.Replace(WinDirSeparator, PosixDirSeparator);
+    }
+
+    public static string[] ToCrossPlatPaths(this IEnumerable<string>? paths)
+    {
+        if (paths == null)
+        {
+            return Array.Empty<string>();
+        }
+
+        return paths.Select(p => p.Replace(WinDirSeparator, PosixDirSeparator)).ToArray();
     }
 
     public static bool HasCorrectVersionSyntax(this Project project, string versionPattern)

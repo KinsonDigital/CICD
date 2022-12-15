@@ -16,5 +16,5 @@ public interface IFindDirService
     /// <param name="startPath">The directory path to start the search.</param>
     /// <param name="dirNameToFind">The name to the directory to find.</param>
     /// <returns>The directory path that contains the <paramref name="dirNameToFind"/>.</returns>
-    string FindDescendentDir(string? startPath, string dirNameToFind);
+    string FindDescendentDir(string startPath, string dirNameToFind);
 }
