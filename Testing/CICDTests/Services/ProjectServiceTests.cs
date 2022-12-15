@@ -1,4 +1,4 @@
-// <copyright file="ProjectServiceTests.cs" company="KinsonDigital">
+﻿// <copyright file="ProjectServiceTests.cs" company="KinsonDigital">
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
@@ -189,26 +189,53 @@ public class ProjectServiceTests
     #endregion
 
     #region Method Tests
-    [Fact]
-    public void GetVersion_WithNonExistentProject_ThrowsException()
+    [Theory]
+    [InlineData("MyProject", '\\')]
+    [InlineData("MyProject", '/')]
+    [InlineData("myproject", '\\')]
+    [InlineData("myproject", '/')]
+    public void GetVersion_WhenInvoked_ReturnsVersion(string projectName, char dirSeparator)
     {
         // Arrange
-        IReactor<(string, string)>? reactor = null;
-        this.mockSolutionWrapper.Setup(m => m.GetProject(It.IsAny<string>()))
-            .Returns(() => null);
+        const string projFileExtension = ".csproj";
+        var baseDirPath = $"C:{dirSeparator}test-project";
+        var currentDirPath = $"{baseDirPath}{dirSeparator}bin{dirSeparator}Debug{dirSeparator}net7.0";
 
+        const string expectedBaseDirPath = "C:/test-project";
+        const string expectedCurrentDirPath = "C:/test-project/bin/Debug/net7.0";
+        var expectedProjFilePath = $"C:/test-project/{projectName}.csproj";
+        var projectFilePath = $"{baseDirPath}{dirSeparator}{projectName}{projFileExtension}";
+
+        IReactor<(string, string)>? reactor = null;
         this.mockRepoInfoReactable.Setup(m => m.Subscribe(It.IsAny<IReactor<(string, string)>>()))
-            .Callback<IReactor<(string, string)>>(reactorObj => reactor = reactorObj);
+            .Callback<IReactor<(string, string)>>(reactorObj =>
+            {
+                reactorObj.Should().NotBeNull("it is required for the test to work properly.");
+
+                reactor = reactorObj;
+            });
+
+        MockProjectFilePath(currentDirPath, baseDirPath, projectFilePath, projectName);
+
+        this.mockXmlService.Setup(m => m.GetTagValue(It.IsAny<string>(), It.IsAny<string>()))
+            .Returns("1.2.3-preview.4");
 
         var sut = CreateSystemUnderTest();
-        reactor.OnNext(("test-owner", "test-project"));
+        reactor.OnNext((RepoName, RepoName));
 
         // Act
-        var act = () => sut.GetVersion();
+        var actual = sut.GetVersion();
 
         // Assert
-        act.Should().Throw<Exception>()
-            .WithMessage("The project 'test-project' could not be found.");
+        actual.Should().Be("1.2.3-preview.4");
+
+        this.mockDirectory.Verify(m => m.GetCurrentDirectory(), Times.Once);
+        this.mockFindDirService.Verify(m =>
+            m.FindDescendentDir(expectedCurrentDirPath, ".github"), Times.Once);
+        this.mockDirectory.Verify(m =>
+            m.GetFiles(expectedBaseDirPath, $"*{projFileExtension}", SearchOption.AllDirectories), Times.Once);
+        this.mockPath.Verify(m => m.GetFileNameWithoutExtension(expectedProjFilePath), Times.Once);
+        this.mockXmlService.Verify(m => m.GetTagValue(expectedProjFilePath, "Version"), Times.Once);
     }
 
     [Theory]

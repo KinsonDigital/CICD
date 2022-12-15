@@ -18,6 +18,7 @@ namespace CICDSystem.Services;
 internal sealed class ProjectService : IProjectService
 {
     private const string PackageIdTagName = "PackageId";
+    private const string VersionTagName = "Version";
     private const string ProjFileExtension = ".csproj";
     private const string GitHubDirName = ".github";
     private const char PosixDirSeparator = '/';
@@ -73,20 +74,9 @@ internal sealed class ProjectService : IProjectService
     [ExcludeFromCodeCoverage]
     public string GetVersion()
     {
-        var project = this.solutionWrapper.GetProject(this.projectName);
+        var projFilePath = GetProjectFilePath();
 
-        if (project is null)
-        {
-            throw new Exception($"The project '{this.projectName}' could not be found.");
-        }
-
-        var version = project.GetVersion();
-
-        version = version.StartsWith("v")
-            ? version
-            : $"v{version}";
-
-        return version;
+        return this.xmlService.GetTagValue(projFilePath, VersionTagName);
     }
 
     /// <inheritdoc/>
