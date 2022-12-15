@@ -15,7 +15,6 @@ namespace CICDSystemTests;
 public class ExtensionMethodsTests
 {
     #region Method Tests
-
     [Theory]
     [InlineData("CONVERTOKEBAB", "CONVERTOKEBAB")]
     [InlineData("converttokebab", "converttokebab")]

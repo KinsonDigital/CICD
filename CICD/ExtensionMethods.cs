@@ -95,12 +95,25 @@ internal static class ExtensionMethods
 
     public static char ToLowerCase(this char value) => value.ToString().ToLower()[0];
 
+    /// <summary>
+    /// Logs a title of a section with this requirement name and the given <paramref name="value"/>.
+    /// </summary>
+    /// <param name="requirementName">The name of the requirement.</param>
+    /// <param name="value">The value.</param>
+    [ExcludeFromCodeCoverage]
     public static void LogRequirementTitle(this string requirementName, string value)
     {
         var indent = 15.CreateDuplicateCharacters(' ');
         Log.Information($"✅ Requirement '{requirementName}' Executed ✅{Environment.NewLine}{indent}{value}{Environment.NewLine}");
     }
 
+    /// <summary>
+    /// Creates a <c>string</c> of consecutive characters that are the given <paramref name="character"/>,
+    /// that matches a total amount by the given <paramref name="value"/>.
+    /// </summary>
+    /// <param name="value">The number of characters.</param>
+    /// <param name="character">The character to use.</param>
+    /// <returns>A string of the given <paramref name="character"/>.</returns>
     public static string CreateDuplicateCharacters(this int value, char character)
     {
         var result = string.Empty;
