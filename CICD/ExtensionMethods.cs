@@ -267,25 +267,49 @@ internal static class ExtensionMethods
         return BranchType.Other;
     }
 
-    public static string ToCrossPlatPath(this string value)
-    {
-        if (string.IsNullOrEmpty(value))
-        {
-            return string.Empty;
-        }
+    /// <summary>
+    /// Converts the given path string to a cross-platform compatible path.
+    /// </summary>
+    /// <param name="value">The <c>string</c> path to convert.</param>
+    /// <returns>A cross-platform path.</returns>
+    /// <remarks>
+    /// <para>
+    ///     This simply takes all windows specific directory separator characters and
+    ///     replaces them with directory separator characters that work on all operating systems.
+    /// </para>
+    /// <br/>
+    /// Directory Separator Types:
+    /// <list type="bullet">
+    ///     <item>Windows separator character: '\'</item>
+    ///     <item>Cross-platform separator character: '/'</item>
+    /// </list>
+    /// </remarks>
+    public static string ToCrossPlatPath(this string value) =>
+        string.IsNullOrEmpty(value)
+            ? string.Empty
+            : value.Replace(WinDirSeparator, PosixDirSeparator);
 
-        return value.Replace(WinDirSeparator, PosixDirSeparator);
-    }
-
-    public static string[] ToCrossPlatPaths(this IEnumerable<string>? paths)
-    {
-        if (paths == null)
-        {
-            return Array.Empty<string>();
-        }
-
-        return paths.Select(p => p.Replace(WinDirSeparator, PosixDirSeparator)).ToArray();
-    }
+    /// <summary>
+    /// Converts the given list of <paramref name="paths"/> to a cross-platform compatible paths.
+    /// </summary>
+    /// <param name="paths">The <c>string</c> paths to convert.</param>
+    /// <returns>A list of cross-platform paths.</returns>
+    /// <remarks>
+    /// <para>
+    ///     This simply takes all windows specific directory separator characters and
+    ///     replaces them with directory separator characters that work on all operating systems.
+    /// </para>
+    /// <br/>
+    /// Directory Separator Types:
+    /// <list type="bullet">
+    ///     <item>Windows separator character: '\'</item>
+    ///     <item>Cross-platform separator character: '/'</item>
+    /// </list>
+    /// </remarks>
+    public static IEnumerable<string> ToCrossPlatPaths(this IEnumerable<string>? paths) =>
+        paths == null
+            ? Array.Empty<string>()
+            : paths.Select(p => p.Replace(WinDirSeparator, PosixDirSeparator)).ToArray();
 
     public static bool HasCorrectVersionSyntax(this Project project, string versionPattern)
     {
