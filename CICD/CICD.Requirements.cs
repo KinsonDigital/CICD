@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using CICDSystem.Services;
+using CICDSystem.Services.Interfaces;
 using Nuke.Common;
 using Octokit;
 using Serilog;
@@ -1609,14 +1610,17 @@ public partial class CICD // Requirements
             throw new Exception(exMsg);
         }
 
-        var projectVersion = project.GetVersion();
+        var projectService = App.Container.GetInstance<IProjectService>();
+        var packageVersions = Array.Empty<string>();
+
+        var projectVersion = projectService.GetVersion();
+        var packageName = projectService.GetPackageId();
 
         var nugetService = new NugetDataService();
-        var packageVersions = Array.Empty<string>();
 
         try
         {
-            packageVersions = nugetService.GetNugetVersions("CICDTest").Result;
+            packageVersions = nugetService.GetNugetVersions(packageName).Result;
         }
         catch (AggregateException e) when (e.InnerException is HttpRequestException exception)
         {
