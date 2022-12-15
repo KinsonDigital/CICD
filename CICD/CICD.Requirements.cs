@@ -1632,7 +1632,7 @@ public partial class CICD // Requirements
 
         var nugetPackageExists = packageVersions.Any(i => i == projectVersion);
 
-        if (nugetPackageExists)
+        if (packageVersions.Length > 0 && nugetPackageExists)
         {
             errors.Add($"The NuGet package '{RepoName}' version 'v{projectVersion}' already exists.");
         }
