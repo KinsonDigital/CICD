@@ -72,6 +72,7 @@ public class FindDirService : IFindDirService
             dirsToSearch.AddRange(moreDirs);
         }
 
+        // TODO: Use cross plat extension method here
         return foundPath is null ? string.Empty : foundPath.Replace('\\', '/');
     }
 }
