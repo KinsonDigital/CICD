@@ -1,10 +1,10 @@
 ﻿<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="CICD - Preview Release PR Status Check" type="DotNetProject" factoryName=".NET Project">
+  <configuration default="false" name="PrevRelease - PR Status Check" type="DotNetProject" factoryName=".NET Project">
     <option name="EXE_PATH" value="$PROJECT_DIR$/CICD/bin/Debug/CICD.exe" />
     <option name="PROGRAM_PARAMETERS" value="PrevReleasePRStatusCheck --pull-request-number 100" />
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/CICD/bin/Debug" />
     <option name="PASS_PARENT_ENVS" value="1" />
-    <option name="USE_EXTERNAL_CONSOLE" value="0" />
+    <option name="USE_EXTERNAL_CONSOLE" value="1" />
     <option name="USE_MONO" value="0" />
     <option name="RUNTIME_ARGUMENTS" value="" />
     <option name="PROJECT_PATH" value="$PROJECT_DIR$/CICD/CICD.csproj" />
