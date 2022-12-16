@@ -26,7 +26,6 @@ public partial class CICD : NukeBuild
     private string repoName = string.Empty;
     private string projectName = string.Empty;
     private TwitterSecrets twitterSecrets;
-
     private int pullRequestNumber;
 
     /// <summary>
@@ -178,6 +177,9 @@ public partial class CICD : NukeBuild
             prNumReactable.EndNotifications();
         }
     }
+
+    [Parameter("Used to only run the requirement checks when running releases.")]
+    private bool ReleaseChecksOnly { get; set; }
 
     [Parameter($"The name of the preview release notes directory name.  This will be located in the '{nameof(ReleaseNotesBaseDirPath)}'.")]
     private string PreviewReleaseNotesDirName { get; set; } = "PreviewReleases";
