@@ -203,7 +203,15 @@ public class SecretServiceTests
     public void Ctor_WithNullOrEmptyRootPath_ThrowsException(string rootDirPath)
     {
         // Arrange
-        this.mockFindDirService.Setup(m => m.FindDescendentDir(It.IsAny<string>(), It.IsAny<string>()))
+        const string startPath = "C:/start-path";
+
+        var expected = "The root repository directory path could not be found.  Could not load local secrets.";
+        expected += $"\t{Environment.NewLine}Descendent directory search started at '{startPath}'.";
+
+        this.mockDirectory.Setup(m => m.GetCurrentDirectory()).Returns(startPath);
+
+        this.mockFindDirService.Setup(m =>
+                m.FindDescendentDir(It.IsAny<string>(), It.IsAny<string>()))
             .Returns(rootDirPath);
 
         // Act
@@ -211,19 +219,21 @@ public class SecretServiceTests
 
         // Assert
         act.Should().Throw<Exception>()
-            .WithMessage("The root repository directory path could not be found.  Could not load local secrets.");
+            .WithMessage(expected);
     }
 
     [Fact]
     public void Ctor_WithNullStartPath_ThrowsException()
     {
         // Arrange & Act
+        const string expected = "The start path for decendent directory search was null or empty.";
+
         this.mockDirectory.Setup(m => m.GetCurrentDirectory()).Returns(string.Empty);
         var act = () => _ = CreateService();
 
         // Assert
         act.Should().Throw<Exception>()
-            .WithMessage("The root repository directory path could not be found.  Could not load local secrets.");
+            .WithMessage(expected);
     }
 
     [Fact]
@@ -244,6 +254,7 @@ public class SecretServiceTests
     public void Ctor_WhenSecretsFileDoesNotExist_CreatesNewFile(string debugDir)
     {
         // Arrange
+        const string tokenKey = "GitHubApiToken";
         const string expectedSecretFilePath = $"{RootRepoDir}/{SecretFileName}";
 
         this.mockDirectory.Setup(m => m.GetCurrentDirectory()).Returns(debugDir);
@@ -258,7 +269,7 @@ public class SecretServiceTests
 
         // Assert
         this.mockJsonService.Verify(m =>
-            m.Serialize(new KeyValuePair<string, string>[] { new (string.Empty, string.Empty) }), Times.Once);
+            m.Serialize(new KeyValuePair<string, string>[] { new (tokenKey, string.Empty) }), Times.Once);
         this.mockFile.Verify(m => m.WriteAllText(expectedSecretFilePath, string.Empty), Times.Once);
     }
     #endregion
