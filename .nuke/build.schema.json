@@ -79,6 +79,10 @@
           "type": "integer",
           "description": "The unique number/id of the GItHub pull request.  Used for pull request status checks when running locally"
         },
+        "ReleaseChecksOnly": {
+          "type": "boolean",
+          "description": "Used to "
+        },
         "ReleaseNotesBaseDirPath": {
           "type": "string",
           "description": "The directory path of the location of the preview and production release notes"
