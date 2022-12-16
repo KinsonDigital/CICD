@@ -81,7 +81,7 @@
         },
         "ReleaseChecksOnly": {
           "type": "boolean",
-          "description": "Used to "
+          "description": "Used to only run the requirement checks when running releases"
         },
         "ReleaseNotesBaseDirPath": {
           "type": "string",
