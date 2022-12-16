@@ -274,7 +274,7 @@ internal static class ExtensionMethods
     /// <returns>A cross-platform path.</returns>
     /// <remarks>
     /// <para>
-    ///     This simply takes all windows specific directory separator characters and
+    ///     This takes all windows specific directory separator characters and
     ///     replaces them with directory separator characters that work on all operating systems.
     /// </para>
     /// <br/>
