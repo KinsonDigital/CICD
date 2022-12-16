@@ -13,15 +13,15 @@ As with all software, there is always a chance for issues and bugs, especially f
 
 <h2 style="font-weight:bold" align="center">New Features ✨</h2>
 
-1. [#106](https://github.com/KinsonDigital/CICD/issues/106) - Add the ability to skip a release and only run the associated requirement checks.
-   > **💡** This can be done by using the `--release-checks-only` switch when running locally via the CLI and with workflows.
+1. [#106](https://github.com/KinsonDigital/CICD/issues/106) - Added the ability to skip a release and only run the associated requirement checks.
+   > **💡** This can be done by using the `--release-checks-only` switch when executing locally via the CLI as well as with workflows.
    > This can also be accomplished by using the _**ReleaseChecksOnly**_ build parameter in the NUKE _**parameters.json**_ file.
 
 ---
 
 <h2 style="font-weight:bold" align="center">Bug Fixes 🐛</h2>
 
-1. [#129](https://github.com/KinsonDigital/CICD/issues/129) - Fixed a bug where the checking of an existing NuGet package of a particular version was not working.
+1. [#129](https://github.com/KinsonDigital/CICD/issues/129) - Fixed a bug when checking the existence of a NuGet package of a specific version was not working.
 
 ---
 
