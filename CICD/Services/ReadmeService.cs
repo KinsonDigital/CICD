@@ -49,7 +49,7 @@ internal sealed class ReadmeService : IReadmeService
         this.baseDirPath = findDirService.FindDescendentDir(directory.GetCurrentDirectory(), GitHubDirName)
             .Replace('\\', '/');
 
-        this.baseDirPath = path.GetDirectoryName(this.baseDirPath)
+        this.baseDirPath = (path.GetDirectoryName(this.baseDirPath) ?? string.Empty)
             .Replace('\\', '/');
     }
 

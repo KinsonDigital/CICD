@@ -1,4 +1,4 @@
-﻿// <copyright file="FindDirService.cs" company="KinsonDigital">
+// <copyright file="FindDirService.cs" company="KinsonDigital">
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
@@ -34,7 +34,7 @@ public class FindDirService : IFindDirService
     }
 
     /// <inheritdoc/>
-    public string FindDescendentDir(string? startPath, string dirNameToFind)
+    public string FindDescendentDir(string startPath, string dirNameToFind)
     {
         if (string.IsNullOrEmpty(startPath))
         {
@@ -58,7 +58,7 @@ public class FindDirService : IFindDirService
             }
 
             // Remove the directory from the end
-            startPath = this.path.GetDirectoryName(startPath);
+            startPath = this.path.GetDirectoryName(startPath) ?? string.Empty;
 
             // If the string is null or empty, every descendant has been checked.
             if (string.IsNullOrEmpty(startPath))
