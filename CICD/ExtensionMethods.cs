@@ -556,9 +556,16 @@ internal static class ExtensionMethods
         string repoName,
         int prNumber)
     {
-        var pr = await client.Get(repoOwner, repoName, prNumber);
+        try
+        {
+            _ = await client.Get(repoOwner, repoName, prNumber);
+        }
+        catch (NotFoundException e)
+        {
+            return false;
+        }
 
-        return pr is not null;
+        return true;
     }
 
     public static async Task<bool> HasAssignees(
