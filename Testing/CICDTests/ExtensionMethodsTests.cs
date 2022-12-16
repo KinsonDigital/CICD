@@ -15,7 +15,6 @@ namespace CICDSystemTests;
 public class ExtensionMethodsTests
 {
     #region Method Tests
-
     [Theory]
     [InlineData("CONVERTOKEBAB", "CONVERTOKEBAB")]
     [InlineData("converttokebab", "converttokebab")]
@@ -456,6 +455,16 @@ public class ExtensionMethodsTests
 
         // Assert
         act.Should().Be(expected);
+    }
+
+    [Fact]
+    public void CreateDuplicateCharacters_WhenInvoked_ReturnsCorrectResult()
+    {
+        // Arrange & Act
+        var actual = 5.CreateDuplicateCharacters('V');
+
+        // Assert
+        actual.Should().Be("VVVVV");
     }
     #endregion
 

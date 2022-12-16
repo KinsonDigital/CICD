@@ -14,4 +14,10 @@ public interface IProjectService
     /// </summary>
     /// <returns>The version set in the project.</returns>
     string GetVersion();
+
+    /// <summary>
+    /// Gets the ID of the NuGet package.
+    /// </summary>
+    /// <returns>The NuGet package ID.</returns>
+    string GetPackageId();
 }

@@ -43,6 +43,19 @@ public partial class CICD // Release.Production
         .DependsOn(BuildAllProjects, RunAllUnitTests)
         .Executes(async () =>
         {
+            if (ReleaseChecksOnly)
+            {
+                var warningMsg = "Production Release Skipped.";
+                warningMsg += $"{Environment.NewLine}This is due to the `{{Value1}}` run being set to only execute the release requirement checks.";
+                warningMsg += $"{Environment.NewLine}This means that all of the requirement checks have been executed but the release has not.";
+                warningMsg += $"{Environment.NewLine}If you want to perform a release, do not use the `{{Value2}}` switch in the workflow,";
+                warningMsg += $"{Environment.NewLine}and/or remove or set the '{{Value3}}' setting in the '{{Value4}}' file to a value of '{{Value5}}'.";
+
+                Log.Warning(warningMsg, "ProductionRelease", "--release-checks-only", "ReleaseChecksOnly", "parameters.json", "false");
+
+                return;
+            }
+
             var projectService = App.Container.GetInstance<IProjectService>();
             var version = projectService.GetVersion();
 

@@ -2,89 +2,50 @@
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
-// ReSharper disable InconsistentNaming
-using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using CICDSystem.Models;
-using RestSharp;
+/* Resources:
+ * NuGet API documentation: https://learn.microsoft.com/en-us/nuget/api/search-query-service-resource
+ */
 
+// ReSharper disable InconsistentNaming
 namespace CICDSystem.Services;
 
+using System;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
+using Guards;
+using Models;
+using Interfaces;
+using Flurl.Http;
+
 /// <inheritdoc />
-[ExcludeFromCodeCoverage]
-public sealed class NugetDataService : IDisposable
+public sealed class NugetDataService : INugetDataService
 {
-    /* Resources:
-     * These links refer to the documentation for the NuGet API
-     * 1. Package Content: https://docs.microsoft.com/en-us/nuget/api/package-base-address-resource
-     * 2.Nuget Server API: https://docs.microsoft.com/en-us/nuget/api/overview
-     */
-    private const string BaseUrl = "https://api.nuget.org";
-    private readonly RestClient client;
-    private bool isDisposed;
+    private const string BaseUrl = "https://azuresearch-usnc.nuget.org";
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="NugetDataService"/> class.
-    /// </summary>
-    public NugetDataService() => this.client = new RestClient(BaseUrl);
-
-    /// <summary>
-    /// Returns a list of NuGet versions that exist in nuget.org for a NuGet package that matches the given <paramref name="packageName"/>.
-    /// </summary>
-    /// <param name="packageName">The name of the package.</param>
-    /// <remarks>
-    ///     The param <paramref name="packageName"/> is not case sensitive.  The NuGet API
-    ///     requires that it is lowercase and is taken care of for you.
-    /// </remarks>
+    /// <inheritdoc />
     /// <exception cref="ArgumentNullException">
     ///     Thrown if the <paramref name="packageName"/> param is null or empty.
     /// </exception>
     /// <exception cref="HttpRequestException">
     ///     Thrown if any HTTP based error occurs.
     /// </exception>
-    /// <returns>The asynchronous result of the exiting NuGet package versions.</returns>
     public async Task<string[]> GetNugetVersions(string packageName)
     {
-        if (string.IsNullOrEmpty(packageName))
+        EnsureThat.StringParamIsNotNullOrEmpty(packageName, nameof(packageName));
+
+        var query = $"query?q=packageId:{packageName}&take=1000&prerelease=true&semVerLevel=2.0.0";
+        var fullUrl = $"{BaseUrl}/{query}";
+
+        var nugetPackageData = await fullUrl.GetJsonAsync<NugetPackageResponse>();
+
+        if (nugetPackageData is null)
         {
-            throw new ArgumentNullException(nameof(packageName), "Must provide a NuGet package name.");
+            throw new HttpRequestException("There was an issue getting data from NuGet.");
         }
 
-        this.client.AcceptedContentTypes = new[] { "application/vnd.github.v3+json" };
-
-        const string serviceIndexId = "v3-flatcontainer";
-        var fullUrl = $"{BaseUrl}/{serviceIndexId}/{packageName.ToLower()}/index.json";
-        var request = new RestRequest(fullUrl);
-
-        var response = await this.client.ExecuteAsync<NugetVersionsModel>(request, Method.Get);
-
-        if (response.StatusCode == HttpStatusCode.OK)
-        {
-            return response.Data is null ? Array.Empty<string>() : response.Data.Versions.ToArray();
-        }
-
-        var exception = response.ErrorException ?? new Exception("There was an issue getting data from NuGet.");
-
-        throw new HttpRequestException(
-            exception.Message,
-            inner: null,
-            statusCode: response.StatusCode);
-    }
-
-    /// <inheritdoc />
-    public void Dispose()
-    {
-        if (this.isDisposed)
-        {
-            return;
-        }
-
-        this.client.Dispose();
-
-        this.isDisposed = true;
+        return nugetPackageData.Data.Length <= 0
+            ? Array.Empty<string>()
+            : nugetPackageData.Data[0].Versions.Select(v => v.Version).ToArray();
     }
 }

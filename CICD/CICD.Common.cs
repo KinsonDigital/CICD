@@ -274,10 +274,19 @@ public partial class CICD // Common
 
         var releaseClient = GitHubClient.Repository.Release;
 
-        var releaseResult = await releaseClient.Create(RepoOwner, RepoName, newRelease);
-        await releaseClient.UploadTextFileAsset(releaseResult, releaseNotesFilePath);
+        try
+        {
+            var releaseResult = await releaseClient.Create(RepoOwner, RepoName, newRelease);
+            await releaseClient.UploadTextFileAsset(releaseResult, releaseNotesFilePath);
 
-        return releaseResult.HtmlUrl;
+            return releaseResult.HtmlUrl;
+        }
+        catch (ApiValidationException e)
+        {
+            Log.Error(e.ToLogMessage());
+
+            throw;
+        }
     }
 
     private int ExtractIssueNumber(BranchType branchType, string branch)

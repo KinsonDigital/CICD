@@ -8,6 +8,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Nuke.Common;
@@ -25,6 +26,8 @@ namespace CICDSystem;
 /// </summary>
 internal static class ExtensionMethods
 {
+    private const char WinDirSeparator = '\\';
+    private const char PosixDirSeparator = '/';
     private const char MatchNumbers = '#';
     private const char MatchAnything = '*';
     private static readonly char[] Digits = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', };
@@ -93,12 +96,25 @@ internal static class ExtensionMethods
 
     public static char ToLowerCase(this char value) => value.ToString().ToLower()[0];
 
+    /// <summary>
+    /// Logs a title of a section with this requirement name and the given <paramref name="value"/>.
+    /// </summary>
+    /// <param name="requirementName">The name of the requirement.</param>
+    /// <param name="value">The value.</param>
+    [ExcludeFromCodeCoverage]
     public static void LogRequirementTitle(this string requirementName, string value)
     {
         var indent = 15.CreateDuplicateCharacters(' ');
         Log.Information($"✅ Requirement '{requirementName}' Executed ✅{Environment.NewLine}{indent}{value}{Environment.NewLine}");
     }
 
+    /// <summary>
+    /// Creates a <c>string</c> of consecutive characters that are the given <paramref name="character"/>,
+    /// that matches a total amount by the given <paramref name="value"/>.
+    /// </summary>
+    /// <param name="value">The number of characters.</param>
+    /// <param name="character">The character to use.</param>
+    /// <returns>A string of the given <paramref name="character"/>.</returns>
     public static string CreateDuplicateCharacters(this int value, char character)
     {
         var result = string.Empty;
@@ -251,6 +267,50 @@ internal static class ExtensionMethods
 
         return BranchType.Other;
     }
+
+    /// <summary>
+    /// Converts the given path string to a cross-platform compatible path.
+    /// </summary>
+    /// <param name="value">The <c>string</c> path to convert.</param>
+    /// <returns>A cross-platform path.</returns>
+    /// <remarks>
+    /// <para>
+    ///     This takes all windows specific directory separator characters and
+    ///     replaces them with directory separator characters that work on all operating systems.
+    /// </para>
+    /// <br/>
+    /// Directory Separator Types:
+    /// <list type="bullet">
+    ///     <item>Windows separator character: '\'</item>
+    ///     <item>Cross-platform separator character: '/'</item>
+    /// </list>
+    /// </remarks>
+    public static string ToCrossPlatPath(this string value) =>
+        string.IsNullOrEmpty(value)
+            ? string.Empty
+            : value.Replace(WinDirSeparator, PosixDirSeparator);
+
+    /// <summary>
+    /// Converts the given list of <paramref name="paths"/> to a cross-platform compatible paths.
+    /// </summary>
+    /// <param name="paths">The <c>string</c> paths to convert.</param>
+    /// <returns>A list of cross-platform paths.</returns>
+    /// <remarks>
+    /// <para>
+    ///     This simply takes all windows specific directory separator characters and
+    ///     replaces them with directory separator characters that work on all operating systems.
+    /// </para>
+    /// <br/>
+    /// Directory Separator Types:
+    /// <list type="bullet">
+    ///     <item>Windows separator character: '\'</item>
+    ///     <item>Cross-platform separator character: '/'</item>
+    /// </list>
+    /// </remarks>
+    public static IEnumerable<string> ToCrossPlatPaths(this IEnumerable<string>? paths) =>
+        paths == null
+            ? Array.Empty<string>()
+            : paths.Select(p => p.Replace(WinDirSeparator, PosixDirSeparator)).ToArray();
 
     public static bool HasCorrectVersionSyntax(this Project project, string versionPattern)
     {
@@ -496,9 +556,16 @@ internal static class ExtensionMethods
         string repoName,
         int prNumber)
     {
-        var pr = await client.Get(repoOwner, repoName, prNumber);
+        try
+        {
+            _ = await client.Get(repoOwner, repoName, prNumber);
+        }
+        catch (NotFoundException e)
+        {
+            return false;
+        }
 
-        return pr is not null;
+        return true;
     }
 
     public static async Task<bool> HasAssignees(
@@ -968,6 +1035,36 @@ internal static class ExtensionMethods
             : (string.IsNullOrEmpty(pattern) && string.IsNullOrEmpty(value)) || pattern == value;
 
         return isEqual;
+    }
+
+    /// <summary>
+    /// Converts the given <see cref="ApiValidationException"/> to a string with
+    /// all of the internal error details.
+    /// </summary>
+    /// <param name="exception">The exception.</param>
+    /// <returns>The detailed exception message.</returns>
+    [ExcludeFromCodeCoverage]
+    public static string ToLogMessage(this ApiValidationException exception)
+    {
+        var errorsInfo = new StringBuilder();
+
+        errorsInfo.AppendLine($"\t{exception.ApiError.Message}");
+
+        foreach (ApiErrorDetail errorDetail in exception.ApiError.Errors)
+        {
+            errorsInfo.AppendLine($"\t{errorDetail.Message}");
+            errorsInfo.AppendLine($"\t{errorDetail.Code}");
+            errorsInfo.AppendLine($"\t{errorDetail.Field}");
+            errorsInfo.AppendLine($"\t{errorDetail.Resource}");
+        }
+
+        var msgBuilder = new StringBuilder();
+
+        msgBuilder.AppendLine($"Message: {exception.Message}");
+        msgBuilder.AppendLine($"Status Code: {exception.StatusCode}");
+        msgBuilder.AppendLine($"Error Details: {errorsInfo.ToString()}");
+
+        return msgBuilder.ToString();
     }
 
     /// <summary>

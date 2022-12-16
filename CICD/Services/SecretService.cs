@@ -15,6 +15,7 @@ namespace CICDSystem.Services;
 /// <inheritdoc/>
 internal sealed class SecretService : ISecretService
 {
+    private const string TokenKey = "GitHubApiToken";
     private const string GitHubDirName = ".github";
     private const string SecretFileName = "local-secrets.json";
     private readonly string rootRepoDirPath;
@@ -54,13 +55,22 @@ internal sealed class SecretService : ISecretService
         this.file = file;
         this.jsonService = jsonService;
 
+        // TODO: Use cross plat extension method here
         var startPath = directory.GetCurrentDirectory().Replace('\\', '/').TrimEnd('/');
+
+        if (string.IsNullOrEmpty(startPath))
+        {
+            throw new Exception("The start path for decendent directory search was null or empty.");
+        }
 
         this.rootRepoDirPath = findDirService.FindDescendentDir(startPath, GitHubDirName);
 
         if (string.IsNullOrEmpty(this.rootRepoDirPath))
         {
-            throw new Exception("The root repository directory path could not be found.  Could not load local secrets.");
+            var exMsg = "The root repository directory path could not be found.  Could not load local secrets.";
+            exMsg += $"\t{Environment.NewLine}Descendent directory search started at '{startPath}'.";
+
+            throw new Exception(exMsg);
         }
 
         var secretFilePath = $"{this.rootRepoDirPath}/{SecretFileName}";
@@ -70,7 +80,7 @@ internal sealed class SecretService : ISecretService
             return;
         }
 
-        var emptyData = new KeyValuePair<string, string>[] { new (string.Empty, string.Empty) };
+        var emptyData = new KeyValuePair<string, string>[] { new (TokenKey, string.Empty) };
         var emptyJsonData = this.jsonService.Serialize(emptyData);
 
         this.file.WriteAllText(secretFilePath, emptyJsonData);
