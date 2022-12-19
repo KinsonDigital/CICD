@@ -57,6 +57,8 @@ public partial class CICD // Release.Preview
             var projectService = App.Container.GetInstance<IProjectService>();
             var version = projectService.GetVersion();
 
+            version = version.StartsWith('v') ? version : $"v{version}";
+
             if (string.IsNullOrEmpty(version))
             {
                 Assert.Fail("Release failed.  Could not get version information.");
