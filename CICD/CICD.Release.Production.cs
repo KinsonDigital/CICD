@@ -58,6 +58,7 @@ public partial class CICD // Release.Production
 
             var projectService = App.Container.GetInstance<IProjectService>();
             var version = projectService.GetVersion();
+            version = version.StartsWith('v') ? version : $"v{version}";
 
             if (string.IsNullOrEmpty(version))
             {
