@@ -1072,7 +1072,13 @@ public partial class CICD // Requirements
         }
 
         var projectVersion = project?.GetVersion() ?? string.Empty;
-        var milestoneTitle = $"v{projectVersion}";
+
+        if (string.IsNullOrEmpty(projectVersion))
+        {
+            throw new Exception("The project version cannot be null or empty.");
+        }
+
+        var milestoneTitle = projectVersion.StartsWith('v') ? projectVersion : $"v{projectVersion}";
         var issueClient = GitHubClient.Issue;
 
         var items = issueClient.IssuesForMilestone(RepoOwner, RepoName, milestoneTitle)
@@ -1084,7 +1090,8 @@ public partial class CICD // Requirements
             _ => throw new ArgumentOutOfRangeException(nameof(itemType), itemType, $"{nameof(itemType)} is out of range.")
         }).ToArray();
 
-        var unassignedIssues = items.Where(i => i.Assignee is null).Select(i => i).ToArray();
+        var unassignedIssues = items.Where(i => i.Assignee is null && (i.Assignees is null || i.Assignees.Count <= 0))
+            .Select(i => i).ToArray();
 
         if (unassignedIssues.Length > 0)
         {
