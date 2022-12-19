@@ -443,7 +443,8 @@ internal static class ExtensionMethods
     /// <returns>The distinct list of URL's.</returns>
     public static IEnumerable<(string login, string url)> GetDistinctAssigneeLoginAndUrl(this IEnumerable<Issue> issues)
     {
-        var assignees = issues.Where(i => i.Assignee is not null).Select(i => i.Assignee).ToArray();
+        var assignees = issues.Where(i => i.Assignee is not null && i.Assignees is not null && i.Assignees.Count > 0)
+            .Select(i => i.Assignee).ToArray();
 
         var data = assignees.Select(a => (a.Login, a.HtmlUrl)).ToArray();
 
