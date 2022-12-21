@@ -571,6 +571,15 @@ internal static class ExtensionMethods
         return pullRequests;
     }
 
+    /// <summary>
+    /// Returns a value indicating if a pull request with the given <paramref name="prNumber"/>, for the given repository
+    /// <paramref name="repoOwner"/> and with given repository <paramref name="repoName"/> contains any labels.
+    /// </summary>
+    /// <param name="client">The pull requests HTTP client.</param>
+    /// <param name="repoOwner">The owner of the repository.</param>
+    /// <param name="repoName">The name of the repository.</param>
+    /// <param name="prNumber">The pull request number.</param>
+    /// <returns><c>true</c> if the pull request exists.</returns>
     public static async Task<bool> Exists(
         this IPullRequestsClient client,
         string repoOwner,

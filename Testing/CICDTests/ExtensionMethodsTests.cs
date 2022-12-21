@@ -577,6 +577,34 @@ public class ExtensionMethodsTests
         actual.Should().BeFalse();
     }
 
+    [Fact]
+    public async void Exists_WhenPullRequestExists_ReturnsTrue()
+    {
+        // Arrange
+        var mockClient = new Mock<IPullRequestsClient>();
+        mockClient.Setup(m => m.Get(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()));
+
+        // Act
+        var actual = await mockClient.Object.Exists("test-owner", "test-repo", 123);
+
+        // Assert
+        actual.Should().BeTrue();
+    }
+
+    [Fact]
+    public async void Exists_WhenPullRequestDoestNotExist_ReturnsFalse()
+    {
+        // Arrange
+        var mockClient = new Mock<IPullRequestsClient>();
+        mockClient.Setup(m => m.Get(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
+            .Callback<string, string, int>((_, _, _) => throw new NotFoundException(string.Empty, HttpStatusCode.NotFound));
+
+        // Act
+        var actual = await mockClient.Object.Exists("test-owner", "test-repo", 123);
+
+        // Assert
+        actual.Should().BeFalse();
+    }
     #endregion
 
     /// <summary>
