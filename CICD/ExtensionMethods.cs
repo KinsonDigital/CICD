@@ -572,6 +572,46 @@ internal static class ExtensionMethods
     }
 
     /// <summary>
+    /// Returns a value indicating if an issue is assigned.
+    /// </summary>
+    /// <param name="issue">The issue to check.</param>
+    /// <returns><c>true</c> if the pull request exists.</returns>
+    public static bool IsAssigned(this Issue issue)
+    {
+        var hasAssignee = issue.Assignee is not null;
+        var hasAssignees = issue.Assignees is not null && issue.Assignees.Count > 0;
+
+        return hasAssignee || hasAssignees;
+    }
+
+    /// <summary>
+    /// Returns a value indicating if an issue with the given <paramref name="issueNumber"/>, for the given
+    /// <paramref name="repoOwner"/> and for a repository that matches the given <paramref name="repoName"/> is assigned to a <see cref="User"/>.
+    /// </summary>
+    /// <param name="client">The issues HTTP client.</param>
+    /// <param name="repoOwner">The owner of the repository.</param>
+    /// <param name="repoName">The name of the repository.</param>
+    /// <param name="issueNumber">The issue number.</param>
+    /// <returns><c>true</c> if the pull request exists.</returns>
+    public static async Task<bool> IsAssigned(
+        this IIssuesClient client,
+        string repoOwner,
+        string repoName,
+        int issueNumber)
+    {
+        try
+        {
+            var issue = await client.Get(repoOwner, repoName, issueNumber);
+
+            return issue.IsAssigned();
+        }
+        catch (NotFoundException)
+        {
+            return false;
+        }
+    }
+
+    /// <summary>
     /// Returns a value indicating if a pull request with the given <paramref name="prNumber"/>, for the given
     /// <paramref name="repoOwner"/> and for a repository that matches the given <paramref name="repoName"/> contains any labels.
     /// </summary>
