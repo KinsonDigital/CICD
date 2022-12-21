@@ -56,7 +56,7 @@ public partial class CICD // Requirements
 
         var prNumber = PullRequestService.PullRequestNumber;
 
-        if (prClient.HasAssignees(RepoOwner, RepoName, prNumber).Result)
+        if (prClient.IsAssigned(RepoOwner, RepoName, prNumber).Result)
         {
             Console.WriteLine($"{ConsoleTab}The pull request '{prNumber}' is properly assigned.");
         }
@@ -1090,7 +1090,7 @@ public partial class CICD // Requirements
             _ => throw new ArgumentOutOfRangeException(nameof(itemType), itemType, $"{nameof(itemType)} is out of range.")
         }).ToArray();
 
-        var unassignedIssues = items.Where(i => i.Assignee is null && (i.Assignees is null || i.Assignees.Count <= 0))
+        var unassignedIssues = items.Where(i => i.IsAssigned() is false)
             .Select(i => i).ToArray();
 
         if (unassignedIssues.Length > 0)

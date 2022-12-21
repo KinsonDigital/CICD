@@ -5,6 +5,7 @@
 using System.Collections.ObjectModel;
 using System.Net;
 using CICDSystem;
+using CICDSystemTests.Helpers;
 using FluentAssertions;
 using Moq;
 using Octokit;
@@ -465,6 +466,238 @@ public class ExtensionMethodsTests
 
         // Assert
         actual.Should().Be("VVVVV");
+    }
+
+    [Fact]
+    public async void IssueExists_WhenInvoked_ReturnsCorrectResult()
+    {
+        // Arrange
+        var mockClient = new Mock<IIssuesClient>();
+        mockClient.Setup(m => m.Get(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
+            .ReturnsAsync((string _, string _, int _) => ObjectFactory.CreateIssue());
+
+        // Act
+        var actual = await mockClient.Object.IssueExists("test-owner", "test-repo", 123);
+
+        // Assert
+        mockClient.Verify(m => m.Get("test-owner", "test-repo", 123), Times.Once);
+        actual.Should().BeTrue();
+    }
+
+    [Fact]
+    public async void IssueExists_WhenIssueIsNotFound_ReturnsFalse()
+    {
+        // Arrange
+        var mockClient = new Mock<IIssuesClient>();
+        mockClient.Setup(m => m.Get(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
+            .Callback<string, string, int>((_, _, _) => throw new NotFoundException(string.Empty, HttpStatusCode.NotFound));
+
+        // Act
+        var actual = await mockClient.Object.IssueExists("test-owner", "test-repo", 123);
+
+        // Assert
+        mockClient.Verify(m => m.Get("test-owner", "test-repo", 123), Times.Once);
+        actual.Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData(false, -1, false)]
+    [InlineData(true, -1, false)]
+    [InlineData(true, 0, false)]
+    [InlineData(true, 2, true)]
+    public async void HasLabels_WhenInvokedForTheIssuesClient_ReturnsCorrectResult(
+        bool linkedToPR,
+        int totalLabels,
+        bool expected)
+    {
+        // Arrange
+        var mockClient = new Mock<IIssuesClient>();
+        mockClient.Setup(m => m.Get(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
+            .ReturnsAsync((string _, string _, int _) => ObjectFactory.CreateIssue(linkedToPR, totalLabels));
+
+        // Act
+        var actual = await mockClient.Object.HasLabels("test-owner", "test-repo", 123);
+
+        // Assert
+        mockClient.Verify(m => m.Get("test-owner", "test-repo", 123), Times.Once);
+        actual.Should().Be(expected);
+    }
+
+    [Fact]
+    public async void HasLabels_WhenIssueIsNotFoundForTheIssuesClient_ReturnsFalse()
+    {
+        // Arrange
+        var mockClient = new Mock<IIssuesClient>();
+        mockClient.Setup(m => m.Get(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
+            .Callback<string, string, int>((_, _, _) => throw new NotFoundException(string.Empty, HttpStatusCode.NotFound));
+
+        // Act
+        var actual = await mockClient.Object.HasLabels("test-owner", "test-repo", 123);
+
+        // Assert
+        mockClient.Verify(m => m.Get("test-owner", "test-repo", 123), Times.Once);
+        actual.Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData(-1, false)]
+    [InlineData(0, false)]
+    [InlineData(2, true)]
+    public async void HasLabels_WhenInvokedForThePullRequestsClient_ReturnsCorrectResult(
+        int totalLabels,
+        bool expected)
+    {
+        // Arrange
+        var mockClient = new Mock<IPullRequestsClient>();
+        mockClient.Setup(m => m.Get(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
+            .ReturnsAsync((string _, string _, int _) =>
+                ObjectFactory.CreatePullRequest(totalLabels: totalLabels));
+
+        // Act
+        var actual = await mockClient.Object.HasLabels("test-owner", "test-repo", 123);
+
+        // Assert
+        mockClient.Verify(m => m.Get("test-owner", "test-repo", 123), Times.Once);
+        actual.Should().Be(expected);
+    }
+
+    [Fact]
+    public async void HasLabels_WhenIssueIsNotFoundForThePullRequestsClient_ReturnsFalse()
+    {
+        // Arrange
+        var mockClient = new Mock<IPullRequestsClient>();
+        mockClient.Setup(m => m.Get(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
+            .Callback<string, string, int>((_, _, _) => throw new NotFoundException(string.Empty, HttpStatusCode.NotFound));
+
+        // Act
+        var actual = await mockClient.Object.HasLabels("test-owner", "test-repo", 123);
+
+        // Assert
+        mockClient.Verify(m => m.Get("test-owner", "test-repo", 123), Times.Once);
+        actual.Should().BeFalse();
+    }
+
+    [Fact]
+    public async void Exists_WhenPullRequestExists_ReturnsTrue()
+    {
+        // Arrange
+        var mockClient = new Mock<IPullRequestsClient>();
+        mockClient.Setup(m => m.Get(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()));
+
+        // Act
+        var actual = await mockClient.Object.Exists("test-owner", "test-repo", 123);
+
+        // Assert
+        actual.Should().BeTrue();
+    }
+
+    [Fact]
+    public async void Exists_WhenPullRequestDoestNotExist_ReturnsFalse()
+    {
+        // Arrange
+        var mockClient = new Mock<IPullRequestsClient>();
+        mockClient.Setup(m => m.Get(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
+            .Callback<string, string, int>((_, _, _) => throw new NotFoundException(string.Empty, HttpStatusCode.NotFound));
+
+        // Act
+        var actual = await mockClient.Object.Exists("test-owner", "test-repo", 123);
+
+        // Assert
+        actual.Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData(false, -1, false)]
+    [InlineData(true, -1, true)]
+    [InlineData(true, 0, true)]
+    [InlineData(true, 2, true)]
+    public async void IsAssigned_WithPullRequestClient_ReturnsCorrectResult(
+        bool hasAssignee,
+        int totalAssignees,
+        bool expected)
+    {
+        // Arrange
+        var mockClient = new Mock<IPullRequestsClient>();
+        mockClient.Setup(m => m.Get(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
+            .ReturnsAsync(() => ObjectFactory.CreatePullRequest(hasAssignee: hasAssignee, totalAssignees: totalAssignees));
+
+        // Act
+        var actual = await mockClient.Object.IsAssigned("test-owner", "test-repo", 123);
+
+        // Assert
+        actual.Should().Be(expected);
+    }
+
+    [Fact]
+    public async void IsAssigned_WithPullRequestClientAndWhenUserDoesNotExist_ReturnsFalse()
+    {
+        // Arrange
+        var mockClient = new Mock<IPullRequestsClient>();
+        mockClient.Setup(m => m.Get(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
+            .Callback<string, string, int>((_, _, _) => throw new NotFoundException(string.Empty, HttpStatusCode.NotFound));
+
+        // Act
+        var actual = await mockClient.Object.IsAssigned("test-owner", "test-repo", It.IsAny<int>());
+
+        // Assert
+        actual.Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData(false, -1, false)]
+    [InlineData(true, -1, true)]
+    [InlineData(true, 0, true)]
+    [InlineData(true, 2, true)]
+    public void IsAssigned_WhenCheckingIssue_ReturnsCorrectResult(
+        bool hasAssignee,
+        int totalAssignees,
+        bool expected)
+    {
+        // Arrange
+        var issue = ObjectFactory.CreateIssue(hasAssignee: hasAssignee, totalAssignees: totalAssignees);
+
+        // Act
+        var actual = issue.IsAssigned();
+
+        // Assert
+        actual.Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData(false, -1, false)]
+    [InlineData(true, -1, true)]
+    [InlineData(true, 0, true)]
+    [InlineData(true, 2, true)]
+    public async void IsAssigned_WithIssueClient_ReturnsCorrectResult(
+        bool hasAssignee,
+        int totalAssignees,
+        bool expected)
+    {
+        // Arrange
+        var mockClient = new Mock<IIssuesClient>();
+        mockClient.Setup(m => m.Get(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
+            .ReturnsAsync(() => ObjectFactory.CreateIssue(hasAssignee: hasAssignee, totalAssignees: totalAssignees));
+
+        // Act
+        var actual = await mockClient.Object.IsAssigned("test-owner", "test-repo", 123);
+
+        // Assert
+        actual.Should().Be(expected);
+    }
+
+    [Fact]
+    public async void IsAssigned_WithIssueClientAndWhenUserDoesNotExist_ReturnsFalse()
+    {
+        // Arrange
+        var mockClient = new Mock<IIssuesClient>();
+        mockClient.Setup(m => m.Get(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
+            .Callback<string, string, int>((_, _, _) => throw new NotFoundException(string.Empty, HttpStatusCode.NotFound));
+
+        // Act
+        var actual = await mockClient.Object.IsAssigned("test-owner", "test-repo", It.IsAny<int>());
+
+        // Assert
+        actual.Should().BeFalse();
     }
     #endregion
 
