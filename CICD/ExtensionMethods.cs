@@ -466,15 +466,24 @@ internal static class ExtensionMethods
         return foundTag is not null;
     }
 
+    /// <summary>
+    /// Returns a value indicating if an issue with the given <paramref name="issueNumber"/> exists, for the given
+    /// <paramref name="repoOwner"/>, and for a repository that matches the given <paramref name="repoName"/>.
+    /// </summary>
+    /// <param name="client">The issues HTTP client.</param>
+    /// <param name="repoOwner">The owner of the repository.</param>
+    /// <param name="repoName">The name of the repository.</param>
+    /// <param name="issueNumber">The issue number.</param>
+    /// <returns><c>true</c> if the issue exists.</returns>
     public static async Task<bool> IssueExists(
         this IIssuesClient client,
-        string owner,
-        string name,
+        string repoOwner,
+        string repoName,
         int issueNumber)
     {
         try
         {
-            var result = await client.Get(owner, name, issueNumber);
+            var result = await client.Get(repoOwner, repoName, issueNumber);
 
             return result.PullRequest is null;
         }
@@ -484,17 +493,28 @@ internal static class ExtensionMethods
         }
     }
 
+    /// <summary>
+    /// Returns a value indicating if an issue with the given <paramref name="issueNumber"/> contains any labels, for the given
+    /// <paramref name="repoOwner"/> and for a repository that matches the given <paramref name="repoName"/>.
+    /// </summary>
+    /// <param name="client">The issues HTTP client.</param>
+    /// <param name="repoOwner">The owner of the repository.</param>
+    /// <param name="repoName">The name of the repository.</param>
+    /// <param name="issueNumber">The issue number.</param>
+    /// <returns><c>true</c> if the issue has labels.</returns>
     public static async Task<bool> HasLabels(
         this IIssuesClient client,
-        string owner,
-        string name,
+        string repoOwner,
+        string repoName,
         int issueNumber)
     {
         try
         {
-            var issue = await client.Get(owner, name, issueNumber);
+            var issue = await client.Get(repoOwner, repoName, issueNumber);
 
-            return issue is not null && issue.PullRequest is null && issue.Labels.Count >= 1;
+            return issue.PullRequest is null &&
+                   issue.Labels is not null &&
+                   issue.Labels.Count >= 1;
         }
         catch (NotFoundException)
         {
@@ -504,16 +524,16 @@ internal static class ExtensionMethods
 
     /// <summary>
     /// Returns all of the issues assigned to a milestone that matches the given <paramref name="milestoneTitle"/>,
-    /// for the given repository <paramref name="owner"/> and for the repository that matches the given <paramref name="repoName"/>.
+    /// for the given <paramref name="repoOwner"/> and for the repository that matches the given <paramref name="repoName"/>.
     /// </summary>
     /// <param name="client">Calls out to the GitHub API to get issues.</param>
-    /// <param name="owner">The owner of the repository.</param>
+    /// <param name="repoOwner">The owner of the repository.</param>
     /// <param name="repoName">The name of the repository.</param>
     /// <param name="milestoneTitle">The title of the milestone.</param>
     /// <returns>The list of issues.</returns>
     public static async Task<Issue[]> IssuesForMilestone(
         this IIssuesClient client,
-        string owner,
+        string repoOwner,
         string repoName,
         string milestoneTitle)
     {
@@ -523,7 +543,7 @@ internal static class ExtensionMethods
             State = ItemStateFilter.All,
         };
 
-        var issues = (await client.GetAllForRepository(owner, repoName, issueRequest))
+        var issues = (await client.GetAllForRepository(repoOwner, repoName, issueRequest))
             .Where(i =>
                 i.PullRequest is null &&
                 i.Milestone is not null &&
@@ -534,15 +554,15 @@ internal static class ExtensionMethods
 
     public static async Task<Issue[]> PullRequestsForMilestone(
         this IIssuesClient client,
-        string owner,
-        string name,
+        string repoOwner,
+        string repoName,
         string mileStoneName)
     {
         var issueRequest = new RepositoryIssueRequest();
         issueRequest.Filter = IssueFilter.All;
         issueRequest.State = ItemStateFilter.All;
 
-        var pullRequests = (await client.GetAllForRepository(owner, name, issueRequest))
+        var pullRequests = (await client.GetAllForRepository(repoOwner, repoName, issueRequest))
             .Where(i =>
                 i.PullRequest is not null &&
                 i.Milestone is not null &&
@@ -551,6 +571,55 @@ internal static class ExtensionMethods
         return pullRequests;
     }
 
+    /// <summary>
+    /// Returns a value indicating if an issue is assigned.
+    /// </summary>
+    /// <param name="issue">The issue to check.</param>
+    /// <returns><c>true</c> if the pull request exists.</returns>
+    public static bool IsAssigned(this Issue issue)
+    {
+        var hasAssignee = issue.Assignee is not null;
+        var hasAssignees = issue.Assignees is not null && issue.Assignees.Count > 0;
+
+        return hasAssignee || hasAssignees;
+    }
+
+    /// <summary>
+    /// Returns a value indicating if an issue with the given <paramref name="issueNumber"/>, for the given
+    /// <paramref name="repoOwner"/> and for a repository that matches the given <paramref name="repoName"/> is assigned to a <see cref="User"/>.
+    /// </summary>
+    /// <param name="client">The issues HTTP client.</param>
+    /// <param name="repoOwner">The owner of the repository.</param>
+    /// <param name="repoName">The name of the repository.</param>
+    /// <param name="issueNumber">The issue number.</param>
+    /// <returns><c>true</c> if the pull request exists.</returns>
+    public static async Task<bool> IsAssigned(
+        this IIssuesClient client,
+        string repoOwner,
+        string repoName,
+        int issueNumber)
+    {
+        try
+        {
+            var issue = await client.Get(repoOwner, repoName, issueNumber);
+
+            return issue.IsAssigned();
+        }
+        catch (NotFoundException)
+        {
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Returns a value indicating if a pull request with the given <paramref name="prNumber"/>, for the given
+    /// <paramref name="repoOwner"/> and for a repository that matches the given <paramref name="repoName"/> contains any labels.
+    /// </summary>
+    /// <param name="client">The pull requests HTTP client.</param>
+    /// <param name="repoOwner">The owner of the repository.</param>
+    /// <param name="repoName">The name of the repository.</param>
+    /// <param name="prNumber">The pull request number.</param>
+    /// <returns><c>true</c> if the pull request exists.</returns>
     public static async Task<bool> Exists(
         this IPullRequestsClient client,
         string repoOwner,
@@ -561,7 +630,7 @@ internal static class ExtensionMethods
         {
             _ = await client.Get(repoOwner, repoName, prNumber);
         }
-        catch (NotFoundException e)
+        catch (NotFoundException)
         {
             return false;
         }
@@ -569,17 +638,29 @@ internal static class ExtensionMethods
         return true;
     }
 
-    public static async Task<bool> HasAssignees(
+    /// <summary>
+    /// Returns a value indicating if a pull request with the given <paramref name="prNumber"/> contains any labels, for the given
+    /// <paramref name="repoOwner"/> and for a repository that matches the given <paramref name="repoName"/>.
+    /// </summary>
+    /// <param name="client">The pull requests HTTP client.</param>
+    /// <param name="repoOwner">The owner of the repository.</param>
+    /// <param name="repoName">The name of the repository.</param>
+    /// <param name="prNumber">The pull request number.</param>
+    /// <returns><c>true</c> if the pull request exists.</returns>
+    public static async Task<bool> IsAssigned(
         this IPullRequestsClient client,
-        string owner,
-        string name,
+        string repoOwner,
+        string repoName,
         int prNumber)
     {
         try
         {
-            var pr = await client.Get(owner, name, prNumber);
+            var pr = await client.Get(repoOwner, repoName, prNumber);
 
-            return pr is not null && pr.Assignees.Count >= 1;
+            var hasAssignee = pr.Assignee is not null;
+            var hasAssignees = pr.Assignees is not null && pr.Assignees.Count > 0;
+
+            return hasAssignee || hasAssignees;
         }
         catch (NotFoundException)
         {
@@ -587,17 +668,28 @@ internal static class ExtensionMethods
         }
     }
 
+    /// <summary>
+    /// Returns a value indicating if the pull request with the given <paramref name="prNumber"/>,
+    /// for the given <paramref name="repoOwner"/> and with given
+    /// <paramref name="repoName"/> contains any labels.
+    /// </summary>
+    /// <param name="client">The pull requests HTTP client.</param>
+    /// <param name="repoOwner">The owner of the repository.</param>
+    /// <param name="repoName">The name of the repository.</param>
+    /// <param name="prNumber">The pull request number.</param>
+    /// <returns><c>true</c> if the issue has labels.</returns>
     public static async Task<bool> HasLabels(
         this IPullRequestsClient client,
-        string owner,
-        string name,
+        string repoOwner,
+        string repoName,
         int prNumber)
     {
         try
         {
-            var pr = await client.Get(owner, name, prNumber);
+            var pr = await client.Get(repoOwner, repoName, prNumber);
 
-            return pr is not null && pr.Labels.Count >= 1;
+            return pr.Labels is not null &&
+                   pr.Labels.Count >= 1;
         }
         catch (NotFoundException)
         {
@@ -607,16 +699,16 @@ internal static class ExtensionMethods
 
     /// <summary>
     /// Returns all of the pull requests assigned to a milestone that matches the given <paramref name="milestoneTitle"/>,
-    /// for the given repository <paramref name="owner"/> and for the repository that matches the given <paramref name="repoName"/>.
+    /// for the given <paramref name="repoOwner"/> and for the repository that matches the given <paramref name="repoName"/>.
     /// </summary>
     /// <param name="client">Calls out to the GitHub API to get issues.</param>
-    /// <param name="owner">The owner of the repository.</param>
+    /// <param name="repoOwner">The owner of the repository.</param>
     /// <param name="repoName">The name of the repository.</param>
     /// <param name="milestoneTitle">The title of the milestone.</param>
     /// <returns>The list of issues.</returns>
     public static async Task<PullRequest[]> PullRequestsForMilestone(
         this IPullRequestsClient client,
-        string owner,
+        string repoOwner,
         string repoName,
         string milestoneTitle)
     {
@@ -625,7 +717,7 @@ internal static class ExtensionMethods
             State = ItemStateFilter.All,
         };
 
-        var pullRequests = (await client.GetAllForRepository(owner, repoName, issueRequest))
+        var pullRequests = (await client.GetAllForRepository(repoOwner, repoName, issueRequest))
             .Where(i => i.Milestone is not null && i.Milestone.Title == milestoneTitle).ToArray();
 
         return pullRequests;
@@ -635,7 +727,7 @@ internal static class ExtensionMethods
     /// Returns a value indicating whether or not a pull request is assigned to a milestone.
     /// </summary>
     /// <param name="client">Calls out to the GitHub API to get a pull request.</param>
-    /// <param name="owner">The owner of the repository.</param>
+    /// <param name="repoOwner">The owner of the repository.</param>
     /// <param name="repoName">The name of the repository.</param>
     /// <param name="prNumber">The pull request number.</param>
     /// <returns>An asynchronous <c>boolean</c> of <c>true</c> if assigned.</returns>
@@ -650,13 +742,13 @@ internal static class ExtensionMethods
     /// </remarks>
     public static async Task<(bool isAssigned, Milestone? milestone)> AssignedToMilestone(
         this IPullRequestsClient client,
-        string owner,
+        string repoOwner,
         string repoName,
         int prNumber)
     {
         try
         {
-            var pr = await client.Get(owner, repoName, prNumber);
+            var pr = await client.Get(repoOwner, repoName, prNumber);
 
             var isAssigned = pr.State == ItemState.Open
                 ? pr.Milestone is not null && pr.Milestone.State == ItemState.Open
@@ -672,10 +764,10 @@ internal static class ExtensionMethods
 
     public static async Task<bool> ReleaseExists(
         this IReleasesClient client,
-        string owner,
+        string repoOwner,
         string repoName,
         string tag) =>
-        (from r in await client.GetAll(owner, repoName)
+        (from r in await client.GetAll(repoOwner, repoName)
             where r.TagName == tag
             select r).ToArray().Any();
 
@@ -719,25 +811,25 @@ internal static class ExtensionMethods
     /// Returns a value indicating whether or not a milestone with a title matches the given <paramref name="version"/> string.
     /// </summary>
     /// <param name="client">Calls out to the GitHub API to get milestones.</param>
-    /// <param name="owner">The owner of the repository.</param>
+    /// <param name="repoOwner">The owner of the repository.</param>
     /// <param name="repoName">The name of the repository.</param>
     /// <param name="version">The version string that the milestone title should match.</param>
     /// <returns><c>true</c> if the milestone exists.</returns>
     public static async Task<bool> MilestoneExists(
         this IMilestonesClient client,
-        string owner,
+        string repoOwner,
         string repoName,
         string version) =>
-        (from m in await client.GetAllForRepository(owner, repoName)
+        (from m in await client.GetAllForRepository(repoOwner, repoName)
             where m.Title == version
             select m).Any();
 
     /// <summary>
     /// Gets a milestone that contains a title that matches the given <paramref name="title"/>, that belongs to the
-    /// given <paramref name="owner"/> and repository with the name <paramref name="repoName"/>.
+    /// given <paramref name="repoOwner"/> and repository with the name <paramref name="repoName"/>.
     /// </summary>
     /// <param name="client">Calls out to the GitHub API to get milestones.</param>
-    /// <param name="owner">The owner of the repository.</param>
+    /// <param name="repoOwner">The owner of the repository.</param>
     /// <param name="repoName">The name of the repository.</param>
     /// <param name="title">The title of the milestone.</param>
     /// <returns>The milestone if it was found.</returns>
@@ -746,11 +838,11 @@ internal static class ExtensionMethods
     /// </remarks>
     public static async Task<Milestone?> GetByTitle(
         this IMilestonesClient client,
-        string owner,
+        string repoOwner,
         string repoName,
         string title)
     {
-        var milestones = (from m in await client.GetAllForRepository(owner, repoName)
+        var milestones = (from m in await client.GetAllForRepository(repoOwner, repoName)
             where m.Title == title
             select m).ToArray();
 
@@ -759,20 +851,20 @@ internal static class ExtensionMethods
 
     /// <summary>
     /// Gets the HTML URL of a release that matches the given <paramref name="title"/>, that belongs to the
-    /// given <paramref name="owner"/> and repository with the name <paramref name="repoName"/>.
+    /// given <paramref name="repoOwner"/> and repository with the name <paramref name="repoName"/>.
     /// </summary>
     /// <param name="client">Calls out to the GitHub API to get milestones.</param>
-    /// <param name="owner">The owner of the repository.</param>
+    /// <param name="repoOwner">The owner of the repository.</param>
     /// <param name="repoName">The name of the repository.</param>
     /// <param name="title">The title of the milestone.</param>
     /// <returns>The HTML URL of the milestone.</returns>
     public static async Task<string> GetHtmlUrl(
         this IMilestonesClient client,
-        string owner,
+        string repoOwner,
         string repoName,
         string title)
     {
-        var milestones = (from m in await client.GetAllForRepository(owner, repoName)
+        var milestones = (from m in await client.GetAllForRepository(repoOwner, repoName)
             where m.Title == title
             select m).ToArray();
 
@@ -781,18 +873,18 @@ internal static class ExtensionMethods
 
     /// <summary>
     /// Closes an open milestone with a title that matches the given <paramref name="title"/>, that belongs to the
-    /// given <paramref name="owner"/> and repository that is named <paramref name="repoName"/>.
+    /// given <paramref name="repoOwner"/> and repository that is named <paramref name="repoName"/>.
     /// </summary>
     /// <param name="client">Calls out to the GitHub API to get milestones.</param>
-    /// <param name="owner">The owner of the repository.</param>
+    /// <param name="repoOwner">The owner of the repository.</param>
     /// <param name="repoName">The name of the repository.</param>
     /// <param name="title">The title of the milestone.</param>
     /// <returns>The milestone after being updated.</returns>
     /// <exception cref="NotFoundException">Occurs if the milestone is not found.</exception>
     /// <exception cref="Exception">Occurs if something goes wrong with the update process.</exception>
-    public static async Task<Milestone> CloseMilestone(this IMilestonesClient client, string owner, string repoName, string title)
+    public static async Task<Milestone> CloseMilestone(this IMilestonesClient client, string repoOwner, string repoName, string title)
     {
-        var milestones = await client.GetAllForRepository(owner, repoName);
+        var milestones = await client.GetAllForRepository(repoOwner, repoName);
 
         var foundMilestone = milestones.FirstOrDefault(m => m.Title == title);
 
@@ -806,7 +898,7 @@ internal static class ExtensionMethods
             State = ItemState.Closed,
         };
 
-        var updatedMilestone = await client.Update(owner, repoName, foundMilestone.Number, mileStoneUpdate);
+        var updatedMilestone = await client.Update(repoOwner, repoName, foundMilestone.Number, mileStoneUpdate);
 
         if (updatedMilestone is null)
         {
@@ -818,10 +910,10 @@ internal static class ExtensionMethods
 
     /// <summary>
     /// Updates the <paramref name="description"/> of a milestone that has the given milestone <paramref name="title"/>
-    /// and belongs to the given <paramref name="owner"/> and is part of a repository that matches the given <paramref name="repoName"/>.
+    /// and belongs to the given <paramref name="repoOwner"/> and is part of a repository that matches the given <paramref name="repoName"/>.
     /// </summary>
     /// <param name="client">Calls out to the GitHub API to get milestones.</param>
-    /// <param name="owner">The owner of the repository.</param>
+    /// <param name="repoOwner">The owner of the repository.</param>
     /// <param name="repoName">The name of the repository.</param>
     /// <param name="title">The title of the milestone.</param>
     /// <param name="description">The description to update the milestone.</param>
@@ -830,13 +922,13 @@ internal static class ExtensionMethods
     /// <exception cref="Exception">Occurs if something goes wrong with the update process.</exception>
     public static async Task<Milestone> UpdateMilestoneDescription(
         this IMilestonesClient client,
-        string owner,
+        string repoOwner,
         string repoName,
         string title,
         string description)
     {
         var request = new MilestoneRequest() { State = ItemStateFilter.All };
-        var milestones = await client.GetAllForRepository(owner, repoName, request);
+        var milestones = await client.GetAllForRepository(repoOwner, repoName, request);
 
         var foundMilestone = milestones.FirstOrDefault(m => m.Title == title);
 
@@ -850,7 +942,7 @@ internal static class ExtensionMethods
             Description = description,
         };
 
-        var updatedMilestone = await client.Update(owner, repoName, foundMilestone.Number, mileStoneUpdate);
+        var updatedMilestone = await client.Update(repoOwner, repoName, foundMilestone.Number, mileStoneUpdate);
 
         if (updatedMilestone is null)
         {
