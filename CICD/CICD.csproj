@@ -2,7 +2,8 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
+    <LangVersion>11.0</LangVersion>
     <Nullable>enable</Nullable>
     <RootNamespace>CICDSystem</RootNamespace>
     <NoWarn>CS0649;CS0169</NoWarn>
@@ -46,19 +47,19 @@
 
   <ItemGroup>
     <PackageReference Include="Flurl.Http" Version="3.2.4" />
-    <PackageReference Include="Nuke.Common" Version="6.2.1" />
-    <PackageReference Include="Octokit" Version="3.0.0" />
+    <PackageReference Include="Nuke.Common" Version="6.3.0" />
+    <PackageReference Include="Octokit" Version="4.0.3" />
     <PackageReference Include="Serilog" Version="2.12.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0">
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="7.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="SimpleInjector" Version="5.4.0" />
+    <PackageReference Include="SimpleInjector" Version="5.4.1" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="System.IO.Abstractions" Version="19.1.1" />
+    <PackageReference Include="System.IO.Abstractions" Version="19.1.5" />
   </ItemGroup>
 
   <ItemGroup>

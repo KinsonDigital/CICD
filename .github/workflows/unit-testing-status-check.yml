@@ -37,4 +37,4 @@ jobs:
     with:
       project-name: "CICDTests"
       build-config: ${{ needs.determine_build_config.outputs.build-config }}
-      net-sdk-version: 6.0.300
+      net-sdk-version: 7.0.101
