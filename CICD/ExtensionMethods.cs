@@ -467,8 +467,8 @@ internal static class ExtensionMethods
     }
 
     /// <summary>
-    /// Returns a value indicating if an issue with the given <paramref name="issueNumber"/>, for the given <paramref name="repoOwner"/>,
-    /// and with given <paramref name="repoName"/> exists.
+    /// Returns a value indicating if an issue with the given <paramref name="issueNumber"/> exists, for the given
+    /// <paramref name="repoOwner"/>, and for a repository that matches the given <paramref name="repoName"/>.
     /// </summary>
     /// <param name="client">The issues HTTP client.</param>
     /// <param name="repoOwner">The owner of the repository.</param>
@@ -494,8 +494,8 @@ internal static class ExtensionMethods
     }
 
     /// <summary>
-    /// Returns a value indicating if an issue with the given <paramref name="issueNumber"/>, for the given <paramref name="repoOwner"/>
-    /// and with given <paramref name="repoName"/> contains any labels.
+    /// Returns a value indicating if an issue with the given <paramref name="issueNumber"/> contains any labels, for the given
+    /// <paramref name="repoOwner"/> and for a repository that matches the given <paramref name="repoName"/>.
     /// </summary>
     /// <param name="client">The issues HTTP client.</param>
     /// <param name="repoOwner">The owner of the repository.</param>
@@ -573,7 +573,7 @@ internal static class ExtensionMethods
 
     /// <summary>
     /// Returns a value indicating if a pull request with the given <paramref name="prNumber"/>, for the given
-    /// <paramref name="repoOwner"/> and with given <paramref name="repoName"/> contains any labels.
+    /// <paramref name="repoOwner"/> and for a repository that matches the given <paramref name="repoName"/> contains any labels.
     /// </summary>
     /// <param name="client">The pull requests HTTP client.</param>
     /// <param name="repoOwner">The owner of the repository.</param>
@@ -599,8 +599,8 @@ internal static class ExtensionMethods
     }
 
     /// <summary>
-    /// Returns a value indicating if a pull request with the given <paramref name="prNumber"/>, for the given
-    /// <paramref name="repoOwner"/> and with given <paramref name="repoName"/> contains any labels.
+    /// Returns a value indicating if a pull request with the given <paramref name="prNumber"/> contains any labels, for the given
+    /// <paramref name="repoOwner"/> and for a repository that matches the given <paramref name="repoName"/>.
     /// </summary>
     /// <param name="client">The pull requests HTTP client.</param>
     /// <param name="repoOwner">The owner of the repository.</param>
