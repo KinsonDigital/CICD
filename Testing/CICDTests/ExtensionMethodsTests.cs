@@ -499,6 +499,45 @@ public class ExtensionMethodsTests
         mockClient.Verify(m => m.Get("test-owner", "test-repo", 123), Times.Once);
         actual.Should().BeFalse();
     }
+
+    [Theory]
+    [InlineData(false, -1, false)]
+    [InlineData(true, -1, false)]
+    [InlineData(true, 0, false)]
+    [InlineData(true, 2, true)]
+    public async void HasLabels_WhenInvoked_ReturnsCorrectResult(
+        bool linkedToPR,
+        int totalLabels,
+        bool expected)
+    {
+        // Arrange
+        var mockClient = new Mock<IIssuesClient>();
+        mockClient.Setup(m => m.Get(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
+            .ReturnsAsync((string _, string _, int _) => ObjectFactory.CreateIssue(linkedToPR, totalLabels));
+
+        // Act
+        var actual = await mockClient.Object.HasLabels("test-owner", "test-repo", 123);
+
+        // Assert
+        mockClient.Verify(m => m.Get("test-owner", "test-repo", 123), Times.Once);
+        actual.Should().Be(expected);
+    }
+
+    [Fact]
+    public async void HasLabels_WhenIssueIsNotFound_ReturnsFalse()
+    {
+        // Arrange
+        var mockClient = new Mock<IIssuesClient>();
+        mockClient.Setup(m => m.Get(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
+            .Callback<string, string, int>((_, _, _) => throw new NotFoundException(string.Empty, HttpStatusCode.NotFound));
+
+        // Act
+        var actual = await mockClient.Object.HasLabels("test-owner", "test-repo", 123);
+
+        // Assert
+        mockClient.Verify(m => m.Get("test-owner", "test-repo", 123), Times.Once);
+        actual.Should().BeFalse();
+    }
     #endregion
 
     /// <summary>

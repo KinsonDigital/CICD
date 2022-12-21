@@ -468,7 +468,7 @@ internal static class ExtensionMethods
 
     /// <summary>
     /// Returns a value indicating if an issue with the given <paramref name="issueNumber"/>, for the given repository <paramref name="owner"/>,
-    /// and the with given repository <paramref name="name"/> exists.
+    /// and with given repository <paramref name="name"/> exists.
     /// </summary>
     /// <param name="client">The issues HTTP client.</param>
     /// <param name="owner">The owner of the repository.</param>
@@ -493,6 +493,15 @@ internal static class ExtensionMethods
         }
     }
 
+    /// <summary>
+    /// Returns a value indicating if an issue with the given <paramref name="issueNumber"/>, for the given repository <paramref name="owner"/>
+    /// and with given repository <paramref name="name"/> contains any labels.
+    /// </summary>
+    /// <param name="client">The issues HTTP client.</param>
+    /// <param name="owner">The owner of the repository.</param>
+    /// <param name="name">The name of the repository.</param>
+    /// <param name="issueNumber">The issue number.</param>
+    /// <returns><c>true</c> if the issue has labels.</returns>
     public static async Task<bool> HasLabels(
         this IIssuesClient client,
         string owner,
@@ -503,7 +512,9 @@ internal static class ExtensionMethods
         {
             var issue = await client.Get(owner, name, issueNumber);
 
-            return issue is not null && issue.PullRequest is null && issue.Labels.Count >= 1;
+            return issue.PullRequest is null &&
+                   issue.Labels is not null &&
+                   issue.Labels.Count >= 1;
         }
         catch (NotFoundException)
         {
@@ -570,7 +581,7 @@ internal static class ExtensionMethods
         {
             _ = await client.Get(repoOwner, repoName, prNumber);
         }
-        catch (NotFoundException e)
+        catch (NotFoundException)
         {
             return false;
         }
