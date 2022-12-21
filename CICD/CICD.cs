@@ -25,6 +25,7 @@ public partial class CICD : NukeBuild
     private string repoOwner = string.Empty;
     private string repoName = string.Empty;
     private string projectName = string.Empty;
+    private bool skipTwitter;
     private TwitterSecrets twitterSecrets;
     private int pullRequestNumber;
 
@@ -77,6 +78,10 @@ public partial class CICD : NukeBuild
     [Parameter("If true, will skip the Twitter announcement of a release.")]
     private bool SkipTwitterAnnouncement
     {
+        // ReSharper disable UnusedMember.Local
+        get => this.skipTwitter;
+
+        // ReSharper restore UnusedMember.Local
         set
         {
             var skipReactable = App.Container.GetInstance<IReactable<bool>>();
@@ -86,6 +91,7 @@ public partial class CICD : NukeBuild
                 return;
             }
 
+            this.skipTwitter = value;
             skipReactable.PushNotification(value);
             skipReactable.EndNotifications();
         }
