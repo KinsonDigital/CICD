@@ -505,7 +505,7 @@ public class ExtensionMethodsTests
     [InlineData(true, -1, false)]
     [InlineData(true, 0, false)]
     [InlineData(true, 2, true)]
-    public async void HasLabels_WhenInvoked_ReturnsCorrectResult(
+    public async void HasLabels_WhenInvokedForTheIssuesClient_ReturnsCorrectResult(
         bool linkedToPR,
         int totalLabels,
         bool expected)
@@ -524,7 +524,7 @@ public class ExtensionMethodsTests
     }
 
     [Fact]
-    public async void HasLabels_WhenIssueIsNotFound_ReturnsFalse()
+    public async void HasLabels_WhenIssueIsNotFoundForTheIssuesClient_ReturnsFalse()
     {
         // Arrange
         var mockClient = new Mock<IIssuesClient>();
@@ -538,6 +538,45 @@ public class ExtensionMethodsTests
         mockClient.Verify(m => m.Get("test-owner", "test-repo", 123), Times.Once);
         actual.Should().BeFalse();
     }
+
+    [Theory]
+    [InlineData(-1, false)]
+    [InlineData(0, false)]
+    [InlineData(2, true)]
+    public async void HasLabels_WhenInvokedForThePullRequestsClient_ReturnsCorrectResult(
+        int totalLabels,
+        bool expected)
+    {
+        // Arrange
+        var mockClient = new Mock<IPullRequestsClient>();
+        mockClient.Setup(m => m.Get(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
+            .ReturnsAsync((string _, string _, int _) =>
+                ObjectFactory.CreatePullRequest(totalLabels: totalLabels));
+
+        // Act
+        var actual = await mockClient.Object.HasLabels("test-owner", "test-repo", 123);
+
+        // Assert
+        mockClient.Verify(m => m.Get("test-owner", "test-repo", 123), Times.Once);
+        actual.Should().Be(expected);
+    }
+
+    [Fact]
+    public async void HasLabels_WhenIssueIsNotFoundForThePullRequestsClient_ReturnsFalse()
+    {
+        // Arrange
+        var mockClient = new Mock<IPullRequestsClient>();
+        mockClient.Setup(m => m.Get(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
+            .Callback<string, string, int>((_, _, _) => throw new NotFoundException(string.Empty, HttpStatusCode.NotFound));
+
+        // Act
+        var actual = await mockClient.Object.HasLabels("test-owner", "test-repo", 123);
+
+        // Assert
+        mockClient.Verify(m => m.Get("test-owner", "test-repo", 123), Times.Once);
+        actual.Should().BeFalse();
+    }
+
     #endregion
 
     /// <summary>

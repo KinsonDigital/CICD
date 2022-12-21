@@ -607,6 +607,16 @@ internal static class ExtensionMethods
         }
     }
 
+    /// <summary>
+    /// Returns a value indicating if the pull request with the given <paramref name="prNumber"/>,
+    /// for the given repository <paramref name="owner"/> and with given repository
+    /// <paramref name="name"/> contains any labels.
+    /// </summary>
+    /// <param name="client">The pull requests HTTP client.</param>
+    /// <param name="owner">The owner of the repository.</param>
+    /// <param name="name">The name of the repository.</param>
+    /// <param name="prNumber">The pull request number.</param>
+    /// <returns><c>true</c> if the issue has labels.</returns>
     public static async Task<bool> HasLabels(
         this IPullRequestsClient client,
         string owner,
@@ -617,7 +627,8 @@ internal static class ExtensionMethods
         {
             var pr = await client.Get(owner, name, prNumber);
 
-            return pr is not null && pr.Labels.Count >= 1;
+            return pr.Labels is not null &&
+                   pr.Labels.Count >= 1;
         }
         catch (NotFoundException)
         {

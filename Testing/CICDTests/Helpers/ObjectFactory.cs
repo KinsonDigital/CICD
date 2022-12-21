@@ -17,9 +17,25 @@ public static class ObjectFactory
     /// </summary>
     /// <param name="sourceBranch">The source branch of the pull request.</param>
     /// <param name="targetBranch">The target branch of the pull request.</param>
+    /// <param name="totalLabels">The total number of labels to add to the issue.</param>
     /// <returns>The pull request object to help with testing.</returns>
-    public static PullRequest CreatePullRequest(string sourceBranch, string targetBranch)
+    /// <remarks>
+    ///     <para>A <paramref name="totalLabels"/> value of -1 will have the labels null.</para>
+    ///     <para>A <paramref name="totalLabels"/> value of 0 will not have the labels null but have no labels.</para>
+    ///     <para>A <paramref name="totalLabels"/> value greater than 0 will have labels.</para>
+    /// </remarks>
+    public static PullRequest CreatePullRequest(
+        string sourceBranch = "",
+        string targetBranch = "",
+        int totalLabels = -1)
     {
+        var labels = new List<Label>();
+
+        for (var i = 0; i < totalLabels; i++)
+        {
+            labels.Add(CreateLabel($"label-{i}"));
+        }
+
 #pragma warning disable SA1117
         var head = new GitReference(
             string.Empty, string.Empty, string.Empty, sourceBranch,
@@ -66,7 +82,7 @@ public static class ObjectFactory
             true, // maintainerCanModify: bool
             new ReadOnlyCollection<User>(Array.Empty<User>()), // requestedReviewers:IReadOnlyList<User>
             new ReadOnlyCollection<Team>(Array.Empty<Team>()), // requestedTeams:IReadOnlyList<Team>
-            new ReadOnlyCollection<Label>(Array.Empty<Label>()), // labels:IReadOnlyList<Label>
+            totalLabels < 0 ? null : new ReadOnlyCollection<Label>(labels.ToArray()), // labels:IReadOnlyList<Label>
             LockReason.Resolved); // activeLockReason: LockReason
 
         return result;
