@@ -1,4 +1,4 @@
-﻿// <copyright file="ObjectFactory.cs" company="KinsonDigital">
+// <copyright file="ObjectFactory.cs" company="KinsonDigital">
 // Copyright (c) KinsonDigital. All rights reserved.
 // </copyright>
 
@@ -70,5 +70,39 @@ public static class ObjectFactory
             LockReason.Resolved); // activeLockReason: LockReason
 
         return result;
+    }
+
+    /// <summary>
+    /// Creates an <see cref="Issue"/> object for the purpose of testing and mocking.
+    /// </summary>
+    /// <returns>The pull request object to help with testing.</returns>
+    public static Issue CreateIssue()
+    {
+        return new Issue(
+            url: string.Empty, // string
+            htmlUrl: string.Empty, // string
+            commentsUrl: string.Empty, // string
+            eventsUrl: string.Empty, // string
+            number: 10, // int
+            state: ItemState.Open, //  ItemStat
+            title: string.Empty, // string
+            body: string.Empty, // string
+            closedBy: null, // User
+            user: null, // User
+            labels: null, // IReadOnlyList<Label>
+            assignee: null, // User
+            assignees: null, // IReadOnlyList<User>
+            milestone: null, // Milestone
+            comments: 20, // int
+            pullRequest: null, // PullRequest
+            closedAt: DateTimeOffset.Now, // DateTimeOffset?
+            createdAt: DateTimeOffset.Now, // DateTimeOffset
+            updatedAt: DateTimeOffset.Now, // DateTimeOffset?
+            id: 30, // int
+            nodeId: string.Empty, // string
+            locked: false, // bool
+            repository: null, // Repository
+            reactions: null, // ReactionSummary
+            activeLockReason: LockReason.Resolved); // LockReason
     }
 }

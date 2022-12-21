@@ -5,6 +5,7 @@
 using System.Collections.ObjectModel;
 using System.Net;
 using CICDSystem;
+using CICDSystemTests.Helpers;
 using FluentAssertions;
 using Moq;
 using Octokit;
@@ -465,6 +466,38 @@ public class ExtensionMethodsTests
 
         // Assert
         actual.Should().Be("VVVVV");
+    }
+
+    [Fact]
+    public async void IssueExists_WhenInvoked_ReturnsCorrectResult()
+    {
+        // Arrange
+        var mockClient = new Mock<IIssuesClient>();
+        mockClient.Setup(m => m.Get(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
+            .ReturnsAsync((string _, string _, int _) => ObjectFactory.CreateIssue());
+
+        // Act
+        var actual = await mockClient.Object.IssueExists("test-owner", "test-repo", 123);
+
+        // Assert
+        mockClient.Verify(m => m.Get("test-owner", "test-repo", 123), Times.Once);
+        actual.Should().BeTrue();
+    }
+
+    [Fact]
+    public async void IssueExists_WhenIssueIsNotFound_ReturnsFalse()
+    {
+        // Arrange
+        var mockClient = new Mock<IIssuesClient>();
+        mockClient.Setup(m => m.Get(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
+            .Callback<string, string, int>((_, _, _) => throw new NotFoundException(string.Empty, HttpStatusCode.NotFound));
+
+        // Act
+        var actual = await mockClient.Object.IssueExists("test-owner", "test-repo", 123);
+
+        // Assert
+        mockClient.Verify(m => m.Get("test-owner", "test-repo", 123), Times.Once);
+        actual.Should().BeFalse();
     }
     #endregion
 

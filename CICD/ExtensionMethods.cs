@@ -466,6 +466,15 @@ internal static class ExtensionMethods
         return foundTag is not null;
     }
 
+    /// <summary>
+    /// Returns a value indicating if an issue with the given <paramref name="issueNumber"/>, for the given repository <paramref name="owner"/>,
+    /// and the with given repository <paramref name="name"/> exists.
+    /// </summary>
+    /// <param name="client">The issues HTTP client.</param>
+    /// <param name="owner">The owner of the repository.</param>
+    /// <param name="name">The name of the repository.</param>
+    /// <param name="issueNumber">The issue number.</param>
+    /// <returns><c>true</c> if the issue exists.</returns>
     public static async Task<bool> IssueExists(
         this IIssuesClient client,
         string owner,
