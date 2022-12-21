@@ -605,6 +605,43 @@ public class ExtensionMethodsTests
         // Assert
         actual.Should().BeFalse();
     }
+
+    [Theory]
+    [InlineData(false, -1, false)]
+    [InlineData(true, -1, true)]
+    [InlineData(true, 0, true)]
+    [InlineData(true, 2, true)]
+    public async void IsAssigned_WithPullRequestClient_ReturnsCorrectResult(
+        bool hasAssignee,
+        int totalAssignees,
+        bool expected)
+    {
+        // Arrange
+        var mockClient = new Mock<IPullRequestsClient>();
+        mockClient.Setup(m => m.Get(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
+            .ReturnsAsync(() => ObjectFactory.CreatePullRequest(hasAssignee: hasAssignee, totalAssignees: totalAssignees));
+
+        // Act
+        var actual = await mockClient.Object.IsAssigned("test-owner", "test-repo", 123);
+
+        // Assert
+        actual.Should().Be(expected);
+    }
+
+    [Fact]
+    public async void IsAssigned_WithPullRequestClientAndWhenUserDoesNotExist_ReturnsFalse()
+    {
+        // Arrange
+        var mockClient = new Mock<IPullRequestsClient>();
+        mockClient.Setup(m => m.Get(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>()))
+            .Callback<string, string, int>((_, _, _) => throw new NotFoundException(string.Empty, HttpStatusCode.NotFound));
+
+        // Act
+        var actual = await mockClient.Object.IsAssigned("test-owner", "test-repo", It.IsAny<int>());
+
+        // Assert
+        actual.Should().BeFalse();
+    }
     #endregion
 
     /// <summary>

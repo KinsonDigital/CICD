@@ -56,7 +56,7 @@ public partial class CICD // Requirements
 
         var prNumber = PullRequestService.PullRequestNumber;
 
-        if (prClient.HasAssignees(RepoOwner, RepoName, prNumber).Result)
+        if (prClient.IsAssigned(RepoOwner, RepoName, prNumber).Result)
         {
             Console.WriteLine($"{ConsoleTab}The pull request '{prNumber}' is properly assigned.");
         }

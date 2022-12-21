@@ -598,7 +598,16 @@ internal static class ExtensionMethods
         return true;
     }
 
-    public static async Task<bool> HasAssignees(
+    /// <summary>
+    /// Returns a value indicating if a pull request with the given <paramref name="prNumber"/>, for the given
+    /// <paramref name="repoOwner"/> and with given <paramref name="repoName"/> contains any labels.
+    /// </summary>
+    /// <param name="client">The pull requests HTTP client.</param>
+    /// <param name="repoOwner">The owner of the repository.</param>
+    /// <param name="repoName">The name of the repository.</param>
+    /// <param name="prNumber">The pull request number.</param>
+    /// <returns><c>true</c> if the pull request exists.</returns>
+    public static async Task<bool> IsAssigned(
         this IPullRequestsClient client,
         string repoOwner,
         string repoName,
@@ -608,7 +617,10 @@ internal static class ExtensionMethods
         {
             var pr = await client.Get(repoOwner, repoName, prNumber);
 
-            return pr is not null && pr.Assignees.Count >= 1;
+            var hasAssignee = pr.Assignee is not null;
+            var hasAssignees = pr.Assignees is not null && pr.Assignees.Count > 0;
+
+            return hasAssignee || hasAssignees;
         }
         catch (NotFoundException)
         {

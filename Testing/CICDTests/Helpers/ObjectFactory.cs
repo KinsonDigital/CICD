@@ -17,23 +17,46 @@ public static class ObjectFactory
     /// </summary>
     /// <param name="sourceBranch">The source branch of the pull request.</param>
     /// <param name="targetBranch">The target branch of the pull request.</param>
-    /// <param name="totalLabels">The total number of labels to add to the issue.</param>
+    /// <param name="totalLabels">The total number of labels to add to the pull request.</param>
+    /// <param name="hasAssignee">If true, then the assignee will be set to a <see cref="User"/>.</param>
+    /// <param name="totalAssignees">The total number of <see cref="User"/>s to add to the pull request.</param>
     /// <returns>The pull request object to help with testing.</returns>
     /// <remarks>
-    ///     <para>A <paramref name="totalLabels"/> value of -1 will have the labels null.</para>
-    ///     <para>A <paramref name="totalLabels"/> value of 0 will not have the labels null but have no labels.</para>
-    ///     <para>A <paramref name="totalLabels"/> value greater than 0 will have labels.</para>
+    /// <para>
+    ///     A <paramref name="totalLabels"/> value of -1 will have the labels as null.
+    ///     <br/>
+    ///     A <paramref name="totalLabels"/> value of 0 will not have the labels as null but will have no labels.
+    ///     <br/>
+    ///     A <paramref name="totalLabels"/> value greater than 0 will have labels.
+    /// </para>
+    ///
+    /// <para>
+    ///     A <paramref name="totalAssignees"/> value of -1 will have the assignees as null.
+    ///     <br/>
+    ///     A <paramref name="totalAssignees"/> value of 0 will not have the assignees as null but will have no assignees.
+    ///     <br/>
+    ///     A <paramref name="totalAssignees"/> value greater than 0 will have assignees.
+    /// </para>
     /// </remarks>
     public static PullRequest CreatePullRequest(
         string sourceBranch = "",
         string targetBranch = "",
-        int totalLabels = -1)
+        int totalLabels = -1,
+        bool hasAssignee = false,
+        int totalAssignees = -1)
     {
         var labels = new List<Label>();
 
         for (var i = 0; i < totalLabels; i++)
         {
             labels.Add(CreateLabel($"label-{i}"));
+        }
+
+        var users = new List<User>();
+
+        for (var i = 0; i < totalLabels; i++)
+        {
+            users.Add(CreateUser($"label-{i}"));
         }
 
 #pragma warning disable SA1117
@@ -65,8 +88,8 @@ public static class ObjectFactory
             head, // head: GitReference
             @base, // @base: GitReference
             new User(), // user: User
-            new User(), // assignee: User
-            new ReadOnlyCollection<User>(Array.Empty<User>()), // assignees: IReadOnlyList<User>
+            hasAssignee ? new User() : null, // assignee: User
+            totalAssignees < 0 ? null : new ReadOnlyCollection<User>(users.ToArray()), // assignees: IReadOnlyList<User>
             false, // draft: bool
             true, // mergeable: bool
             MergeableState.Clean, // mergeableState: MergeableState
@@ -151,5 +174,44 @@ public static class ObjectFactory
             color: string.Empty, // string
             description: string.Empty, // string
             @default: false); // bool
+    }
+
+    /// <summary>
+    /// Creates a new <see cref="User"/>.
+    /// </summary>
+    /// <param name="name">The name of the user.</param>
+    /// <returns>The user.</returns>
+    public static User CreateUser(string name = "")
+    {
+        return new User(
+            avatarUrl: string.Empty, // string
+            bio: string.Empty, // string
+            blog: string.Empty, // string
+            collaborators: 10, // int
+            company: string.Empty, // string
+            createdAt: DateTimeOffset.Now, // DateTimeOffset
+            updatedAt: DateTimeOffset.Now, // DateTimeOffset
+            diskUsage: 20, // int
+            email: string.Empty, // string
+            followers: 30, // int
+            following: 40, // int
+            hireable: true, // bool?
+            htmlUrl: string.Empty, // string
+            totalPrivateRepos: 50, // int
+            id: 60, // int
+            location: string.Empty, // string
+            login: string.Empty, // string
+            name: name, // string
+            nodeId: string.Empty, // string
+            ownedPrivateRepos: 70, // int
+            plan: null, // Plan
+            privateGists: 80, // int
+            publicGists: 90, // int
+            publicRepos: 100, // int
+            url: string.Empty, // string
+            permissions: null, // RepositoryPermissions
+            siteAdmin: true, // bool
+            ldapDistinguishedName: string.Empty, // string
+            suspendedAt: DateTimeOffset.Now); // DateTimeOffset?
     }
 }
