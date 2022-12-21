@@ -9,8 +9,8 @@ defaults:
 env:
   PROJECT_NAME: CICD
   BUILD_CONFIG: Debug
-  NET_SDK_VERSION: 6.0.101 # Changing this means changing ARTIFACT_FOLDER_NAME
-  ARTIFACT_FOLDER_NAME: '6.0.101' # Changing this means changing NET_SDK_VERSION
+  NET_SDK_VERSION: 7.0.101 # Changing this means changing ARTIFACT_FOLDER_NAME
+  ARTIFACT_FOLDER_NAME: '7.0.101' # Changing this means changing NET_SDK_VERSION
 
 
 on:
