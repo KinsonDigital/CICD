@@ -31,7 +31,6 @@ jobs:
       run: |
         $pullRequestNumber = "${{ github.ref }}".Replace("refs/pull/", "").Replace("/merge", "");
         Write-Host "Pull Request Number: $pullRequestNumber";
-        Write-Host "::set-output name=pr-number::$pullRequestNumber";
         "pr-number=$pullRequestNumber" >> $env:GITHUB_OUTPUT;
 
     - name: Run Build Status Check
