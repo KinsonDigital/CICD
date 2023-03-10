@@ -23,9 +23,8 @@ If for some reason you want to use this, we encourage that you report back any i
 
 <h2 style="font-weight:bold;border:0" align="center">🔧Maintainers</h2>
 
-We currently have the following maintainers:
-- [Calvin Wilkinson](https://twitter.com/KDCoder) [<img src="https://about.twitter.com/etc/designs/about2-twitter/public/img/favicon.ico" alt="Follow Calvin Wilkinson on Twitter" width="16" />](https://twitter.com/KDCoder) (GitHub Organization / Owner)
-- [Kristen Wilkinson](https://twitter.com/kswilky) [<img src="https://about.twitter.com/etc/designs/about2-twitter/public/img/favicon.ico" alt="Follow Calvin Wilkinson on Twitter" width="16" />](https://twitter.com/KDCoder) (GitHub Organization / Documentation Maintainer / Tester)
+- [![twitter-logo](https://raw.githubusercontent.com/KinsonDigital/.github/master/Images/twitter-logo-16x16.svg)Calvin Wilkinson](https://twitter.com/KDCoder) (KinsonDigital GitHub Organization - Owner)
+- [![twitter-logo](https://raw.githubusercontent.com/KinsonDigital/.github/master/Images/twitter-logo-16x16.svg)Kristen Wilkinson](https://twitter.com/kswilky) (KinsonDigital GitHub Organization - Documentation Maintainer & Tester)
 
 
 <h2 style="font-weight:bold;border:0" align="center">Licensing And Governance</h2>
