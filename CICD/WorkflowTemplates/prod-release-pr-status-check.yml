@@ -31,7 +31,6 @@ jobs:
         Write-Host "::set-output name=pr-number::$pullRequestNumber";
         "pr-number=$pullRequestNumber" >> $env:GITHUB_OUTPUT;
        
-
     - name: Run Production Release PR Status Check
       run: dotnet cicd ProdReleasePRStatusCheck --pull-request-number ${{ steps.get-pr-number.outputs.pr-number }}
       env:
