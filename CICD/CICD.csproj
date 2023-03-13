@@ -63,11 +63,6 @@
   </ItemGroup>
 
   <ItemGroup>
-      <None Include="../LICENSE.md" Pack="true" PackagePath="" />
-      <None Include="../Documentation/Images/cicd-logo-dark-mode.png" Pack="true" PackagePath="" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Remove="stylecop.json" />
     <AdditionalFiles Include="stylecop.json" />
     <None Update="WorkflowTemplates\build-pr-status-check.yml">
