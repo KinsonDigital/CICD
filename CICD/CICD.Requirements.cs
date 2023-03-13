@@ -329,6 +329,7 @@ public partial class CICD // Requirements
             BranchType.Release => branch.IsReleaseBranch(),
             BranchType.Preview => branch.IsPreviewBranch(),
             BranchType.HotFix => branch.IsHotFixBranch(),
+            BranchType.Dependabot => branch.IsDependabotBranch(),
             BranchType.Other => false,
             _ => throw new ArgumentOutOfRangeException(nameof(branchTypes), branchTypes, null)
         });
@@ -349,6 +350,7 @@ public partial class CICD // Requirements
                 BranchType.Release => BranchValidator.Reset().IsReleaseBranch(branch).GetValue(),
                 BranchType.Preview => BranchValidator.Reset().IsPreviewBranch(branch).GetValue(),
                 BranchType.HotFix => BranchValidator.Reset().IsHotFixBranch(branch).GetValue(),
+                BranchType.Dependabot => BranchValidator.Reset().IsDependabotBranch(branch).GetValue(),
                 BranchType.Other => false,
                 _ => throw new ArgumentOutOfRangeException(nameof(branchTypes), branchTypes, null)
             };
