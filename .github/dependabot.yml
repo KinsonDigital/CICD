@@ -9,8 +9,11 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "daily"
+    assignees:
+      - "CalvinWilkinson"
     reviewers:
-      - "KinsonDigital/CICD"
+      - "KinsonDigital/Admin"
     target-branch: "develop"
     labels:
       - "dependency update"
+      
