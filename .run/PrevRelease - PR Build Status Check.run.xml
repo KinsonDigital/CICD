@@ -1,7 +1,7 @@
 ﻿<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="PrevRelease - PR Status Check" type="DotNetProject" factoryName=".NET Project">
+  <configuration default="false" name="PrevRelease - PR Build Status Check" type="DotNetProject" factoryName=".NET Project">
     <option name="EXE_PATH" value="$PROJECT_DIR$/CICD/bin/Debug/CICD.exe" />
-    <option name="PROGRAM_PARAMETERS" value="PrevReleasePRStatusCheck --pull-request-number 100" />
+    <option name="PROGRAM_PARAMETERS" value="PRBuildStatusCheck --pull-request-number 20" />
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/CICD/bin/Debug" />
     <option name="PASS_PARENT_ENVS" value="1" />
     <option name="USE_EXTERNAL_CONSOLE" value="1" />
