@@ -1606,6 +1606,17 @@ public partial class CICD // Requirements
 
     private bool ThatTheNugetPackageDoesNotExist()
     {
+        if (SkipNuGetChecks)
+        {
+            var msg = "Skipping NuGet package check.";
+            msg += $"{Environment.NewLine}To stop skipping NuGet package checks, add the 'SkipNuGetChecks'";
+            msg += $"{Environment.NewLine}NUKE parameter with a value of 'false' to the 'parameters.json' file.";
+
+            nameof(ThatTheNugetPackageDoesNotExist)
+                .LogSkippedRequirementTitle(msg);
+            return true;
+        }
+
         nameof(ThatTheNugetPackageDoesNotExist)
             .LogRequirementTitle("Checking that the NuGet package does not already exist.");
 

@@ -187,6 +187,9 @@ public partial class CICD : NukeBuild
     [Parameter("Used to only run the requirement checks when running releases.")]
     private bool ReleaseChecksOnly { get; set; }
 
+    [Parameter("Checks if a NuGet package exists in nuget.org.  Use a bool value of 'true' or 'false'. Default value is 'true'.")]
+    private bool SkipNuGetChecks { get; set; } = true;
+
     [Parameter($"The name of the preview release notes directory name.  This will be located in the '{nameof(ReleaseNotesBaseDirPath)}'.")]
     private string PreviewReleaseNotesDirName { get; set; } = "PreviewReleases";
 

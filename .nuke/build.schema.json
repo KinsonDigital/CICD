@@ -124,6 +124,10 @@
             ]
           }
         },
+        "SkipNuGetChecks": {
+          "type": "boolean",
+          "description": "Checks if a NuGet package exists in nuget.org.  Use a bool value of 'true' or 'false'. Default value is 'true'"
+        },
         "SkipTwitterAnnouncement": {
           "type": "boolean",
           "description": "If true, will skip the Twitter announcement of a release"
