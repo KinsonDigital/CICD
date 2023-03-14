@@ -97,15 +97,27 @@ internal static class ExtensionMethods
     public static char ToLowerCase(this char value) => value.ToString().ToLower()[0];
 
     /// <summary>
-    /// Logs a title of a section with this requirement name and the given <paramref name="value"/>.
+    /// Logs a title of a section with this requirement name and the given <paramref name="msg"/>.
     /// </summary>
     /// <param name="requirementName">The name of the requirement.</param>
-    /// <param name="value">The value.</param>
+    /// <param name="msg">The value.</param>
     [ExcludeFromCodeCoverage]
-    public static void LogRequirementTitle(this string requirementName, string value)
+    public static void LogRequirementTitle(this string requirementName, string msg)
     {
         var indent = 15.CreateDuplicateCharacters(' ');
-        Log.Information($"✅ Requirement '{requirementName}' Executed ✅{Environment.NewLine}{indent}{value}{Environment.NewLine}");
+        Log.Information($"✅ Requirement '{requirementName}' Executed ✅{Environment.NewLine}{indent}{msg}{Environment.NewLine}");
+    }
+
+    /// <summary>
+    /// Logs a skipped title of a section with this requirement name and the given <paramref name="msg"/>
+    /// </summary>
+    /// <param name="requirementName">The name of the requirement.</param>
+    /// <param name="msg">The value.</param>
+    [ExcludeFromCodeCoverage]
+    public static void LogSkippedRequirementTitle(this string requirementName, string msg)
+    {
+        var indent = 15.CreateDuplicateCharacters(' ');
+        Log.Information($"⬜ Requirement '{requirementName}' Skipped ⬜{Environment.NewLine}{indent}{msg}{Environment.NewLine}");
     }
 
     /// <summary>
