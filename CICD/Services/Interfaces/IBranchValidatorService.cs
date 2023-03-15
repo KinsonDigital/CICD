@@ -187,6 +187,13 @@ internal interface IBranchValidatorService
     IBranchValidatorService IsHotFixBranch(string branch, params Predicate<string>[] andPredicates);
 
     /// <summary>
+    /// Validates that the given <paramref name="branch"/> is a <see cref="BranchType.Dependabot"/> branch.
+    /// </summary>
+    /// <param name="branch">The GIT branch.</param>
+    /// <returns>The current object to continue the <c>Fluent API</c> chain.</returns>
+    IBranchValidatorService IsDependabotBranch(string branch);
+
+    /// <summary>
     /// Validates that the source branch of a pull request that matches the given <paramref name="prNumber"/>
     /// matches the given <paramref name="branchType"/>.
     /// </summary>

@@ -310,6 +310,17 @@ internal sealed class BranchValidatorService : IBranchValidatorService
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentNullException">Thrown if the <paramref name="branch"/> is null or empty.</exception>
+    public IBranchValidatorService IsDependabotBranch(string branch)
+    {
+        EnsureThat.StringParamIsNotNullOrEmpty(branch, nameof(branch));
+
+        this.andValues.Add(branch.IsDependabotBranch());
+
+        return this;
+    }
+
+    /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException">Thrown if the <paramref name="branch"/> is null or empty.</exception>
     public IBranchValidatorService IsHotFixBranch(string branch, params Predicate<string>[] andPredicates)
     {
         EnsureThat.StringParamIsNotNullOrEmpty(branch, nameof(branch));

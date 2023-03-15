@@ -329,6 +329,7 @@ public partial class CICD // Requirements
             BranchType.Release => branch.IsReleaseBranch(),
             BranchType.Preview => branch.IsPreviewBranch(),
             BranchType.HotFix => branch.IsHotFixBranch(),
+            BranchType.Dependabot => branch.IsDependabotBranch(),
             BranchType.Other => false,
             _ => throw new ArgumentOutOfRangeException(nameof(branchTypes), branchTypes, null)
         });
@@ -349,6 +350,7 @@ public partial class CICD // Requirements
                 BranchType.Release => BranchValidator.Reset().IsReleaseBranch(branch).GetValue(),
                 BranchType.Preview => BranchValidator.Reset().IsPreviewBranch(branch).GetValue(),
                 BranchType.HotFix => BranchValidator.Reset().IsHotFixBranch(branch).GetValue(),
+                BranchType.Dependabot => BranchValidator.Reset().IsDependabotBranch(branch).GetValue(),
                 BranchType.Other => false,
                 _ => throw new ArgumentOutOfRangeException(nameof(branchTypes), branchTypes, null)
             };
@@ -1604,6 +1606,17 @@ public partial class CICD // Requirements
 
     private bool ThatTheNugetPackageDoesNotExist()
     {
+        if (SkipNuGetChecks)
+        {
+            var msg = "Skipping NuGet package check.";
+            msg += $"{Environment.NewLine}To stop skipping NuGet package checks, add the 'SkipNuGetChecks'";
+            msg += $"{Environment.NewLine}NUKE parameter with a value of 'false' to the 'parameters.json' file.";
+
+            nameof(ThatTheNugetPackageDoesNotExist)
+                .LogSkippedRequirementTitle(msg);
+            return true;
+        }
+
         nameof(ThatTheNugetPackageDoesNotExist)
             .LogRequirementTitle("Checking that the NuGet package does not already exist.");
 

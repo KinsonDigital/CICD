@@ -29,6 +29,7 @@ public partial class CICD // StatusChecks
                 BranchType.PreviewFeature,
                 BranchType.Release,
                 BranchType.HotFix,
+                BranchType.Dependabot,
                 BranchType.Preview),
             () => ThatThePRBranchIsValid(
                 PRBranchContext.Target,
@@ -58,6 +59,7 @@ public partial class CICD // StatusChecks
                 BranchType.PreviewFeature,
                 BranchType.Release,
                 BranchType.HotFix,
+                BranchType.Dependabot,
                 BranchType.Preview),
             () => ThatThePRBranchIsValid(
                 PRBranchContext.Target,

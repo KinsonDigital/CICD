@@ -97,15 +97,27 @@ internal static class ExtensionMethods
     public static char ToLowerCase(this char value) => value.ToString().ToLower()[0];
 
     /// <summary>
-    /// Logs a title of a section with this requirement name and the given <paramref name="value"/>.
+    /// Logs a title of a section with this requirement name and the given <paramref name="msg"/>.
     /// </summary>
     /// <param name="requirementName">The name of the requirement.</param>
-    /// <param name="value">The value.</param>
+    /// <param name="msg">The value.</param>
     [ExcludeFromCodeCoverage]
-    public static void LogRequirementTitle(this string requirementName, string value)
+    public static void LogRequirementTitle(this string requirementName, string msg)
     {
         var indent = 15.CreateDuplicateCharacters(' ');
-        Log.Information($"✅ Requirement '{requirementName}' Executed ✅{Environment.NewLine}{indent}{value}{Environment.NewLine}");
+        Log.Information($"✅ Requirement '{requirementName}' Executed ✅{Environment.NewLine}{indent}{msg}{Environment.NewLine}");
+    }
+
+    /// <summary>
+    /// Logs a skipped title of a section with this requirement name and the given <paramref name="msg"/>
+    /// </summary>
+    /// <param name="requirementName">The name of the requirement.</param>
+    /// <param name="msg">The value.</param>
+    [ExcludeFromCodeCoverage]
+    public static void LogSkippedRequirementTitle(this string requirementName, string msg)
+    {
+        var indent = 15.CreateDuplicateCharacters(' ');
+        Log.Information($"⬜ Requirement '{requirementName}' Skipped ⬜{Environment.NewLine}{indent}{msg}{Environment.NewLine}");
     }
 
     /// <summary>
@@ -228,6 +240,13 @@ internal static class ExtensionMethods
 
     public static bool IsHotFixBranch(this string branch) => IsCorrectBranch(branch, "hotfix/#-*");
 
+    /// <summary>
+    /// Returns a value indicating if the given <paramref name="branch"/> is a dependabot dependency branch.
+    /// </summary>
+    /// <param name="branch">The branch to check.</param>
+    /// <returns><c>true</c> if the branch is valid.</returns>
+    public static bool IsDependabotBranch(this string branch) => IsCorrectBranch(branch, "dependabot/nuget/*");
+
     public static BranchType GetBranchType(this string branch)
     {
         if (branch.IsDevelopBranch())
@@ -263,6 +282,11 @@ internal static class ExtensionMethods
         if (branch.IsHotFixBranch())
         {
             return BranchType.HotFix;
+        }
+
+        if (branch.IsDependabotBranch())
+        {
+            return BranchType.Dependabot;
         }
 
         return BranchType.Other;
