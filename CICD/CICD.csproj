@@ -26,12 +26,12 @@
 
     <ApplicationIcon>cicd-logo.ico</ApplicationIcon>
     <PackageId>KinsonDigital.CICD</PackageId>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
     <Authors>Calvin Wilkinson</Authors>
     <Company>Kinson Digital</Company>
     <Product>CICD</Product>
     <Description>CICD application for running builds, tests, and status checks for the KinsonDigital organization projects.</Description>
-    <Copyright>Copyright ©2022 Kinson Digital</Copyright>
+    <Copyright>Copyright ©2023 Kinson Digital</Copyright>
     <PackageTags>cicd ci cd status-checks build</PackageTags>
     <Configurations>Debug;Release</Configurations>
     <PackageIcon>cicd-logo-dark-mode.png</PackageIcon>
@@ -50,7 +50,7 @@
     <PackageReference Include="Nuke.Common" Version="6.3.0" />
     <PackageReference Include="Octokit" Version="4.0.3" />
     <PackageReference Include="Serilog" Version="2.12.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="7.0.0">
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="7.0.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -63,11 +63,8 @@
   </ItemGroup>
 
   <ItemGroup>
-      <None Include="../LICENSE" Pack="true" PackagePath="" />
-      <None Include="../Documentation/Images/cicd-logo-dark-mode.png" Pack="true" PackagePath="" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <None Include="../LICENSE.md" Pack="true" PackagePath="" />
+    <None Include="../Documentation/Images/cicd-logo-dark-mode.png" Pack="true" PackagePath="" />
     <None Remove="stylecop.json" />
     <AdditionalFiles Include="stylecop.json" />
     <None Update="WorkflowTemplates\build-pr-status-check.yml">

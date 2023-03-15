@@ -89,6 +89,11 @@ internal enum BranchType
     HotFix,
 
     /// <summary>
+    /// This branch is a dependency bot branch for updating dependencies.
+    /// </summary>
+    Dependabot,
+
+    /// <summary>
     /// Any other branch not previously mentioned.
     /// </summary>
     Other,

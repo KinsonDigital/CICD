@@ -12,9 +12,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 		.editorconfig = .editorconfig
 		.gitignore = .gitignore
-		LICENSE = LICENSE
 		.github\dependabot.yml = .github\dependabot.yml
 		.github\ReleaseTweetTemplate.txt = .github\ReleaseTweetTemplate.txt
+		LICENSE.md = LICENSE.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Workflows", "Workflows", "{8518113E-D0C3-4E63-8F2E-542EB6D1CCE9}"
@@ -25,8 +25,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Workflows", "Workflows", "{
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CICD", "CICD\CICD.csproj", "{A085C6D5-0519-4AC7-9109-869EF6168E70}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetToolTesting", "Testing\DotNetToolTesting\DotNetToolTesting.csproj", "{8AAA03B5-B25D-422F-B625-1B2F658F0356}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuke", ".nuke", "{FD8F0BE9-B2C8-4A6E-809B-A8FB9D594ABE}"
 	ProjectSection(SolutionItems) = preProject
@@ -46,15 +44,10 @@ Global
 		{A085C6D5-0519-4AC7-9109-869EF6168E70}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A085C6D5-0519-4AC7-9109-869EF6168E70}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A085C6D5-0519-4AC7-9109-869EF6168E70}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8AAA03B5-B25D-422F-B625-1B2F658F0356}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8AAA03B5-B25D-422F-B625-1B2F658F0356}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8AAA03B5-B25D-422F-B625-1B2F658F0356}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8AAA03B5-B25D-422F-B625-1B2F658F0356}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{A2124FFE-C6A1-46A7-8440-F0F5709DD08C} = {E204672C-F241-4BB7-AAE4-5147BC5B4FF5}
 		{8518113E-D0C3-4E63-8F2E-542EB6D1CCE9} = {67F82AED-1502-4803-855A-CDB26DC685B4}
-		{8AAA03B5-B25D-422F-B625-1B2F658F0356} = {E204672C-F241-4BB7-AAE4-5147BC5B4FF5}
 		{FD8F0BE9-B2C8-4A6E-809B-A8FB9D594ABE} = {67F82AED-1502-4803-855A-CDB26DC685B4}
 	EndGlobalSection
 EndGlobal

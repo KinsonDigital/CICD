@@ -14,6 +14,7 @@ on:
 
 jobs:
   feature_pr_status_check:
+    if: startsWith(github.head_ref, 'dependabot/nuget/') == false # Do not run with dependabot branches
     name: Feature PR Status Check
     runs-on: ubuntu-latest
     steps:
@@ -28,7 +29,7 @@ jobs:
         $pullRequestNumber = "${{ github.ref }}".Replace("refs/pull/", "").Replace("/merge", "");
         Write-Host "Pull Request Number: $pullRequestNumber";
         "pr-number=$pullRequestNumber" >> $env:GITHUB_OUTPUT;
-  
+
     - name: Run Feature PR Status Check
       run: dotnet cicd FeaturePRStatusCheck --pull-request-number ${{ steps.get-pr-number.outputs.pr-number }}
       env:
