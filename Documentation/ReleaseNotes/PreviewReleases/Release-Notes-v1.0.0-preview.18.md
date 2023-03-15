@@ -24,6 +24,12 @@ As with all software, there is always a chance for issues and bugs, especially f
 
 ---
 
+<h2 style="font-weight:bold" align="center">Nuget/Library Updates 📦</h2>
+
+1. [#168](https://github.com/KinsonDigital/CICD/issues/168) - Updated **Microsoft.CodeAnalysis.NetAnalyzers** from _**v7.0.0**_ to _**v7.0.1**_.
+
+---
+
 <h2 style="font-weight:bold" align="center">Other 🪧</h2>
 <h5 align="center">(Includes anything that does not fit into the categories above)</h5>
 
