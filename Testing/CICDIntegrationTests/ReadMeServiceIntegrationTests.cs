@@ -43,7 +43,7 @@ public class ReadMeServiceIntegrationTests
 
         // Mock the write all text to control where the test results get saved
         mockFile.Setup(m => m.WriteAllText(It.IsAny<string>(), It.IsAny<string?>()))
-            .Callback<string, string?>((_, contents) => TestData.WriteResult("readme-actual.md", contents));
+            .Callback<string, string?>((_, contents) => TestData.WriteResult(ActualReadMeFileName, contents));
 
         var mockPath = new Mock<IPath>();
         mockPath.Setup(m => m.GetDirectoryName(It.IsAny<string?>()))
