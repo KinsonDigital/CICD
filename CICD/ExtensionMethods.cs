@@ -807,7 +807,7 @@ internal static class ExtensionMethods
 
         await using var fileAsset = File.OpenRead(filePath);
 
-        var assetUpload = new ReleaseAssetUpload()
+        var assetUpload = new ReleaseAssetUpload
         {
             FileName = Path.GetFileName(filePath),
             ContentType = "application/zip",
@@ -917,7 +917,7 @@ internal static class ExtensionMethods
             throw new NotFoundException($"A milestone with the title/name '{title}' was not found.", HttpStatusCode.NotFound);
         }
 
-        var mileStoneUpdate = new MilestoneUpdate()
+        var mileStoneUpdate = new MilestoneUpdate
         {
             State = ItemState.Closed,
         };
@@ -951,7 +951,7 @@ internal static class ExtensionMethods
         string title,
         string description)
     {
-        var request = new MilestoneRequest() { State = ItemStateFilter.All };
+        var request = new MilestoneRequest { State = ItemStateFilter.All };
         var milestones = await client.GetAllForRepository(repoOwner, repoName, request);
 
         var foundMilestone = milestones.FirstOrDefault(m => m.Title == title);
@@ -961,7 +961,7 @@ internal static class ExtensionMethods
             throw new NotFoundException($"A milestone with the title/name '{title}' was not found.", HttpStatusCode.NotFound);
         }
 
-        var mileStoneUpdate = new MilestoneUpdate()
+        var mileStoneUpdate = new MilestoneUpdate
         {
             Description = description,
         };
