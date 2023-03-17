@@ -32,7 +32,7 @@ jobs:
         with:
           repo-owner: KinsonDigital
           repo-name: CICD
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          repo-token: ${{ secrets.CICD_TOKEN }}
           branch-name: '${{ github.ref }}'
           trim-start-from-branch: "refs/heads/"
           file-format: 'xml' # Not case sensitive
