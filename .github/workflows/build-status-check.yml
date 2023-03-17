@@ -27,9 +27,9 @@ jobs:
         run: |
           # If the destination branch that the pull request is merging into is the master, do a release build
           if ( "${{ github.base_ref }}" -eq "master") {
-            Write-Host "::set-output name=build-config::Release";
+            "build-config=Release" >> $env:GITHUB_OUTPUT;
           } else { # Any other branch than master, do a debug build
-            Write-Host "::set-output name=build-config::Debug";
+            "build-config=Debug" >> $env:GITHUB_OUTPUT;
           }
 
   get_sdk_version:
@@ -41,7 +41,7 @@ jobs:
       - name: Get SDK Version From Environment Variable
         id: get-sdk-version
         shell: pwsh
-        run: Write-Host "::set-output name=sdk-version::${{ env.NET_SDK_VERSION }}";
+        run: Write-Host "sdk-version=${{ env.NET_SDK_VERSION }}" >> $env.GITHUB_OUTPUT";
 
   # Build Main Projects
   build_cicd:
