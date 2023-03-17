@@ -18,24 +18,36 @@ on:
 
 
 jobs:
+  get_version:
+    name: Get Version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get-version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Get Version From Project File
+        id: get-version
+        uses: KinsonDigital/VersionMiner@v1.0.0-preview.3
+        with:
+          repo-owner: KinsonDigital
+          repo-name: CICD
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          branch-name: '${{ github.ref }}'
+          file-format: 'xml' # Not case sensitive
+          file-path: '${{ env.PROJECT_NAME }}/${{ env.PROJECT_NAME }}.csproj'
+          version-keys: Version
+
   Validate_Version:
     name: Validate Version
     runs-on: ubuntu-latest
+    needs: [get_version]
     steps:
     - uses: actions/checkout@v3
 
-    - name: Get Version From Project File
-      id: proj-file-version
-      uses: KinsonDigital/vget@v0.4.0
-      with:
-        repo-owner-and-name: '${{ github.repository }}'
-        branch: '${{ github.ref }}'
-        relative-file-path: '${{ env.PROJECT_NAME }}/${{ env.PROJECT_NAME }}.csproj'
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-
     - name: Validate Version Type
       run: |
-        $projFileVersion = "${{ steps.proj-file-version.outputs.version }}";
+        $projFileVersion = "${{ needs.get_version.outputs.version }}";
 
         # If the version is not a preview type, fail
         if ($projFileVersion.Contains("-preview.") -eq $false)
@@ -50,7 +62,7 @@ jobs:
       uses: KinsonDigital/VersionValidator@v1.0.0-preview.2
       with:
         nuget-package-name: "KinsonDigital.${{ env.PROJECT_NAME }}"
-        version: "${{ steps.proj-file-version.outputs.version }}"
+        version: "${{ needs.get_version.outputs.version }}"
         check-nuget: "true"
         fail-if-nuget-version-exists: "true"
 
@@ -73,24 +85,17 @@ jobs:
           echo "Branch '${{ github.ref }}' is a valid release branch."
         }
 
+
   Validate_Release_Notes_Exist:
     name: Validate Release Notes Exist
     runs-on: ubuntu-latest
+    needs: [get_version]
     steps:
     - uses: actions/checkout@v3
 
-    - name: Get Version From Project File
-      id: proj-file-version
-      uses: KinsonDigital/vget@v0.4.0
-      with:
-        repo-owner-and-name: '${{ github.repository }}'
-        branch: '${{ github.ref }}'
-        relative-file-path: '${{ env.PROJECT_NAME }}/${{ env.PROJECT_NAME }}.csproj'
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-
     - name: Check For Release Notes
       run: |
-        [string]$version = "${{ steps.proj-file-version.outputs.version }}";
+        [string]$version = "${{ needs.get_version.outputs.version }}";
         [string]$filePath = "${{ github.workspace }}/Documentation/ReleaseNotes/PreviewReleases/Release-Notes-v$version.md";
 
         if (-not([System.IO.File]::Exists($filePath))) {
@@ -104,7 +109,7 @@ jobs:
   Build_Test_Publish_Library:
     name: Build, Test & Publish
     runs-on: ubuntu-latest
-    needs: [Validate_Version, Validate_Branch_Name, Validate_Release_Notes_Exist]
+    needs: [get_version, Validate_Version, Validate_Branch_Name, Validate_Release_Notes_Exist]
     steps:
     - uses: actions/checkout@v3
 
@@ -112,20 +117,6 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: ${{ env.NET_SDK_VERSION }}
-
-    - name: Get Version From Project File
-      id: proj-file-version
-      uses: KinsonDigital/vget@v0.4.0
-      with:
-        repo-owner-and-name: '${{ github.repository }}'
-        branch: '${{ github.ref }}'
-        relative-file-path: '${{ env.PROJECT_NAME }}/${{ env.PROJECT_NAME }}.csproj'
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Display Workflow Info
-      run: |
-        echo "Current Branch: ${{ github.ref }}"
-        echo "Project File Version: ${{ steps.proj-file-version.outputs.version }}"
 
     - name: Restore Dependencies
       run: dotnet restore "${{ github.workspace }}/${{ env.PROJECT_NAME }}/${{ env.PROJECT_NAME }}.csproj"
@@ -163,6 +154,6 @@ jobs:
         -c ${{ env.BUILD_CONFIG }}
 
     - name: Publish Nuget Package
-      run: dotnet nuget push "${{ github.workspace }}/KinsonDigital.${{ env.PROJECT_NAME }}.${{ steps.proj-file-version.outputs.version }}.nupkg" `
+      run: dotnet nuget push "${{ github.workspace }}/KinsonDigital.${{ env.PROJECT_NAME }}.${{ needs.get_version.outputs.version }}.nupkg" `
         --api-key ${{ secrets.NUGET_ORG_API_KEY }} `
         --source https://api.nuget.org/v3/index.json
