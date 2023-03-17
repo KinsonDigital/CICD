@@ -41,7 +41,8 @@ jobs:
       - name: Get SDK Version From Environment Variable
         id: get-sdk-version
         shell: pwsh
-        run: Write-Host "sdk-version=${{ env.NET_SDK_VERSION }}" >> $env.GITHUB_OUTPUT";
+        run: |
+          "sdk-version=${{ env.NET_SDK_VERSION }}" >> $env.GITHUB_OUTPUT;
 
   # Build Main Projects
   build_cicd:
