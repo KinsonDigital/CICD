@@ -25,6 +25,9 @@ public class ReadMeServiceTests
     private readonly Mock<IFindDirService> mockFindDirService;
     private readonly Mock<IHtmlToMarkDownService> mockHtmlToMrkDwnService;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ReadMeServiceTests"/> class.
+    /// </summary>
     public ReadMeServiceTests()
     {
         this.mockDir = new Mock<IDirectory>();
