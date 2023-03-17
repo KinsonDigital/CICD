@@ -146,7 +146,7 @@ jobs:
     #     error: There was an issue uploading the build artifact
 
     - name: Setup Nuget
-      uses: NuGet/setup-nuget@v1.0.5
+      uses: NuGet/setup-nuget@v1
 
     - name: Create Nuget Package
       run: dotnet pack "${{ github.workspace }}/${{ env.PROJECT_NAME }}/${{ env.PROJECT_NAME }}.csproj" `
