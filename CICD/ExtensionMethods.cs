@@ -1155,6 +1155,74 @@ internal static class ExtensionMethods
     }
 
     /// <summary>
+    /// Trims all whitespace from the beginning of this <see cref="string"/> value.
+    /// </summary>
+    /// <param name="value">The string to trim.</param>
+    /// <returns>The <see cref="string"/> value trimmed of all whitespace.</returns>
+    /// <remarks>
+    /// All whitespace characters of any quantity and combination will be trimmed.
+    /// <br/>
+    /// Whitespace characters included will be:
+    ///     <list type="number">
+    ///         <item>spaces</item>
+    ///         <item>tabs (\t)</item>
+    ///         <item>newline (\n)</item>
+    ///         <item>carriage return (\r)</item>
+    ///     </list>
+    /// </remarks>
+    public static string TrimWhitespaceStart(this string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return string.Empty;
+        }
+
+        while (value.StartsWith('\t') || value.StartsWith(' ') || value.StartsWith('\n') || value.StartsWith('\r'))
+        {
+            value = value.TrimStart(' ');
+            value = value.TrimStart('\t');
+            value = value.TrimStart('\n');
+            value = value.TrimStart('\r');
+        }
+
+        return value;
+    }
+
+    /// <summary>
+    /// Trims all whitespace from the end of this <see cref="string"/> value.
+    /// </summary>
+    /// <param name="value">The string to trim.</param>
+    /// <returns>The <see cref="string"/> value trimmed of all whitespace.</returns>
+    /// <remarks>
+    /// All whitespace characters of any quantity and combination will be trimmed.
+    /// <br/>
+    /// Whitespace characters included will be:
+    ///     <list type="number">
+    ///         <item>spaces</item>
+    ///         <item>tabs (\t)</item>
+    ///         <item>newline (\n)</item>
+    ///         <item>carriage return (\r)</item>
+    ///     </list>
+    /// </remarks>
+    public static string TrimWhitespaceEnd(this string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return string.Empty;
+        }
+
+        while (value.EndsWith('\t') || value.EndsWith(' ') || value.EndsWith('\n') || value.EndsWith('\r'))
+        {
+            value = value.TrimEnd(' ');
+            value = value.TrimEnd('\t');
+            value = value.TrimEnd('\n');
+            value = value.TrimEnd('\r');
+        }
+
+        return value;
+    }
+
+    /// <summary>
     /// Converts the given <see cref="ApiValidationException"/> to a string with
     /// all of the internal error details.
     /// </summary>
