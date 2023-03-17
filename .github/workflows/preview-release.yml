@@ -34,6 +34,7 @@ jobs:
           repo-name: CICD
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           branch-name: '${{ github.ref }}'
+          trim-start-from-branch: "refs/heads/"
           file-format: 'xml' # Not case sensitive
           file-path: '${{ env.PROJECT_NAME }}/${{ env.PROJECT_NAME }}.csproj'
           version-keys: Version
