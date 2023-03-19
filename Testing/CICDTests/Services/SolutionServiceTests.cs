@@ -305,7 +305,7 @@ public class SolutionServiceTests
             name,
             () => $"C:/solution-dir/TestProject.csproj",
             Guid.NewGuid(),
-            new Dictionary<string, string>() { { "config-key", "config-value" } },
+            new Dictionary<string, string> { { "config-key", "config-value" } },
         }) as Project;
 
         if (instance is null)
