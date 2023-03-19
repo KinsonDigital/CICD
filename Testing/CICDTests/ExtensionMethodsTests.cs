@@ -699,6 +699,42 @@ public class ExtensionMethodsTests
         // Assert
         actual.Should().BeFalse();
     }
+
+    [Theory]
+    [InlineData(null, "")]
+    [InlineData("", "")]
+    [InlineData("test-value", "test-value")]
+    [InlineData("\ttest-value", "test-value")]
+    [InlineData(" test-value", "test-value")]
+    [InlineData("\ntest-value", "test-value")]
+    [InlineData("\rtest-value", "test-value")]
+    [InlineData(" \t\n\rtest-value", "test-value")]
+    public void TrimWhitespaceStart_WhenInvoked_ReturnsCorrectResult(string value, string expected)
+    {
+        // Arrange & Act
+        var actual = value.TrimWhitespaceStart();
+
+        // Assert
+        actual.Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData(null, "")]
+    [InlineData("", "")]
+    [InlineData("test-value", "test-value")]
+    [InlineData("test-value\t", "test-value")]
+    [InlineData("test-value ", "test-value")]
+    [InlineData("test-value\n", "test-value")]
+    [InlineData("test-value\r", "test-value")]
+    [InlineData("test-value\t\n\r ", "test-value")]
+    public void TrimWhitespaceEnd_WhenInvoked_ReturnsCorrectResult(string value, string expected)
+    {
+        // Arrange & Act
+        var actual = value.TrimWhitespaceEnd();
+
+        // Assert
+        actual.Should().Be(expected);
+    }
     #endregion
 
     /// <summary>
