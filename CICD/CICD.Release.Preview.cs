@@ -95,7 +95,7 @@ public partial class CICD // Release.Preview
                 // If README pre-processing should be performed, process README before packaging
                 if (PreProcessReadMe)
                 {
-                    var readmeService = App.Container.GetInstance<IReadmeService>();
+                    var readmeService = App.Container.GetInstance<IReadMeService>();
 
                     readmeService.RunPreProcessing();
                 }

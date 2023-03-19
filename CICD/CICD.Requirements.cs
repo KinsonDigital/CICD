@@ -738,7 +738,7 @@ public partial class CICD // Requirements
             errors.Add($"Could not find a milestone with the title '{milestoneTitle}'");
         }
 
-        var repoIssueRequest = new RepositoryIssueRequest()
+        var repoIssueRequest = new RepositoryIssueRequest
         {
             State = ItemStateFilter.All,
             Milestone = milestone?.Number.ToString() ?? string.Empty,
