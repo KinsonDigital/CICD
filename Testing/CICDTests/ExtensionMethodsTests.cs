@@ -815,8 +815,6 @@ public class ExtensionMethodsTests
         PullRequest pr = null)
     {
         return new Issue(
-            id: 1, // int
-            nodeId: string.Empty, // string
             url: string.Empty, // string
             htmlUrl: htmlUrl, // string
             commentsUrl: string.Empty, // string
@@ -836,10 +834,13 @@ public class ExtensionMethodsTests
             closedAt: DateTimeOffset.Now, // DateTimeOffsetDateTimeOffset?
             createdAt: DateTimeOffset.Now, // DateTimeOffset
             updatedAt: DateTimeOffset.Now, // DateTimeOffset?
+            id: 1, // int
+            nodeId: string.Empty, // string
             locked: false, // bool
             repository: null, // Repository
             reactions: null, // ReactionSummary
-            activeLockReason: null); // LockReason?
+            activeLockReason: null, // LockReason?
+            stateReason: null); // ItemStateReason?
     }
 
     /// <summary>

@@ -181,7 +181,8 @@ public static class ObjectFactory
             locked: false, // bool
             repository: null, // Repository
             reactions: null, // ReactionSummary
-            activeLockReason: LockReason.Resolved); // LockReason
+            activeLockReason: LockReason.Resolved,  // LockReason
+            stateReason: ItemStateReason.Completed);
     }
 
     /// <summary>
