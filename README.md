@@ -11,6 +11,8 @@
 
 <div align="center">
 
+[![Codecov](https://img.shields.io/codecov/c/github/KinsonDigital/Velaptor?color=2F8840&label=Code%20Coverage&logo=codecov)](https://app.codecov.io/gh/KinsonDigital/CICD/tree/release%2Fv1.0.0)
+
 <!-- TODO: Add badges here -->
 
 </div>
