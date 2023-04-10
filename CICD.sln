@@ -1,6 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CICDTests", "Testing\CICDTests\CICDTests.csproj", "{A2124FFE-C6A1-46A7-8440-F0F5709DD08C}"
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33205.214
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CICDTests", "Testing\CICDTests\CICDTests.csproj", "{A2124FFE-C6A1-46A7-8440-F0F5709DD08C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Testing", "Testing", "{E204672C-F241-4BB7-AAE4-5147BC5B4FF5}"
 	ProjectSection(SolutionItems) = preProject
@@ -9,11 +12,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Testing", "Testing", "{E204
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{67F82AED-1502-4803-855A-CDB26DC685B4}"
 	ProjectSection(SolutionItems) = preProject
-		README.md = README.md
 		.editorconfig = .editorconfig
 		.gitignore = .gitignore
-		.github\ReleaseTweetTemplate.txt = .github\ReleaseTweetTemplate.txt
+		codecov.yml = codecov.yml
 		LICENSE.md = LICENSE.md
+		README.md = README.md
+		.github\ReleaseTweetTemplate.txt = .github\ReleaseTweetTemplate.txt
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Workflows", "Workflows", "{8518113E-D0C3-4E63-8F2E-542EB6D1CCE9}"
@@ -23,14 +27,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Workflows", "Workflows", "{
 		.github\workflows\unit-testing-status-check.yml = .github\workflows\unit-testing-status-check.yml
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CICD", "CICD\CICD.csproj", "{A085C6D5-0519-4AC7-9109-869EF6168E70}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CICD", "CICD\CICD.csproj", "{A085C6D5-0519-4AC7-9109-869EF6168E70}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuke", ".nuke", "{FD8F0BE9-B2C8-4A6E-809B-A8FB9D594ABE}"
 	ProjectSection(SolutionItems) = preProject
 		.nuke\parameters.json = .nuke\parameters.json
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CICDIntegrationTests", "Testing\CICDIntegrationTests\CICDIntegrationTests.csproj", "{B8A59C21-905E-4407-B8A1-402B0216BB95}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CICDIntegrationTests", "Testing\CICDIntegrationTests\CICDIntegrationTests.csproj", "{B8A59C21-905E-4407-B8A1-402B0216BB95}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,17 +47,23 @@ Global
 		{A2124FFE-C6A1-46A7-8440-F0F5709DD08C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A2124FFE-C6A1-46A7-8440-F0F5709DD08C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A085C6D5-0519-4AC7-9109-869EF6168E70}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A085C6D5-0519-4AC7-9109-869EF6168E70}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A085C6D5-0519-4AC7-9109-869EF6168E70}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A085C6D5-0519-4AC7-9109-869EF6168E70}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B8A59C21-905E-4407-B8A1-402B0216BB95}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B8A59C21-905E-4407-B8A1-402B0216BB95}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B8A59C21-905E-4407-B8A1-402B0216BB95}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B8A59C21-905E-4407-B8A1-402B0216BB95}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{A2124FFE-C6A1-46A7-8440-F0F5709DD08C} = {E204672C-F241-4BB7-AAE4-5147BC5B4FF5}
 		{8518113E-D0C3-4E63-8F2E-542EB6D1CCE9} = {67F82AED-1502-4803-855A-CDB26DC685B4}
 		{FD8F0BE9-B2C8-4A6E-809B-A8FB9D594ABE} = {67F82AED-1502-4803-855A-CDB26DC685B4}
 		{B8A59C21-905E-4407-B8A1-402B0216BB95} = {E204672C-F241-4BB7-AAE4-5147BC5B4FF5}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DA84D950-947C-4824-8FEC-896C662D9164}
 	EndGlobalSection
 EndGlobal
