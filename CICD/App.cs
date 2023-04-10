@@ -60,6 +60,7 @@ internal static class App
         IoCContainer.Register<IGitRepoWrapper, GitRepoWrapper>(Lifestyle.Singleton);
         IoCContainer.Register<IFindDirService, FindDirService>(Lifestyle.Singleton);
         IoCContainer.Register<IXmlService, XmlService>(Lifestyle.Singleton);
+        IoCContainer.Register<IHtmlToMarkDownService, HtmlToMarkDownService>(Lifestyle.Singleton);
         IoCContainer.Register<IReadMeService, ReadMeService>(Lifestyle.Singleton);
         IoCContainer.Register<IProjectService, ProjectService>(Lifestyle.Singleton);
         IoCContainer.Register<IReleaseTweetService, ReleaseTweetService>(Lifestyle.Singleton);
