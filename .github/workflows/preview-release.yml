@@ -60,7 +60,7 @@ jobs:
         }
 
     - name: Validate Version
-      uses: KinsonDigital/VersionValidator@v1.0.0-preview.4
+      uses: KinsonDigital/VersionValidator@v1.0.0-preview.2
       with:
         nuget-package-name: "KinsonDigital.${{ env.PROJECT_NAME }}"
         version: "${{ needs.get_version.outputs.version }}"
