@@ -23,22 +23,12 @@ internal class ReadMeService : IReadMeService
     /// <summary>
     /// Initializes a new instance of the <see cref="ReadMeService"/> class.
     /// </summary>
-#pragma warning disable CS8618
-    public ReadMeService()
-#pragma warning restore CS8618
-    {
-        // Do not delete this constructor.  This is required for DI.
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ReadMeService"/> class.
-    /// </summary>
     /// <param name="directory">Manages directories.</param>
     /// <param name="file">Manages files.</param>
     /// <param name="path">Manages paths.</param>
     /// <param name="findDirService">Searches for directories.</param>
     /// <param name="htmlToMarkDownService">Transpiles HTML to markdown.</param>
-    internal ReadMeService(
+    public ReadMeService(
         IDirectory directory,
         IFile file,
         IPath path,
