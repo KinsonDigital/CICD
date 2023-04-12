@@ -131,6 +131,8 @@ internal sealed class TwitterService : ITwitterService
         var signingKey = Uri.EscapeDataString(consumerAPISecret) + "&" + Uri.EscapeDataString(accessTokenSecret);
 
         // Compute the signature
+        // NOTE: This hash algorithm was picked up to SonarCloud as weak and to be careful with sensitive
+        // data. However, twitter does not support any other hashing algorithm.  So, we are forced to use HMACSHA1.
         var hmac = new HMACSHA1(Encoding.ASCII.GetBytes(signingKey));
         var signatureBytes = hmac.ComputeHash(Encoding.ASCII.GetBytes(signatureBaseString));
         return Convert.ToBase64String(signatureBytes);
