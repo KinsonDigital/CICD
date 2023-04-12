@@ -23,6 +23,8 @@ internal sealed class ReleaseTweetService : IReleaseTweetService
     private readonly IFile file;
     private readonly IDisposable repoInfoUnsubscriber;
     private readonly IDisposable skipReleaseUnsubscriber;
+    private readonly IDisposable secretUnsubscriber;
+    private TwitterSecrets secrets;
     private bool skipTweet;
     private string repoOwner = string.Empty;
     private string repoName = string.Empty;
@@ -37,6 +39,7 @@ internal sealed class ReleaseTweetService : IReleaseTweetService
     /// <param name="file">Manages files.</param>
     /// <param name="repoInfoReactable">Provides push notifications about repository information.</param>
     /// <param name="skipReleaseTweetReactable">Provides push notifications if release tweets should be skipped.</param>
+    /// <param name="secretsReactable">Provides push notifications of Twitter secrets.</param>
     public ReleaseTweetService(
         ISolutionService solutionService,
         ITwitterService twitterService,
@@ -44,7 +47,8 @@ internal sealed class ReleaseTweetService : IReleaseTweetService
         IProjectService projectService,
         IFile file,
         IReactable<(string, string)> repoInfoReactable,
-        IReactable<bool> skipReleaseTweetReactable)
+        IReactable<bool> skipReleaseTweetReactable,
+        IReactable<TwitterSecrets> secretsReactable)
     {
         EnsureThat.ParamIsNotNull(solutionService, nameof(solutionService));
         EnsureThat.ParamIsNotNull(twitterService, nameof(twitterService));
@@ -53,6 +57,7 @@ internal sealed class ReleaseTweetService : IReleaseTweetService
         EnsureThat.ParamIsNotNull(file, nameof(file));
         EnsureThat.ParamIsNotNull(repoInfoReactable, nameof(repoInfoReactable));
         EnsureThat.ParamIsNotNull(skipReleaseTweetReactable, nameof(skipReleaseTweetReactable));
+        EnsureThat.ParamIsNotNull(secretsReactable, nameof(secretsReactable));
 
         this.solutionService = solutionService;
         this.twitterService = twitterService;
@@ -74,6 +79,39 @@ internal sealed class ReleaseTweetService : IReleaseTweetService
                 this.skipTweet = skip;
             },
             onCompleted: () => this.skipReleaseUnsubscriber?.Dispose()));
+
+        this.secretUnsubscriber = secretsReactable.Subscribe(new Reactor<TwitterSecrets>(
+            onNext: secretsData =>
+            {
+                if (!string.IsNullOrEmpty(secretsData.TwitterConsumerApiKey))
+                {
+                    this.secrets.TwitterConsumerApiKey = secretsData.TwitterConsumerApiKey;
+                }
+
+                if (!string.IsNullOrEmpty(secretsData.TwitterConsumerApiSecret))
+                {
+                    this.secrets.TwitterConsumerApiSecret = secretsData.TwitterConsumerApiSecret;
+                }
+
+                if (!string.IsNullOrEmpty(secretsData.TwitterAccessToken))
+                {
+                    this.secrets.TwitterAccessToken = secretsData.TwitterAccessToken;
+                }
+
+                if (!string.IsNullOrEmpty(secretsData.TwitterAccessTokenSecret))
+                {
+                    this.secrets.TwitterAccessTokenSecret = secretsData.TwitterAccessTokenSecret;
+                }
+            }, () =>
+            {
+                // If any of the secrets are null or empty, throw an exception
+                if (this.secrets.AnyNullOrEmpty())
+                {
+                    throw new Exception("The Twitter API keys and/or secrets are null or empty.");
+                }
+
+                this.secretUnsubscriber?.Dispose();
+            }));
     }
 
     /// <inheritdoc/>
@@ -119,6 +157,11 @@ internal sealed class ReleaseTweetService : IReleaseTweetService
         tweetContent = tweetContent.Replace(projNameInjectionPoint, this.repoName);
         tweetContent = tweetContent.Replace(versionInjectionPoint, version);
 
-        this.twitterService.SendTweet(tweetContent);
+        this.twitterService.SendTweet(
+            tweetContent,
+            this.secrets.TwitterConsumerApiKey,
+            this.secrets.TwitterConsumerApiSecret,
+            this.secrets.TwitterAccessToken,
+            this.secrets.TwitterAccessTokenSecret);
     }
 }

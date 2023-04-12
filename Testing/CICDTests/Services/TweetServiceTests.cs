@@ -3,6 +3,7 @@
 // </copyright>
 
 using System.IO.Abstractions;
+using CICDSystem;
 using CICDSystem.Reactables.Core;
 using CICDSystem.Services;
 using CICDSystem.Services.Interfaces;
@@ -25,6 +26,7 @@ public class TweetServiceTests
     private readonly Mock<IFile> mockFile;
     private readonly Mock<IReactable<bool>> mockSkipTweetReactable;
     private readonly Mock<IReactable<(string, string)>> mockRepoInfoReactable;
+    private readonly Mock<IReactable<TwitterSecrets>> mockSecretesReactable;
     private readonly Mock<ILogger> mockLogger;
 
     /// <summary>
@@ -49,6 +51,8 @@ public class TweetServiceTests
 
         this.mockRepoInfoReactable = new Mock<IReactable<(string, string)>>();
         this.mockSkipTweetReactable = new Mock<IReactable<bool>>();
+
+        this.mockSecretesReactable = new Mock<IReactable<TwitterSecrets>>();
     }
 
     #region Constructor Tests
@@ -65,7 +69,8 @@ public class TweetServiceTests
                 this.mockProjectService.Object,
                 this.mockFile.Object,
                 this.mockRepoInfoReactable.Object,
-                this.mockSkipTweetReactable.Object);
+                this.mockSkipTweetReactable.Object,
+                this.mockSecretesReactable.Object);
         };
 
         // Assert
@@ -87,7 +92,8 @@ public class TweetServiceTests
                 this.mockProjectService.Object,
                 this.mockFile.Object,
                 this.mockRepoInfoReactable.Object,
-                this.mockSkipTweetReactable.Object);
+                this.mockSkipTweetReactable.Object,
+                this.mockSecretesReactable.Object);
         };
 
         // Assert
@@ -109,7 +115,8 @@ public class TweetServiceTests
                 this.mockProjectService.Object,
                 this.mockFile.Object,
                 this.mockRepoInfoReactable.Object,
-                this.mockSkipTweetReactable.Object);
+                this.mockSkipTweetReactable.Object,
+                this.mockSecretesReactable.Object);
         };
 
         // Assert
@@ -131,7 +138,8 @@ public class TweetServiceTests
                 null,
                 this.mockFile.Object,
                 this.mockRepoInfoReactable.Object,
-                this.mockSkipTweetReactable.Object);
+                this.mockSkipTweetReactable.Object,
+                this.mockSecretesReactable.Object);
         };
 
         // Assert
@@ -153,7 +161,8 @@ public class TweetServiceTests
                 this.mockProjectService.Object,
                 null,
                 this.mockRepoInfoReactable.Object,
-                this.mockSkipTweetReactable.Object);
+                this.mockSkipTweetReactable.Object,
+                this.mockSecretesReactable.Object);
         };
 
         // Assert
@@ -175,7 +184,8 @@ public class TweetServiceTests
                 this.mockProjectService.Object,
                 this.mockFile.Object,
                 null,
-                this.mockSkipTweetReactable.Object);
+                this.mockSkipTweetReactable.Object,
+                this.mockSecretesReactable.Object);
         };
 
         // Assert
@@ -197,13 +207,37 @@ public class TweetServiceTests
                 this.mockProjectService.Object,
                 this.mockFile.Object,
                 this.mockRepoInfoReactable.Object,
-                null);
+                null,
+                this.mockSecretesReactable.Object);
         };
 
         // Assert
         act.Should()
             .Throw<ArgumentNullException>()
             .WithMessage("The parameter must not be null. (Parameter 'skipReleaseTweetReactable')");
+    }
+
+    [Fact]
+    public void Ctor_WithNullSecretsReactableParam_ThrowsException()
+    {
+        // Arrange & Act
+        var act = () =>
+        {
+            _ = new ReleaseTweetService(
+                this.mockSolutionService.Object,
+                this.mockTwitterService.Object,
+                this.mockConsoleLoggerService.Object,
+                this.mockProjectService.Object,
+                this.mockFile.Object,
+                this.mockRepoInfoReactable.Object,
+                this.mockSkipTweetReactable.Object,
+                null);
+        };
+
+        // Assert
+        act.Should()
+            .Throw<ArgumentNullException>()
+            .WithMessage("The parameter must not be null. (Parameter 'SecretsReactable')");
     }
 
     [Fact]
@@ -308,27 +342,39 @@ public class TweetServiceTests
         const string projName = "test-project";
         const string repoName = "test-repo";
         const string version = "v1.2.3";
+        var secrets = new TwitterSecrets()
+        {
+            TwitterConsumerApiKey = "test-api-key",
+            TwitterConsumerApiSecret = "test-api-secret",
+            TwitterAccessToken = "test-access-token",
+            TwitterAccessTokenSecret = "test-access-token-secret",
+        };
         var tweetTemplate = "{REPO_OWNER}";
         tweetTemplate += $"{Environment.NewLine}{{PROJECT_NAME}}";
         tweetTemplate += $"{Environment.NewLine}{{VERSION}}";
 
-        var expected = projName;
-        expected += $"{Environment.NewLine}{repoName}";
-        expected += $"{Environment.NewLine}{version.Remove(0, 1)}";
+        var expectedTweetMessage = projName;
+        expectedTweetMessage += $"{Environment.NewLine}{repoName}";
+        expectedTweetMessage += $"{Environment.NewLine}{version.Remove(0, 1)}";
 
-        IReactor<(string, string)>? reactor = null;
+        IReactor<(string, string)>? repoInfoReactor = null;
+        IReactor<TwitterSecrets>? secretsReactor = null;
 
         this.mockFile.Setup(m => m.ReadAllText(It.IsAny<string>())).Returns(tweetTemplate);
 
         this.mockRepoInfoReactable.Setup(m => m.Subscribe(It.IsAny<IReactor<(string, string)>>()))
-            .Callback<IReactor<(string, string)>>(reactorObj => reactor = reactorObj);
+            .Callback<IReactor<(string, string)>>(reactorObj => repoInfoReactor = reactorObj);
+
+        this.mockSecretesReactable.Setup(m => m.Subscribe(It.IsAny<IReactor<TwitterSecrets>>()))
+            .Callback<IReactor<TwitterSecrets>>(reactor => secretsReactor = reactor);
 
         this.mockProjectService.Setup(m => m.GetVersion())
             .Returns(version);
 
         var sut = CreateService();
 
-        reactor.OnNext((projName, repoName));
+        repoInfoReactor.OnNext((projName, repoName));
+        secretsReactor.OnNext(secrets);
 
         // Act
         sut.SendReleaseTweet();
@@ -337,7 +383,12 @@ public class TweetServiceTests
         this.mockFile.Verify(m => m.Exists("C:/test-dir/.github/ReleaseTweetTemplate.txt"), Times.Once);
         this.mockFile.Verify(m => m.ReadAllText("C:/test-dir/.github/ReleaseTweetTemplate.txt"), Times.Once);
         this.mockProjectService.Verify(m => m.GetVersion(), Times.Once);
-        this.mockTwitterService.Verify(m => m.SendTweet(expected));
+        this.mockTwitterService.Verify(m => m.SendTweet(
+            expectedTweetMessage,
+            secrets.TwitterConsumerApiKey,
+            secrets.TwitterConsumerApiSecret,
+            secrets.TwitterAccessToken,
+            secrets.TwitterAccessTokenSecret), Times.Once);
     }
     #endregion
 
@@ -352,5 +403,6 @@ public class TweetServiceTests
             this.mockProjectService.Object,
             this.mockFile.Object,
             this.mockRepoInfoReactable.Object,
-            this.mockSkipTweetReactable.Object);
+            this.mockSkipTweetReactable.Object,
+            this.mockSecretesReactable.Object);
 }
