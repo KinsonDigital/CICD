@@ -12,61 +12,129 @@ using Nuke.Common.Tools.Twitter;
 
 namespace CICDSystem.Services;
 
+using System.Net;
+using System.Net.Http;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading.Tasks;
+
 /// <inheritdoc/>
 internal sealed class TwitterService : ITwitterService
 {
-    private readonly IDisposable unsubscriber;
-    private TwitterSecrets secrets;
+    private const string Url = "https://api.twitter.com/2/tweets";
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="TwitterService"/> class.
-    /// </summary>
-    /// <param name="secretsReactable">Provides push notifications of Twitter secrets.</param>
-    public TwitterService(IReactable<TwitterSecrets> secretsReactable)
+    /// <inheritdoc/>
+    public void SendTweet(
+        string message,
+        string consumerAPIKey,
+        string consumerAPISecret,
+        string accessToken,
+        string accessTokenSecret)
     {
-        EnsureThat.ParamIsNotNull(secretsReactable, nameof(secretsReactable));
-
-        this.unsubscriber = secretsReactable.Subscribe(new Reactor<TwitterSecrets>(
-            onNext: secretsData =>
-            {
-                if (!string.IsNullOrEmpty(secretsData.TwitterConsumerApiKey))
-                {
-                    this.secrets.TwitterConsumerApiKey = secretsData.TwitterConsumerApiKey;
-                }
-
-                if (!string.IsNullOrEmpty(secretsData.TwitterConsumerApiSecret))
-                {
-                    this.secrets.TwitterConsumerApiSecret = secretsData.TwitterConsumerApiSecret;
-                }
-
-                if (!string.IsNullOrEmpty(secretsData.TwitterAccessToken))
-                {
-                    this.secrets.TwitterAccessToken = secretsData.TwitterAccessToken;
-                }
-
-                if (!string.IsNullOrEmpty(secretsData.TwitterAccessTokenSecret))
-                {
-                    this.secrets.TwitterAccessTokenSecret = secretsData.TwitterAccessTokenSecret;
-                }
-            }, () =>
-            {
-                // If any of the secrets are null or empty, throw an exception
-                if (this.secrets.AnyNullOrEmpty())
-                {
-                    throw new Exception("The Twitter API keys and/or secrets are null or empty.");
-                }
-
-                this.unsubscriber?.Dispose();
-            }));
+        SendTweetAsync(message, consumerAPIKey, consumerAPISecret, accessToken, accessTokenSecret).Wait();
     }
 
     /// <inheritdoc/>
-    [ExcludeFromCodeCoverage]
-    public void SendTweet(string message) =>
-        TwitterTasks.SendTweet(
-            message,
-            this.secrets.TwitterConsumerApiKey,
-            this.secrets.TwitterConsumerApiSecret,
-            this.secrets.TwitterAccessToken,
-            this.secrets.TwitterAccessTokenSecret);
+    public async Task SendTweetAsync(
+        string message,
+        string consumerAPIKey,
+        string consumerAPISecret,
+        string accessToken,
+        string accessTokenSecret)
+    {
+        // Generate a timestamp and nonce
+        var timestamp = Convert.ToInt64((DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds).ToString();
+        var nonce = Guid.NewGuid().ToString("N");
+
+        // Build the OAuth parameters
+        var signatureMethod = "HMAC-SHA1";
+        var version = "1.0";
+        var signature = GenerateSignature("POST", Url, timestamp, nonce, signatureMethod, consumerAPIKey, consumerAPISecret, accessToken, accessTokenSecret);
+        var oauthHeader = "OAuth " +
+                          "oauth_consumer_key=\"" + consumerAPIKey + "\", " +
+                          "oauth_nonce=\"" + nonce + "\", " +
+                          "oauth_signature=\"" + Uri.EscapeDataString(signature) + "\", " +
+                          "oauth_signature_method=\"" + signatureMethod + "\", " +
+                          "oauth_timestamp=\"" + timestamp + "\", " +
+                          "oauth_token=\"" + accessToken + "\", " +
+                          "oauth_version=\"" + version + "\"";
+
+        using var client = new HttpClient();
+        client.DefaultRequestHeaders.Add("Authorization", oauthHeader);
+
+        var requestData = new
+        {
+            text = message,
+        };
+
+        var jsonString = Newtonsoft.Json.JsonConvert.SerializeObject(requestData);
+        var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
+
+        var response = await client.PostAsync(Url, content);
+        var responseBody = await response.Content.ReadAsStringAsync();
+
+        if (response.StatusCode != HttpStatusCode.OK && response.StatusCode != HttpStatusCode.Created)
+        {
+            var errorMsg = $"Error sending tweet: {responseBody}";
+
+            throw new Exception(errorMsg);
+        }
+    }
+
+    /// <summary>
+    /// Generates the OAuth signature from the given parameters.
+    /// </summary>
+    /// <param name="method">The type of request method.</param>
+    /// <param name="url">The URL of the request.</param>
+    /// <param name="timestamp">The timestamp of the request.</param>
+    /// <param name="nonce">A random string.  Usually a GUID.</param>
+    /// <param name="signatureMethod">
+    ///     The OAuth signature method.
+    ///     <br/>
+    ///     <list type="bullet">
+    ///         <item>HMAC-SHA1</item>
+    ///         <item>HMAC-SHA256</item>
+    ///         <item>HMAC-SHA512</item>
+    ///         <item>RSA-SHA1</item>
+    ///         <item>RSA-SHA256</item>
+    ///         <item>RSA-SHA512</item>
+    ///         <item>PLAINTEXT</item>
+    ///     </list>
+    /// </param>
+    /// <param name="consumerAPIKey">The consumer API key.</param>
+    /// <param name="consumerAPISecret">The consumer API secret.</param>
+    /// <param name="accessToken">The access token.</param>
+    /// <param name="accessTokenSecret">The access token secret.</param>
+    /// <returns>The signature.</returns>
+    private static string GenerateSignature(
+        string method,
+        string url,
+        string timestamp,
+        string nonce,
+        string signatureMethod,
+        string consumerAPIKey,
+        string consumerAPISecret,
+        string accessToken,
+        string accessTokenSecret)
+    {
+        // Generate the signature base string
+        var signatureBaseString = method.ToUpper() + "&" +
+                                  Uri.EscapeDataString(url) + "&" +
+                                  Uri.EscapeDataString("oauth_consumer_key=" + consumerAPIKey + "&" +
+                                                       "oauth_nonce=" + nonce + "&" +
+                                                       "oauth_signature_method=" + signatureMethod + "&" +
+                                                       "oauth_timestamp=" + timestamp + "&" +
+                                                       "oauth_token=" + accessToken + "&" +
+                                                       "oauth_version=1.0");
+
+        // Generate the signing key
+        var signingKey = Uri.EscapeDataString(consumerAPISecret) + "&" + Uri.EscapeDataString(accessTokenSecret);
+
+        // Compute the signature
+        // NOTE: This hash algorithm was picked up to SonarCloud as weak and to be careful with sensitive
+        // data. However, twitter does not support any other hashing algorithm.  So, we are forced to use HMACSHA1.
+        var hmac = new HMACSHA1(Encoding.ASCII.GetBytes(signingKey));
+        var signatureBytes = hmac.ComputeHash(Encoding.ASCII.GetBytes(signatureBaseString));
+        return Convert.ToBase64String(signatureBytes);
+    }
 }
